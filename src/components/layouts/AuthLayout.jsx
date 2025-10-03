@@ -48,7 +48,7 @@ const AuthLayout = () => {
                     >
                         <div
                             style={{
-                                width: "60%",
+                                width: "70%",
                                 maxHeight: "90%",
                                 overflowY: "auto",
                                 backgroundColor: "#ffffff",
