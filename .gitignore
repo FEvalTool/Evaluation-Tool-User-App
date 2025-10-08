@@ -36,3 +36,6 @@ dist-ssr
 *.sln
 *.sw?
 .vite
+
+# Coverage
+coverage/
