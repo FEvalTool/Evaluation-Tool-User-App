@@ -7,7 +7,7 @@ export default defineConfig({
         setupFiles: "tests/setup.js",
         provider: "v8",
         coverage: {
-            reporter: ["text", "json", "html"],
+            reporter: ['text', 'lcov'],
         },
     },
     plugins: [react()],
