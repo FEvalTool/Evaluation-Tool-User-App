@@ -8,6 +8,9 @@ const UsernamePasswordForm = ({ onSubmit }) => {
         try {
             await onSubmit(values);
         } catch (error) {
+            console.log("error", error);
+            console.log("error.response", error.response);
+            console.log("error.response.data", error.response.data);
             messageApi.open({
                 type: "error",
                 content: error.response.data.message,
