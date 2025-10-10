@@ -6,8 +6,9 @@ export default defineConfig({
         environment: "jsdom",
         setupFiles: "tests/setup.js",
         provider: "v8",
+        globals: true,
         coverage: {
-            reporter: ['text', 'lcov'],
+            reporter: ["text", "lcov"],
         },
     },
     plugins: [react()],
