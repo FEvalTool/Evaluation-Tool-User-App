@@ -9,6 +9,10 @@ import {
     securityAnswers,
 } from "../mocks/data/account";
 import { server } from "../mocks/server";
+import {
+    goDirectlyToSecurityQuestionsStep,
+    goDirectlyToChangePasswordStep,
+} from "../helpers/forgotPasswordFlows";
 import ROUTES from "../../src/constants/routes";
 
 describe("ForgotPasswordPage", () => {
@@ -108,11 +112,7 @@ describe("ForgotPasswordPage", () => {
         await waitFor(() => {
             // Verify that username input disappear
             expect(usernameInput).not.toBeInTheDocument();
-            const submitButton = screen.getByRole("button", {
-                name: /submit/i,
-            });
             const questionInputs = screen.getAllByRole("textbox");
-            expect(submitButton).toBeInTheDocument();
             expect(questionInputs.length).toBe(3);
             // Verify the label contain question
             securityQuestionsResponse.forEach((question) => {
@@ -131,27 +131,16 @@ describe("ForgotPasswordPage", () => {
             </MemoryRouter>
         );
 
-        const usernameInput = screen.getByLabelText(/username/i);
-        const usernameSubmitButton = screen.getByRole("button", {
-            name: /submit/i,
-        });
         const secondStep = screen.getByText(/security questions/i);
-
         const user = userEvent.setup();
-        await user.type(usernameInput, "testuser");
-        await user.click(usernameSubmitButton);
+        await goDirectlyToSecurityQuestionsStep(user);
 
-        // Wait for step 1 to complete
-        await waitFor(() => {});
-
-        const securityQuestionSubmitButton = screen.getByRole("button", {
-            name: /submit/i,
-        });
+        const submitButton = screen.getByRole("button", { name: /submit/i });
         for (const question of securityQuestionsResponse) {
             const questionInput = screen.getByLabelText(question.content);
             await user.type(questionInput, "error");
         }
-        await user.click(securityQuestionSubmitButton);
+        await user.click(submitButton);
 
         await waitFor(() => {
             expect(
@@ -169,34 +158,20 @@ describe("ForgotPasswordPage", () => {
             </MemoryRouter>
         );
 
-        const usernameInput = screen.getByLabelText(/username/i);
-        const usernameSubmitButton = screen.getByRole("button", {
-            name: /submit/i,
-        });
         const thirdStep = screen.getByText(/change password/i);
-
         const user = userEvent.setup();
-        await user.type(usernameInput, "testuser");
-        await user.click(usernameSubmitButton);
+        await goDirectlyToSecurityQuestionsStep(user);
 
-        // Wait for step 1 to complete
-        await waitFor(() => {});
-
-        const securityQuestionSubmitButton = screen.getByRole("button", {
-            name: /submit/i,
-        });
+        const submitButton = screen.getByRole("button", { name: /submit/i });
         for (const index of securityQuestionsResponse.keys()) {
             const questionInput = screen.getByLabelText(
                 securityQuestionsResponse[index].content
             );
             await user.type(questionInput, securityAnswers[index]);
         }
-        await user.click(securityQuestionSubmitButton);
+        await user.click(submitButton);
 
         await waitFor(() => {
-            const submitButton = screen.getByRole("button", {
-                name: /submit/i,
-            });
             const passwordInput = screen.getByLabelText(/new password/i);
             const confirmPasswordInput =
                 screen.getByLabelText(/confirm password/i);
@@ -204,7 +179,6 @@ describe("ForgotPasswordPage", () => {
             expect(passwordInput).toHaveAttribute("type", "password");
             expect(confirmPasswordInput).toBeInTheDocument();
             expect(confirmPasswordInput).toHaveAttribute("type", "password");
-            expect(submitButton).toBeInTheDocument();
             const stepElement = thirdStep.closest(".ant-steps-item");
             expect(stepElement).toHaveClass("ant-steps-item-active");
         });
@@ -229,41 +203,16 @@ describe("ForgotPasswordPage", () => {
             </MemoryRouter>
         );
 
-        const usernameInput = screen.getByLabelText(/username/i);
-        const usernameSubmitButton = screen.getByRole("button", {
-            name: /submit/i,
-        });
         const thirdStep = screen.getByText(/change password/i);
-
         const user = userEvent.setup();
-        await user.type(usernameInput, "testuser");
-        await user.click(usernameSubmitButton);
-
-        // Wait for step 1 to complete
-        await waitFor(() => {});
-
-        const securityQuestionSubmitButton = screen.getByRole("button", {
-            name: /submit/i,
-        });
-        for (const index of securityQuestionsResponse.keys()) {
-            const questionInput = screen.getByLabelText(
-                securityQuestionsResponse[index].content
-            );
-            await user.type(questionInput, securityAnswers[index]);
-        }
-        await user.click(securityQuestionSubmitButton);
-
-        // Wait for step 2 to complete
-        await waitFor(() => {});
+        await goDirectlyToChangePasswordStep(user);
 
         const passwordInput = screen.getByLabelText(/new password/i);
         const confirmPasswordInput = screen.getByLabelText(/confirm password/i);
-        const updatePasswordSubmitButton = screen.getByRole("button", {
-            name: /submit/i,
-        });
+        const submitButton = screen.getByRole("button", { name: /submit/i });
         await user.type(passwordInput, "newPASSWORD123@");
         await user.type(confirmPasswordInput, "newPASSWORD123@");
-        await user.click(updatePasswordSubmitButton);
+        await user.click(submitButton);
 
         await waitFor(() => {
             expect(
@@ -281,41 +230,16 @@ describe("ForgotPasswordPage", () => {
             </MemoryRouter>
         );
 
-        const usernameInput = screen.getByLabelText(/username/i);
-        const usernameSubmitButton = screen.getByRole("button", {
-            name: /submit/i,
-        });
         const thirdStep = screen.getByText(/change password/i);
-
         const user = userEvent.setup();
-        await user.type(usernameInput, "testuser");
-        await user.click(usernameSubmitButton);
-
-        // Wait for step 1 to complete
-        await waitFor(() => {});
-
-        const securityQuestionSubmitButton = screen.getByRole("button", {
-            name: /submit/i,
-        });
-        for (const index of securityQuestionsResponse.keys()) {
-            const questionInput = screen.getByLabelText(
-                securityQuestionsResponse[index].content
-            );
-            await user.type(questionInput, securityAnswers[index]);
-        }
-        await user.click(securityQuestionSubmitButton);
-
-        // Wait for step 2 to complete
-        await waitFor(() => {});
+        await goDirectlyToChangePasswordStep(user);
 
         const passwordInput = screen.getByLabelText(/new password/i);
         const confirmPasswordInput = screen.getByLabelText(/confirm password/i);
-        const updatePasswordSubmitButton = screen.getByRole("button", {
-            name: /submit/i,
-        });
+        const submitButton = screen.getByRole("button", { name: /submit/i });
         await user.type(passwordInput, "newPASSWORD123@");
         await user.type(confirmPasswordInput, "newPASSWORD123@1");
-        await user.click(updatePasswordSubmitButton);
+        await user.click(submitButton);
 
         await waitFor(() => {
             expect(
@@ -335,40 +259,15 @@ describe("ForgotPasswordPage", () => {
             </MemoryRouter>
         );
 
-        const usernameInput = screen.getByLabelText(/username/i);
-        const usernameSubmitButton = screen.getByRole("button", {
-            name: /submit/i,
-        });
-
         const user = userEvent.setup();
-        await user.type(usernameInput, "testuser");
-        await user.click(usernameSubmitButton);
-
-        // Wait for step 1 to complete
-        await waitFor(() => {});
-
-        const securityQuestionSubmitButton = screen.getByRole("button", {
-            name: /submit/i,
-        });
-        for (const index of securityQuestionsResponse.keys()) {
-            const questionInput = screen.getByLabelText(
-                securityQuestionsResponse[index].content
-            );
-            await user.type(questionInput, securityAnswers[index]);
-        }
-        await user.click(securityQuestionSubmitButton);
-
-        // Wait for step 2 to complete
-        await waitFor(() => {});
+        await goDirectlyToChangePasswordStep(user);
 
         const passwordInput = screen.getByLabelText(/new password/i);
         const confirmPasswordInput = screen.getByLabelText(/confirm password/i);
-        const updatePasswordSubmitButton = screen.getByRole("button", {
-            name: /submit/i,
-        });
+        const submitButton = screen.getByRole("button", { name: /submit/i });
         await user.type(passwordInput, "newPASSWORD123@");
         await user.type(confirmPasswordInput, "newPASSWORD123@");
-        await user.click(updatePasswordSubmitButton);
+        await user.click(submitButton);
 
         await waitFor(() => {
             const heading = screen.getByRole("heading", /login/i);
