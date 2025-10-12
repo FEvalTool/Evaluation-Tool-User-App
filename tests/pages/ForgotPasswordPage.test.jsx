@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { http, HttpResponse } from "msw";
 import { MemoryRouter } from "react-router-dom";
 
 import ForgotPasswordPage from "../../src/pages/ForgotPasswordPage";
@@ -7,6 +8,7 @@ import {
     securityQuestionsResponse,
     securityAnswers,
 } from "../mocks/data/account";
+import { server } from "../mocks/server";
 
 describe("ForgotPasswordPage", () => {
     it("should render Forgot Password page correctly", () => {
@@ -201,6 +203,70 @@ describe("ForgotPasswordPage", () => {
             expect(confirmPasswordInput).toBeInTheDocument();
             expect(confirmPasswordInput).toHaveAttribute("type", "password");
             expect(submitButton).toBeInTheDocument();
+            const stepElement = thirdStep.closest(".ant-steps-item");
+            expect(stepElement).toHaveClass("ant-steps-item-active");
+        });
+    });
+
+    it("should display error notification when Forgot Password - step 3 (Change password) fail", async () => {
+        // Override handler to simulate API failure
+        server.use(
+            http.post("account/password", ({ request }) => {
+                return HttpResponse.json(
+                    {
+                        message: "Internal server error",
+                    },
+                    { status: 500 }
+                );
+            })
+        );
+
+        render(
+            <MemoryRouter>
+                <ForgotPasswordPage />
+            </MemoryRouter>
+        );
+
+        const usernameInput = screen.getByLabelText(/username/i);
+        const usernameSubmitButton = screen.getByRole("button", {
+            name: /submit/i,
+        });
+        const thirdStep = screen.getByText(/change password/i);
+
+        const user = userEvent.setup();
+        await user.type(usernameInput, "testuser");
+        await user.click(usernameSubmitButton);
+
+        // Wait for step 1 to complete
+        await waitFor(() => {});
+
+        const securityQuestionSubmitButton = screen.getByRole("button", {
+            name: /submit/i,
+        });
+        for (const index of securityQuestionsResponse.keys()) {
+            const questionInput = screen.getByLabelText(
+                securityQuestionsResponse[index].content
+            );
+            await user.type(questionInput, securityAnswers[index]);
+        }
+        await user.click(securityQuestionSubmitButton);
+
+        // Wait for step 2 to complete
+        await waitFor(() => {});
+
+        const passwordInput = screen.getByLabelText(/new password/i);
+        const confirmPasswordInput = screen.getByLabelText(/confirm password/i);
+        const updatePasswordSubmitButton = screen.getByRole("button", {
+            name: /submit/i,
+        });
+        await user.type(passwordInput, "newPASSWORD123@");
+        await user.type(confirmPasswordInput, "newPASSWORD123@");
+        await user.click(updatePasswordSubmitButton);
+
+        await waitFor(() => {
+            expect(
+                screen.getByText(/internal server error/i)
+            ).toBeInTheDocument();
             const stepElement = thirdStep.closest(".ant-steps-item");
             expect(stepElement).toHaveClass("ant-steps-item-active");
         });

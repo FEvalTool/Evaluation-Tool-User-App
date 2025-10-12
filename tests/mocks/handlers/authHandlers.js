@@ -1,8 +1,10 @@
 import { http, HttpResponse } from "msw";
 import { securityAnswers } from "../data/account";
 
+const API_URL = "/auth"
+
 const authHandlers = [
-    http.post(`auth/login`, async ({ request }) => {
+    http.post(`${API_URL}/login`, async ({ request }) => {
         const { username, password } = await request.json();
         if (username === "testuser" && password === "testpassword") {
             return HttpResponse.json(
@@ -18,7 +20,7 @@ const authHandlers = [
             { status: 401 }
         );
     }),
-    http.post(`auth/token/qa`, async ({ request }) => {
+    http.post(`${API_URL}/token/qa`, async ({ request }) => {
         const { questions, answers, username } = await request.json();
         for (let i = 0; i < answers.length; i++) {
             if (answers[i] != securityAnswers[i]) {
