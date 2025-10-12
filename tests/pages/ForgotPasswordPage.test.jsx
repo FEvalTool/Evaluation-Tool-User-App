@@ -9,6 +9,7 @@ import {
     securityAnswers,
 } from "../mocks/data/account";
 import { server } from "../mocks/server";
+import ROUTES from "../../src/constants/routes";
 
 describe("ForgotPasswordPage", () => {
     it("should render Forgot Password page correctly", () => {
@@ -35,6 +36,7 @@ describe("ForgotPasswordPage", () => {
         expect(usernameInput).toHaveAttribute("type", "text");
         expect(submitButton).toBeInTheDocument();
         expect(backToLoginLink).toBeInTheDocument();
+        expect(backToLoginLink).toHaveAttribute("href", ROUTES.LOGIN);
         // Verify all steps text exists
         expect(firstStep).toBeInTheDocument();
         expect(secondStep).toBeInTheDocument();

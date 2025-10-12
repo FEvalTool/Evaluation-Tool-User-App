@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 
 import LoginPage from "../../src/pages/LoginPage";
+import ROUTES from "../../src/constants/routes";
 
 describe("LoginPage", () => {
     it("should render Login page correctly", () => {
@@ -27,7 +28,7 @@ describe("LoginPage", () => {
         expect(passwordInput).toHaveAttribute("type", "password");
         expect(submitButton).toBeInTheDocument();
         expect(forgotLink).toBeInTheDocument();
-        expect(forgotLink).toHaveAttribute("href", "/forgot-password");
+        expect(forgotLink).toHaveAttribute("href", ROUTES.FORGOT_PASSWORD);
     });
 
     it("should route to main page when Login successful", async () => {
