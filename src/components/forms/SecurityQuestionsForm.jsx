@@ -1,30 +1,10 @@
-import { Button, Form, Input, message } from "antd";
-
+import { Form, Input } from "antd";
+import BaseForm from "./BaseForm";
 import { ANSWER_KEY_PREFIX } from "../../constants/prefixes";
 
 const SecurityQuestionForm = ({ questions, onSubmit }) => {
-    const [form] = Form.useForm();
-    const [messageApi, contextHolder] = message.useMessage();
-
-    const onFinish = async (values) => {
-        try {
-            await onSubmit(values);
-        } catch (error) {
-            messageApi.open({
-                type: "error",
-                content: error.response.data.message,
-            });
-        }
-    };
-
     return (
-        <Form
-            layout="vertical"
-            form={form}
-            onFinish={onFinish}
-            autoComplete="off"
-        >
-            {contextHolder}
+        <BaseForm onSubmit={onSubmit}>
             {questions.map((question) => (
                 <Form.Item
                     label={question.content}
@@ -39,12 +19,7 @@ const SecurityQuestionForm = ({ questions, onSubmit }) => {
                     <Input placeholder="Please enter your security answer" />
                 </Form.Item>
             ))}
-            <Form.Item style={{ float: "right" }}>
-                <Button type="primary" htmlType="submit">
-                    Submit
-                </Button>
-            </Form.Item>
-        </Form>
+        </BaseForm>
     );
 };
 

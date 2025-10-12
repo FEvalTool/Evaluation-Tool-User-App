@@ -1,36 +1,14 @@
-import { Button, Form, Input, message } from "antd";
+import { Form, Input } from "antd";
+import BaseForm from "./BaseForm";
 
 const UsernamePasswordForm = ({ onSubmit }) => {
-    const [form] = Form.useForm();
-    const [messageApi, contextHolder] = message.useMessage();
-
-    const onFinish = async (values) => {
-        try {
-            await onSubmit(values);
-        } catch (error) {
-            messageApi.open({
-                type: "error",
-                content: error.response.data.message,
-            });
-        }
-    };
-
     return (
-        <Form
-            layout="vertical"
-            form={form}
-            onFinish={onFinish}
-            autoComplete="off"
-        >
-            {contextHolder}
+        <BaseForm onSubmit={onSubmit}>
             <Form.Item
                 label="Username"
                 name="username"
                 rules={[
-                    {
-                        required: true,
-                        message: "Please input your username!",
-                    },
+                    { required: true, message: "Please input your username!" },
                 ]}
             >
                 <Input />
@@ -39,20 +17,12 @@ const UsernamePasswordForm = ({ onSubmit }) => {
                 label="Password"
                 name="password"
                 rules={[
-                    {
-                        required: true,
-                        message: "Please input your password!",
-                    },
+                    { required: true, message: "Please input your password!" },
                 ]}
             >
                 <Input.Password />
             </Form.Item>
-            <Form.Item style={{ float: "right" }}>
-                <Button type="primary" htmlType="submit">
-                    Submit
-                </Button>
-            </Form.Item>
-        </Form>
+        </BaseForm>
     );
 };
 
