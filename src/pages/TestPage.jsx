@@ -29,8 +29,11 @@ const TestPage = () => {
                     textAlign: "center",
                 }}
             >
-                This is a message from Backend (for development purposes)
+                Testing page
             </Title>
+            <Paragraph>
+                This is a message from Backend (for development purposes)
+            </Paragraph>
             <Paragraph>{message ? message : "Something went wrong"}</Paragraph>
         </>
     );

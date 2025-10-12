@@ -48,10 +48,7 @@ describe("LoginPage", () => {
         await user.click(submitButton);
 
         await waitFor(() => {
-            const homeHeading = screen.getByRole(
-                "heading",
-                "This is a message from Backend (for development purposes)"
-            );
+            const homeHeading = screen.getByRole("heading", /testing page/i);
             expect(homeHeading).toBeInTheDocument();
         });
     });
