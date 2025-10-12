@@ -5,6 +5,10 @@ import Icon from "@ant-design/icons";
 import Background from "../assets/auth_bg_image.jpg";
 import Logo from "../assets/logo_fpt.png";
 
+const LogoIcon = () => (
+    <img src={Logo} style={{ width: "5vw", height: "auto" }} alt="logo_fpt" />
+);
+
 const AuthLayout = () => {
     return (
         <Flex
@@ -57,7 +61,6 @@ const AuthLayout = () => {
                                 paddingRight: "40px",
                                 paddingTop: "30px",
                                 paddingBottom: "15px",
-                                borderRadius: "10px",
                                 boxShadow:
                                     "0px 2px 2px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
                                 display: "flex",
@@ -65,18 +68,7 @@ const AuthLayout = () => {
                                 gap: "10px",
                             }}
                         >
-                            <Icon
-                                component={() => (
-                                    <img
-                                        src={Logo}
-                                        style={{
-                                            width: "5vw",
-                                            height: "auto",
-                                        }}
-                                        alt="logo_fpt"
-                                    />
-                                )}
-                            />
+                            <Icon component={LogoIcon} />
                             <Divider style={{ width: "100%", margin: "0px" }} />
                             <Outlet />
                         </div>

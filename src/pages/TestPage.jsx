@@ -34,7 +34,7 @@ const TestPage = () => {
             <Paragraph>
                 This is a message from Backend (for development purposes)
             </Paragraph>
-            <Paragraph>{message ? message : "Something went wrong"}</Paragraph>
+            <Paragraph>{message || "Something went wrong"}</Paragraph>
         </>
     );
 };
