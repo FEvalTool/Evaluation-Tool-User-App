@@ -274,6 +274,60 @@ describe("ForgotPasswordPage", () => {
         });
     });
 
+    it("should display confirm password error when user input confirm password different from new password", async () => {
+        render(
+            <MemoryRouter>
+                <ForgotPasswordPage />
+            </MemoryRouter>
+        );
+
+        const usernameInput = screen.getByLabelText(/username/i);
+        const usernameSubmitButton = screen.getByRole("button", {
+            name: /submit/i,
+        });
+        const thirdStep = screen.getByText(/change password/i);
+
+        const user = userEvent.setup();
+        await user.type(usernameInput, "testuser");
+        await user.click(usernameSubmitButton);
+
+        // Wait for step 1 to complete
+        await waitFor(() => {});
+
+        const securityQuestionSubmitButton = screen.getByRole("button", {
+            name: /submit/i,
+        });
+        for (const index of securityQuestionsResponse.keys()) {
+            const questionInput = screen.getByLabelText(
+                securityQuestionsResponse[index].content
+            );
+            await user.type(questionInput, securityAnswers[index]);
+        }
+        await user.click(securityQuestionSubmitButton);
+
+        // Wait for step 2 to complete
+        await waitFor(() => {});
+
+        const passwordInput = screen.getByLabelText(/new password/i);
+        const confirmPasswordInput = screen.getByLabelText(/confirm password/i);
+        const updatePasswordSubmitButton = screen.getByRole("button", {
+            name: /submit/i,
+        });
+        await user.type(passwordInput, "newPASSWORD123@");
+        await user.type(confirmPasswordInput, "newPASSWORD123@1");
+        await user.click(updatePasswordSubmitButton);
+
+        await waitFor(() => {
+            expect(
+                screen.getByText(
+                    /the new password that you entered do not match/i
+                )
+            ).toBeInTheDocument();
+            const stepElement = thirdStep.closest(".ant-steps-item");
+            expect(stepElement).toHaveClass("ant-steps-item-active");
+        });
+    });
+
     it("should go back to Login page when complete update password", async () => {
         render(
             <MemoryRouter>
