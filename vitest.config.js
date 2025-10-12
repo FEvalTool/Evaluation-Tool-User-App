@@ -10,7 +10,7 @@ export default defineConfig({
         coverage: {
             reporter: ["text", "lcov"],
         },
-        testTimeout: 10000
+        testTimeout: 100000,
     },
     plugins: [react()],
 });

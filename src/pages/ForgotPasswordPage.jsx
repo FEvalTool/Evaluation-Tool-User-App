@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import { Flex, Steps, Typography } from "antd";
 
 import UsernameForm from "../components/forms/UsernameForm";
@@ -58,7 +58,7 @@ const ForgotPasswordPage = () => {
             content: <UsernameForm onSubmit={onSubmitUsernameForm} />,
         },
         {
-            title: "Security Question",
+            title: "Security Questions",
             content: (
                 <SecurityQuestionForm
                     onSubmit={onSubmitSecurityAnswersForm}

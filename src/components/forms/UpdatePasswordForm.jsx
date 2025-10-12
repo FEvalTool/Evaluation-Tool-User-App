@@ -48,7 +48,7 @@ const UpdatePasswordForm = ({ onSubmit }) => {
                 <Input.Password />
             </Form.Item>
             <Form.Item
-                label="Confirm new Password"
+                label="Confirm Password"
                 name="confirm"
                 dependencies={["password"]}
                 rules={[

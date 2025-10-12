@@ -77,4 +77,24 @@ describe("LoginPage", () => {
             ).toBeInTheDocument();
         });
     });
+
+    it("should route to forgot password page when click forgot password link", async () => {
+        render(
+            <MemoryRouter>
+                <LoginPage />
+            </MemoryRouter>
+        );
+
+        const user = userEvent.setup();
+        const forgotLink = screen.getByRole("link", {
+            name: /username \/ password/i,
+        });
+
+        await user.click(forgotLink);
+
+        await waitFor(() => {
+            const heading = screen.getByRole("heading", /forgot password/i);
+            expect(heading).toBeInTheDocument();
+        });
+    });
 });
