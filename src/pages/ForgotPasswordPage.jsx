@@ -11,6 +11,7 @@ import {
 } from "../services/accountServices";
 import { genSecurityQAVerificationToken } from "../services/authServices";
 import { ANSWER_KEY_PREFIX } from "../constants/prefixes";
+import ROUTES from "../constants/routes";
 
 const { Link, Title } = Typography;
 
@@ -50,7 +51,7 @@ const ForgotPasswordPage = () => {
             token: verificationToken,
         };
         await setPassword(payloads);
-        navigate("/login");
+        navigate(ROUTES.LOGIN);
     };
     const steps = [
         {
@@ -80,7 +81,7 @@ const ForgotPasswordPage = () => {
                 <Title level={3} style={{ margin: "0px" }}>
                     Forgot Password
                 </Title>
-                <Link href="/login">Back to Login</Link>{" "}
+                <Link href={ROUTES.LOGIN}>Back to Login</Link>{" "}
             </Flex>
             <Steps
                 progressDot

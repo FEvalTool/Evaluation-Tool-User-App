@@ -1,26 +1,17 @@
-import { Route, Routes } from "react-router-dom";
+import { useRoutes } from "react-router-dom";
+import { Suspense } from "react";
 
-import AuthLayout from "./components/layouts/AuthLayout";
-import MainLayout from "./components/layouts/MainLayout";
-import Test from "./pages/Test";
-import LoginPage from "./pages/LoginPage";
-import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import { routes } from "./routes/index.jsx";
+
+function AppRoutes() {
+    return useRoutes(routes);
+}
 
 function App() {
     return (
-        <Routes>
-            <Route element={<AuthLayout />}>
-                <Route path="/test-auth" element={<Test />} />
-                <Route
-                    path="/forgot-password"
-                    element={<ForgotPasswordPage />}
-                />
-                <Route path="/login" element={<LoginPage />} />
-            </Route>
-            <Route element={<MainLayout />}>
-                <Route path="/test-main" element={<Test />} />
-            </Route>
-        </Routes>
+        <Suspense fallback={<div>Loading...</div>}>
+            <AppRoutes />
+        </Suspense>
     );
 }
 

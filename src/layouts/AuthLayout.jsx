@@ -2,8 +2,8 @@ import { Outlet } from "react-router-dom";
 import { Flex, Divider } from "antd";
 import Icon from "@ant-design/icons";
 
-import Background from "../../assets/auth_bg_image.jpg";
-import Logo from "../../assets/logo_fpt.png";
+import Background from "../assets/auth_bg_image.jpg";
+import Logo from "../assets/logo_fpt.png";
 
 const AuthLayout = () => {
     return (

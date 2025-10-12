@@ -5,7 +5,7 @@ import { testAPI } from "../services/testServices";
 
 const { Title, Paragraph } = Typography;
 
-const Test = () => {
+const TestPage = () => {
     const [message, setMessage] = useState();
 
     useEffect(() => {
@@ -36,4 +36,4 @@ const Test = () => {
     );
 };
 
-export default Test;
+export default TestPage;
