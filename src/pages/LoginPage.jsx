@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Flex, Typography } from "antd";
 
 import { login } from "../services/authServices";
@@ -9,10 +9,12 @@ const { Text, Title, Link } = Typography;
 
 const LoginPage = () => {
     const navigate = useNavigate();
+    const location = useLocation();
+    const from = location.state?.from?.pathname || ROUTES.TEST_MAIN;
 
     const onSubmitLogin = async (values) => {
         await login(values);
-        navigate(ROUTES.TEST_MAIN);
+        navigate(from, { replace: true });
     };
 
     return (
@@ -28,4 +30,5 @@ const LoginPage = () => {
         </>
     );
 };
+
 export default LoginPage;
