@@ -46,11 +46,7 @@ const ForgotPasswordPage = () => {
     };
 
     const onSubmitSetPasswordForm = async (values) => {
-        let payloads = {
-            ...values,
-            token: verificationToken,
-        };
-        await setPassword(payloads);
+        await setPassword(values, verificationToken);
         navigate(ROUTES.LOGIN);
     };
     const steps = [
