@@ -10,11 +10,15 @@ const { Text, Title, Link } = Typography;
 const LoginPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const from = location.state?.from?.pathname || ROUTES.TEST_MAIN;
 
     const onSubmitLogin = async (values) => {
-        await login(values);
-        navigate(from, { replace: true });
+        const response = await login(values);
+        if (response.data["first_time_setup"]) {
+            navigate(ROUTES.SETUP_ACCOUNT, { replace: true });
+        } else {
+            const from = location.state?.from?.pathname || ROUTES.TEST_MAIN;
+            navigate(from, { replace: true });
+        }
     };
 
     return (

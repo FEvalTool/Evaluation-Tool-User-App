@@ -3,7 +3,7 @@ import { Typography } from "antd";
 
 import { testAPI } from "../services/testServices";
 
-const { Title, Paragraph } = Typography;
+const { Paragraph } = Typography;
 
 const TestPage = () => {
     const [message, setMessage] = useState();
@@ -23,14 +23,6 @@ const TestPage = () => {
 
     return (
         <>
-            <Title
-                level={3}
-                style={{
-                    textAlign: "center",
-                }}
-            >
-                Testing page
-            </Title>
             <Paragraph>
                 This is a message from Backend (for development purposes)
             </Paragraph>

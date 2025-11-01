@@ -10,7 +10,7 @@ const LoginPage = lazy(() => import("../pages/LoginPage"));
 const ForgotPasswordPage = lazy(() => import("../pages/ForgotPasswordPage"));
 const TestPage = lazy(() => import("../pages/TestPage"));
 const TestOnePage = lazy(() => import("../pages/TestOnePage"));
-const TestTwoPage = lazy(() => import("../pages/TestTwoPage"));
+const SetupAccountPage = lazy(() => import("../pages/SetupAccountPage"));
 
 export const routes = [
     {
@@ -22,8 +22,11 @@ export const routes = [
                 children: [
                     { path: "test", element: <TestPage /> },
                     { path: "test1", element: <TestOnePage /> },
-                    { path: "test2", element: <TestTwoPage /> },
                 ],
+            },
+            {
+                path: "setup-account",
+                element: <SetupAccountPage />,
             },
         ],
     },
