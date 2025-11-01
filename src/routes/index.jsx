@@ -3,6 +3,7 @@ import { lazy } from "react";
 import AuthLayout from "../layouts/AuthLayout";
 import MainLayout from "../layouts/MainLayout";
 import ProtectedRoute from "../middlewares/ProtectedRoute";
+import GuestRoute from "../middlewares/GuestRoute";
 
 // lazy load pages for code splitting
 const LoginPage = lazy(() => import("../pages/LoginPage"));
@@ -28,11 +29,19 @@ export const routes = [
     },
     {
         path: "/auth",
-        element: <AuthLayout />,
+        element: <GuestRoute />,
         children: [
-            { path: "login", element: <LoginPage /> },
-            { path: "forgot-password", element: <ForgotPasswordPage /> },
-            { path: "test", element: <TestPage /> },
+            {
+                element: <AuthLayout />,
+                children: [
+                    { path: "login", element: <LoginPage /> },
+                    {
+                        path: "forgot-password",
+                        element: <ForgotPasswordPage />,
+                    },
+                    { path: "test", element: <TestPage /> },
+                ],
+            },
         ],
     },
 ];
