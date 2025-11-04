@@ -31,3 +31,9 @@ export const refreshToken = () => {
         }
     );
 };
+
+const authServices = {
+    login,
+};
+
+export default authServices;

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Outlet, Navigate, useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 import { verifyToken, refreshToken } from "../services/authServices";
 import ROUTES from "../constants/routes";
@@ -8,6 +9,7 @@ const ProtectedRoute = () => {
     const [isValidate, setIsValidate] = useState(false);
     const [isChecking, setIsChecking] = useState(true);
     const location = useLocation();
+    const { user } = useSelector((state) => state.auth);
 
     useEffect(() => {
         const validateAccessToken = async () => {
@@ -43,11 +45,22 @@ const ProtectedRoute = () => {
     if (isChecking) {
         return <div>Loading...</div>;
     }
-    return isValidate ? (
-        <Outlet />
-    ) : (
-        <Navigate to={ROUTES.LOGIN} state={{ from: location }} replace />
-    );
+    if (isValidate) {
+        if (
+            user["first_time_setup"] &&
+            location.pathname !== ROUTES.SETUP_ACCOUNT
+        ) {
+            return <Navigate to={ROUTES.SETUP_ACCOUNT} replace />;
+        }
+        if (
+            !user["first_time_setup"] &&
+            location.pathname === ROUTES.SETUP_ACCOUNT
+        ) {
+            return <Navigate to={ROUTES.TEST_MAIN} replace />;
+        }
+        return <Outlet />;
+    }
+    return <Navigate to={ROUTES.LOGIN} state={{ from: location }} replace />;
 };
 
 export default ProtectedRoute;

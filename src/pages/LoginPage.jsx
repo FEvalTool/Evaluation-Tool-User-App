@@ -1,7 +1,9 @@
 import { useLocation, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { isFulfilled } from "@reduxjs/toolkit";
 import { Flex, Typography } from "antd";
 
-import { login } from "../services/authServices";
+import { login } from "../slices/authSlice";
 import UsernamePasswordForm from "../components/forms/UsernamePasswordForm";
 import ROUTES from "../constants/routes";
 
@@ -10,14 +12,20 @@ const { Text, Title, Link } = Typography;
 const LoginPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    const dispatch = useDispatch();
 
     const onSubmitLogin = async (values) => {
-        const response = await login(values);
-        if (response.data["first_time_setup"]) {
-            navigate(ROUTES.SETUP_ACCOUNT, { replace: true });
-        } else {
-            const from = location.state?.from?.pathname || ROUTES.TEST_MAIN;
-            navigate(from, { replace: true });
+        const resultAction = await dispatch(login(values));
+
+        if (login.fulfilled.match(resultAction)) {
+            const user = resultAction.payload.user;
+
+            if (user.first_time_setup) {
+                navigate(ROUTES.SETUP_ACCOUNT, { replace: true });
+            } else {
+                const from = location.state?.from?.pathname || ROUTES.TEST_MAIN;
+                navigate(from, { replace: true });
+            }
         }
     };
 
