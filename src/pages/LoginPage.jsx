@@ -4,7 +4,7 @@ import { Flex, Typography } from "antd";
 
 import { login } from "../slices/authSlice";
 import UsernamePasswordForm from "../components/forms/UsernamePasswordForm";
-import ROUTES from "../constants/routes";
+import { ROUTES } from "../constants";
 
 const { Text, Title, Link } = Typography;
 

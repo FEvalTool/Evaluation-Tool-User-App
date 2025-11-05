@@ -1,10 +1,7 @@
 import { Form, Input } from "antd";
 import { InfoCircleOutlined } from "@ant-design/icons";
 import BaseForm from "./BaseForm";
-import {
-    PASSWORD_PATTERN,
-    PASSWORD_PATTERN_TOOLTIP,
-} from "../../constants/passwordPatterns";
+import { PASSWORD_PATTERN, PASSWORD_PATTERN_TOOLTIP } from "../../constants";
 
 const UpdatePasswordForm = ({ onSubmit }) => {
     return (

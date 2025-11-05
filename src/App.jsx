@@ -3,7 +3,7 @@ import { useRoutes } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { message } from "antd";
 
-import { routes } from "./routes/index.jsx";
+import { routes } from "./routes.jsx";
 import { clearMessage } from "./slices/messageSlice";
 
 function AppRoutes() {

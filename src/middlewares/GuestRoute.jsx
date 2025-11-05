@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Outlet, Navigate } from "react-router-dom";
 
 import authService from "../services/authService";
-import ROUTES from "../constants/routes";
+import { ROUTES } from "../constants";
 
 const GuestRoute = () => {
     const [isValidate, setIsValidate] = useState(false);

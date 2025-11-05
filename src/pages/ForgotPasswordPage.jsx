@@ -9,8 +9,8 @@ import UpdatePasswordForm from "../components/forms/UpdatePasswordForm";
 import accountService from "../services/accountService";
 import authService from "../services/authService";
 import { showMessage } from "../slices/messageSlice";
-import { ANSWER_KEY_PREFIX } from "../constants/prefixes";
-import ROUTES from "../constants/routes";
+import { ANSWER_KEY_PREFIX } from "../constants";
+import { ROUTES } from "../constants";
 
 const { Link, Title } = Typography;
 

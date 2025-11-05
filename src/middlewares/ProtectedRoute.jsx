@@ -3,7 +3,7 @@ import { Outlet, Navigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 import authService from "../services/authService";
-import ROUTES from "../constants/routes";
+import { ROUTES } from "../constants";
 
 const ProtectedRoute = () => {
     const [isValidate, setIsValidate] = useState(false);

@@ -1,6 +1,6 @@
 import { Form, Input } from "antd";
 import BaseForm from "./BaseForm";
-import { ANSWER_KEY_PREFIX } from "../../constants/prefixes";
+import { ANSWER_KEY_PREFIX } from "../../constants";
 
 const SecurityQuestionForm = ({ questions, onSubmit }) => {
     return (
