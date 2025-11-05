@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Outlet, Navigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 
-import { verifyToken, refreshToken } from "../services/authServices";
+import authService from "../services/authService";
 import ROUTES from "../constants/routes";
 
 const ProtectedRoute = () => {
@@ -14,7 +14,7 @@ const ProtectedRoute = () => {
     useEffect(() => {
         const validateAccessToken = async () => {
             try {
-                await verifyToken();
+                await authService.verifyToken();
                 setIsValidate(true);
             } catch (error) {
                 if (
@@ -32,8 +32,8 @@ const ProtectedRoute = () => {
 
         const refreshAccessToken = async () => {
             try {
-                await refreshToken();
-                await verifyToken();
+                await authService.refreshToken();
+                await authService.verifyToken();
                 setIsValidate(true);
             } catch (error) {
                 setIsValidate(false);

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Outlet, Navigate } from "react-router-dom";
 
-import { verifyToken, refreshToken } from "../services/authServices";
+import authService from "../services/authService";
 import ROUTES from "../constants/routes";
 
 const GuestRoute = () => {
@@ -11,7 +11,7 @@ const GuestRoute = () => {
     useEffect(() => {
         const validateAccessToken = async () => {
             try {
-                await verifyToken();
+                await authService.verifyToken();
                 setIsValidate(true);
             } catch (error) {
                 if (
@@ -29,8 +29,8 @@ const GuestRoute = () => {
 
         const refreshAccessToken = async () => {
             try {
-                await refreshToken();
-                await verifyToken();
+                await authService.refreshToken();
+                await authService.verifyToken();
                 setIsValidate(true);
             } catch (error) {
                 setIsValidate(false);

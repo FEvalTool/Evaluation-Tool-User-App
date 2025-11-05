@@ -1,13 +1,13 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 import { showMessage } from "./messageSlice";
-import authServices from "../services/authServices";
+import authService from "../services/authService";
 
 export const login = createAsyncThunk(
     "auth/login",
     async (values, { dispatch, rejectWithValue }) => {
         try {
-            const response = await authServices.login(values);
+            const response = await authService.login(values);
             dispatch(
                 showMessage({
                     type: "success",

@@ -2,11 +2,11 @@ import request from "./request";
 
 const API_URL = "/account";
 
-export const getUserSecurityQuestions = (params) => {
+const getUserSecurityQuestions = (params) => {
     return request.get(`${API_URL}/security_questions`, { params });
 };
 
-export const setPassword = (body, token) => {
+const setPassword = (body, token) => {
     const headers = {};
     if (token) {
         headers.Authorization = `Bearer ${token}`;
@@ -16,3 +16,10 @@ export const setPassword = (body, token) => {
         headers,
     });
 };
+
+const accountService = {
+    getUserSecurityQuestions,
+    setPassword,
+};
+
+export default accountService;

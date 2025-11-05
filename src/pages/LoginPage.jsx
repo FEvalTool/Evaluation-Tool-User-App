@@ -1,6 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { isFulfilled } from "@reduxjs/toolkit";
 import { Flex, Typography } from "antd";
 
 import { login } from "../slices/authSlice";

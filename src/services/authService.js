@@ -2,17 +2,17 @@ import request from "./request";
 
 const API_URL = "/auth";
 
-export const login = (body) => {
+const login = (body) => {
     return request.post(`${API_URL}/login/`, body, {
         withCredentials: true,
     });
 };
 
-export const genSecurityQAVerificationToken = (body) => {
+const genSecurityQAVerificationToken = (body) => {
     return request.post(`${API_URL}/token/qa/`, body);
 };
 
-export const verifyToken = () => {
+const verifyToken = () => {
     return request.post(
         `${API_URL}/token/verify/`,
         {},
@@ -22,7 +22,7 @@ export const verifyToken = () => {
     );
 };
 
-export const refreshToken = () => {
+const refreshToken = () => {
     return request.post(
         `${API_URL}/token/refresh/`,
         {},
@@ -32,8 +32,11 @@ export const refreshToken = () => {
     );
 };
 
-const authServices = {
+const authService = {
     login,
+    genSecurityQAVerificationToken,
+    verifyToken,
+    refreshToken,
 };
 
-export default authServices;
+export default authService;

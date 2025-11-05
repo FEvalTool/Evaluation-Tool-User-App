@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Typography } from "antd";
 
-import { testAPI } from "../services/testServices";
+import { testAPI } from "../services/testService";
 
 const { Paragraph } = Typography;
 

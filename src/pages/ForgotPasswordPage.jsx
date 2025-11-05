@@ -1,15 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import { Flex, Steps, Typography } from "antd";
 
 import UsernameForm from "../components/forms/UsernameForm";
 import SecurityQuestionForm from "../components/forms/SecurityQuestionsForm";
 import UpdatePasswordForm from "../components/forms/UpdatePasswordForm";
-import {
-    getUserSecurityQuestions,
-    setPassword,
-} from "../services/accountServices";
-import { genSecurityQAVerificationToken } from "../services/authServices";
+import accountService from "../services/accountService";
+import authService from "../services/authService";
+import { showMessage } from "../slices/messageSlice";
 import { ANSWER_KEY_PREFIX } from "../constants/prefixes";
 import ROUTES from "../constants/routes";
 
@@ -21,12 +20,24 @@ const ForgotPasswordPage = () => {
     const [verificationToken, setVerificationToken] = useState("");
     const [current, setCurrent] = useState(0);
     const [questions, setQuestions] = useState([]);
+    const dispatch = useDispatch();
 
     const onSubmitUsernameForm = async (values) => {
-        let response = await getUserSecurityQuestions(values);
-        setQuestions(response.data.questions);
-        setUsername(values["username"]);
-        setCurrent(1);
+        try {
+            let response = await accountService.getUserSecurityQuestions(
+                values
+            );
+            setQuestions(response.data.questions);
+            setUsername(values["username"]);
+            setCurrent(1);
+        } catch (error) {
+            dispatch(
+                showMessage({
+                    type: "error",
+                    content: error.response.data.message,
+                })
+            );
+        }
     };
 
     const onSubmitSecurityAnswersForm = async (values) => {
@@ -40,14 +51,34 @@ const ForgotPasswordPage = () => {
             answers: answers,
             username: username,
         };
-        let response = await genSecurityQAVerificationToken(payloads);
-        setVerificationToken(response.data.token);
-        setCurrent(2);
+        try {
+            let response = await authService.genSecurityQAVerificationToken(
+                payloads
+            );
+            setVerificationToken(response.data.token);
+            setCurrent(2);
+        } catch (error) {
+            dispatch(
+                showMessage({
+                    type: "error",
+                    content: error.response.data.message,
+                })
+            );
+        }
     };
 
     const onSubmitSetPasswordForm = async (values) => {
-        await setPassword(values, verificationToken);
-        navigate(ROUTES.LOGIN);
+        try {
+            await accountService.setPassword(values, verificationToken);
+            navigate(ROUTES.LOGIN);
+        } catch (error) {
+            dispatch(
+                showMessage({
+                    type: "error",
+                    content: error.response.data.message,
+                })
+            );
+        }
     };
     const steps = [
         {
