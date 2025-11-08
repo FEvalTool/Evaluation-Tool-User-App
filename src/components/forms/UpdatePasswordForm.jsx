@@ -3,9 +3,9 @@ import { InfoCircleOutlined } from "@ant-design/icons";
 import BaseForm from "./BaseForm";
 import { PASSWORD_PATTERN, PASSWORD_PATTERN_TOOLTIP } from "../../constants";
 
-const UpdatePasswordForm = ({ onSubmit }) => {
+const UpdatePasswordForm = ({ onSubmit, disabled }) => {
     return (
-        <BaseForm onSubmit={onSubmit}>
+        <BaseForm onSubmit={onSubmit} disabled={disabled}>
             <Form.Item
                 label="New password"
                 name="password"

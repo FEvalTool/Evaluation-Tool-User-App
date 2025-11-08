@@ -1,6 +1,6 @@
 import { Form, Button } from "antd";
 
-const BaseForm = ({ children, onSubmit }) => {
+const BaseForm = ({ children, onSubmit, disabled }) => {
     const [form] = Form.useForm();
 
     return (
@@ -9,6 +9,7 @@ const BaseForm = ({ children, onSubmit }) => {
             form={form}
             onFinish={onSubmit}
             autoComplete="off"
+            disabled={disabled}
         >
             {children}
             <Form.Item style={{ float: "right" }}>

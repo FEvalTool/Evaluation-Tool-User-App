@@ -8,6 +8,7 @@ import SecurityQuestionForm from "../components/forms/SecurityQuestionsForm";
 import UpdatePasswordForm from "../components/forms/UpdatePasswordForm";
 import accountService from "../services/accountService";
 import authService from "../services/authService";
+import { withFormSubmit } from "../utils/apiHelpers";
 import { showMessage } from "../slices/messageSlice";
 import { ANSWER_KEY_PREFIX } from "../constants";
 import { ROUTES } from "../constants";
@@ -20,24 +21,19 @@ const ForgotPasswordPage = () => {
     const [verificationToken, setVerificationToken] = useState("");
     const [current, setCurrent] = useState(0);
     const [questions, setQuestions] = useState([]);
+    const [loading, setLoading] = useState(false);
     const dispatch = useDispatch();
 
     const onSubmitUsernameForm = async (values) => {
-        try {
-            let response = await accountService.getUserSecurityQuestions(
-                values
-            );
-            setQuestions(response.data.questions);
-            setUsername(values["username"]);
-            setCurrent(1);
-        } catch (error) {
-            dispatch(
-                showMessage({
-                    type: "error",
-                    content: error.response.data.message,
-                })
-            );
-        }
+        let response = await withFormSubmit(
+            () => accountService.getUserSecurityQuestions(values),
+            setLoading,
+            dispatch,
+            showMessage
+        );
+        setQuestions(response.data.questions);
+        setUsername(values["username"]);
+        setCurrent(1);
     };
 
     const onSubmitSecurityAnswersForm = async (values) => {
@@ -51,39 +47,34 @@ const ForgotPasswordPage = () => {
             answers: answers,
             username: username,
         };
-        try {
-            let response = await authService.genSecurityQAVerificationToken(
-                payloads
-            );
-            setVerificationToken(response.data.token);
-            setCurrent(2);
-        } catch (error) {
-            dispatch(
-                showMessage({
-                    type: "error",
-                    content: error.response.data.message,
-                })
-            );
-        }
+        let response = await withFormSubmit(
+            () => authService.genSecurityQAVerificationToken(payloads),
+            setLoading,
+            dispatch,
+            showMessage
+        );
+        setVerificationToken(response.data.token);
+        setCurrent(2);
     };
 
     const onSubmitSetPasswordForm = async (values) => {
-        try {
-            await accountService.setPassword(values, verificationToken);
-            navigate(ROUTES.LOGIN);
-        } catch (error) {
-            dispatch(
-                showMessage({
-                    type: "error",
-                    content: error.response.data.message,
-                })
-            );
-        }
+        await withFormSubmit(
+            () => accountService.setPassword(values, verificationToken),
+            setLoading,
+            dispatch,
+            showMessage
+        );
+        navigate(ROUTES.LOGIN);
     };
     const steps = [
         {
             title: "Enter Username",
-            content: <UsernameForm onSubmit={onSubmitUsernameForm} />,
+            content: (
+                <UsernameForm
+                    onSubmit={onSubmitUsernameForm}
+                    disabled={loading}
+                />
+            ),
         },
         {
             title: "Security Questions",
@@ -91,12 +82,18 @@ const ForgotPasswordPage = () => {
                 <SecurityQuestionForm
                     onSubmit={onSubmitSecurityAnswersForm}
                     questions={questions}
+                    disabled={loading}
                 />
             ),
         },
         {
             title: "Change password",
-            content: <UpdatePasswordForm onSubmit={onSubmitSetPasswordForm} />,
+            content: (
+                <UpdatePasswordForm
+                    onSubmit={onSubmitSetPasswordForm}
+                    disabled={loading}
+                />
+            ),
         },
     ];
 
@@ -108,7 +105,9 @@ const ForgotPasswordPage = () => {
                 <Title level={3} style={{ margin: "0px" }}>
                     Forgot Password
                 </Title>
-                <Link href={ROUTES.LOGIN}>Back to Login</Link>{" "}
+                <Link href={ROUTES.LOGIN} disabled={loading}>
+                    Back to Login
+                </Link>{" "}
             </Flex>
             <Steps
                 progressDot

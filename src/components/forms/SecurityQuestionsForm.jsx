@@ -2,9 +2,9 @@ import { Form, Input } from "antd";
 import BaseForm from "./BaseForm";
 import { ANSWER_KEY_PREFIX } from "../../constants";
 
-const SecurityQuestionForm = ({ questions, onSubmit }) => {
+const SecurityQuestionForm = ({ questions, onSubmit, disabled }) => {
     return (
-        <BaseForm onSubmit={onSubmit}>
+        <BaseForm onSubmit={onSubmit} disabled={disabled}>
             {questions.map((question) => (
                 <Form.Item
                     label={question.content}

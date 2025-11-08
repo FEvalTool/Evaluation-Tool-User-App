@@ -1,9 +1,9 @@
 import { Form, Input } from "antd";
 import BaseForm from "./BaseForm";
 
-const UsernamePasswordForm = ({ onSubmit }) => {
+const UsernamePasswordForm = ({ onSubmit, disabled = false }) => {
     return (
-        <BaseForm onSubmit={onSubmit}>
+        <BaseForm onSubmit={onSubmit} disabled={disabled}>
             <Form.Item
                 label="Username"
                 name="username"

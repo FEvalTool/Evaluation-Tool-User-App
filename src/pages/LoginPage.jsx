@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Flex, Typography } from "antd";
 
 import { login } from "../slices/authSlice";
@@ -12,6 +12,7 @@ const LoginPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const dispatch = useDispatch();
+    const { loading } = useSelector((state) => state.auth);
 
     const onSubmitLogin = async (values) => {
         const resultAction = await dispatch(login(values));
@@ -33,10 +34,12 @@ const LoginPage = () => {
             <Title level={3} style={{ margin: "0px" }}>
                 Login
             </Title>
-            <UsernamePasswordForm onSubmit={onSubmitLogin} />
+            <UsernamePasswordForm onSubmit={onSubmitLogin} disabled={loading} />
             <Flex gap="5px">
                 <Text>Forgot</Text>
-                <Link href={ROUTES.FORGOT_PASSWORD}>Username / Password ?</Link>
+                <Link disabled={loading} href={ROUTES.FORGOT_PASSWORD}>
+                    Username / Password ?
+                </Link>
             </Flex>
         </>
     );

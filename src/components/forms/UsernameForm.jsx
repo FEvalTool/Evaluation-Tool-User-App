@@ -3,9 +3,9 @@ import BaseForm from "./BaseForm";
 
 const { Text } = Typography;
 
-const UsernameForm = ({ onSubmit }) => {
+const UsernameForm = ({ onSubmit, disabled }) => {
     return (
-        <BaseForm onSubmit={onSubmit}>
+        <BaseForm onSubmit={onSubmit} disabled={disabled}>
             <Form.Item>
                 <Text italic>
                     Enter your registered username to reset you password.
