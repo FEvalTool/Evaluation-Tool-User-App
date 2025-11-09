@@ -1,10 +1,16 @@
+import { Outlet } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { Typography } from "antd";
-const { Paragraph } = Typography;
+const { Title, Paragraph } = Typography;
 
 const SetupAccountPage = () => {
+    const { user } = useSelector((state) => state.auth);
     return (
         <>
-            <Paragraph>This is Setup account page</Paragraph>
+            <Title>Setup account page</Title>
+            <Paragraph>
+                id: {user.id} - username: {user.username}
+            </Paragraph>
         </>
     );
 };

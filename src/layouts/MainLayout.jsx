@@ -1,8 +1,10 @@
 import { Outlet } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { Typography } from "antd";
-const { Title } = Typography;
+const { Title, Paragraph } = Typography;
 
 const MainLayout = () => {
+    const { user } = useSelector((state) => state.auth);
     return (
         <>
             <Title
@@ -13,6 +15,9 @@ const MainLayout = () => {
             >
                 Testing page
             </Title>
+            <Paragraph>
+                id: {user.id} - username: {user.username}
+            </Paragraph>
             <Outlet />
         </>
     );
