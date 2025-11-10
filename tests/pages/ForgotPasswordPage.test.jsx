@@ -1,9 +1,9 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
-import { MemoryRouter } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
-import ForgotPasswordPage from "../../src/pages/ForgotPasswordPage";
+import { renderWithProviders } from "../mocks/mockStoreWrapper";
 import {
     securityQuestionsResponse,
     securityAnswers,
@@ -13,15 +13,28 @@ import {
     goDirectlyToSecurityQuestionsStep,
     goDirectlyToChangePasswordStep,
 } from "../helpers/forgotPasswordFlows";
-import ROUTES from "../../src/constants/routes";
+import { ROUTES } from "../../src/constants";
+import ForgotPasswordPage from "../../src/pages/ForgotPasswordPage";
+import LoginPage from "../../src/pages/LoginPage";
+import MessageWrapper from "../../src/components/MessageWrapper";
+
+function AppRouter() {
+    return (
+        <MessageWrapper>
+            <Routes>
+                <Route
+                    path="/auth/forgot-password"
+                    element={<ForgotPasswordPage />}
+                />
+                <Route path="/auth/login" element={<LoginPage />} />
+            </Routes>
+        </MessageWrapper>
+    );
+}
 
 describe("ForgotPasswordPage", () => {
     it("should render Forgot Password page correctly", () => {
-        render(
-            <MemoryRouter>
-                <ForgotPasswordPage />
-            </MemoryRouter>
-        );
+        renderWithProviders(<AppRouter />, { route: "/auth/forgot-password" });
 
         const heading = screen.getByRole("heading", {
             name: /forgot password/i,
@@ -51,11 +64,7 @@ describe("ForgotPasswordPage", () => {
     });
 
     it("should go back to Login page when press Back To Login link", async () => {
-        render(
-            <MemoryRouter>
-                <ForgotPasswordPage />
-            </MemoryRouter>
-        );
+        renderWithProviders(<AppRouter />, { route: "/auth/forgot-password" });
 
         const backToLoginLink = screen.getByRole("link", {
             name: /back to login/i,
@@ -70,11 +79,7 @@ describe("ForgotPasswordPage", () => {
     });
 
     it("should display error notification when Forgot Password - step 1 (Enter username) fail", async () => {
-        render(
-            <MemoryRouter>
-                <ForgotPasswordPage />
-            </MemoryRouter>
-        );
+        renderWithProviders(<AppRouter />, { route: "/auth/forgot-password" });
 
         const usernameInput = screen.getByLabelText(/username/i);
         const submitButton = screen.getByRole("button", { name: /submit/i });
@@ -95,11 +100,7 @@ describe("ForgotPasswordPage", () => {
     });
 
     it("should go to next step (Security Questions) and render correctly when Forgot Password - step 1 (Enter username) success", async () => {
-        render(
-            <MemoryRouter>
-                <ForgotPasswordPage />
-            </MemoryRouter>
-        );
+        renderWithProviders(<AppRouter />, { route: "/auth/forgot-password" });
 
         const usernameInput = screen.getByLabelText(/username/i);
         const submitButton = screen.getByRole("button", { name: /submit/i });
@@ -125,11 +126,7 @@ describe("ForgotPasswordPage", () => {
     });
 
     it("should display error notification when Forgot Password - step 2 (Security questions) fail", async () => {
-        render(
-            <MemoryRouter>
-                <ForgotPasswordPage />
-            </MemoryRouter>
-        );
+        renderWithProviders(<AppRouter />, { route: "/auth/forgot-password" });
 
         const secondStep = screen.getByText(/security questions/i);
         const user = userEvent.setup();
@@ -152,11 +149,7 @@ describe("ForgotPasswordPage", () => {
     });
 
     it("should go to next step (Change password) and render correctly when Forgot Password - step 2 (Security questions) success", async () => {
-        render(
-            <MemoryRouter>
-                <ForgotPasswordPage />
-            </MemoryRouter>
-        );
+        renderWithProviders(<AppRouter />, { route: "/auth/forgot-password" });
 
         const thirdStep = screen.getByText(/change password/i);
         const user = userEvent.setup();
@@ -197,11 +190,7 @@ describe("ForgotPasswordPage", () => {
             })
         );
 
-        render(
-            <MemoryRouter>
-                <ForgotPasswordPage />
-            </MemoryRouter>
-        );
+        renderWithProviders(<AppRouter />, { route: "/auth/forgot-password" });
 
         const thirdStep = screen.getByText(/change password/i);
         const user = userEvent.setup();
@@ -222,13 +211,8 @@ describe("ForgotPasswordPage", () => {
             expect(stepElement).toHaveClass("ant-steps-item-active");
         });
     });
-
     it("should display confirm password error when user input confirm password different from new password", async () => {
-        render(
-            <MemoryRouter>
-                <ForgotPasswordPage />
-            </MemoryRouter>
-        );
+        renderWithProviders(<AppRouter />, { route: "/auth/forgot-password" });
 
         const thirdStep = screen.getByText(/change password/i);
         const user = userEvent.setup();
@@ -253,11 +237,7 @@ describe("ForgotPasswordPage", () => {
     });
 
     it("should go back to Login page when complete update password", async () => {
-        render(
-            <MemoryRouter>
-                <ForgotPasswordPage />
-            </MemoryRouter>
-        );
+        renderWithProviders(<AppRouter />, { route: "/auth/forgot-password" });
 
         const user = userEvent.setup();
         await goDirectlyToChangePasswordStep(user);

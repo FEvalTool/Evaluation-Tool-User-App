@@ -1,17 +1,32 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { MemoryRouter } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 
+import { renderWithProviders } from "../mocks/mockStoreWrapper";
+import { ROUTES } from "../../src/constants";
 import LoginPage from "../../src/pages/LoginPage";
-import ROUTES from "../../src/constants/routes";
+import SetupAccountPage from "../../src/pages/SetupAccountPage";
+import TestPage from "../../src/pages/TestPage";
+import MainLayout from "../../src/layouts/MainLayout";
+import MessageWrapper from "../../src/components/MessageWrapper";
 
-describe("LoginPage", () => {
+function AppRouter() {
+    return (
+        <MessageWrapper>
+            <Routes>
+                <Route path="/auth/login" element={<LoginPage />} />
+                <Route element={<MainLayout />}>
+                    <Route path="/test" element={<TestPage />} />
+                </Route>
+                <Route path="/setup-account" element={<SetupAccountPage />} />
+            </Routes>
+        </MessageWrapper>
+    );
+}
+
+describe("LoginPage navigation flow", () => {
     it("should render Login page correctly", () => {
-        render(
-            <MemoryRouter>
-                <LoginPage />
-            </MemoryRouter>
-        );
+        renderWithProviders(<AppRouter />, { route: "/auth/login" });
 
         const heading = screen.getByRole("heading", { name: /login/i });
         const usernameInput = screen.getByLabelText(/username/i);
@@ -31,42 +46,16 @@ describe("LoginPage", () => {
         expect(forgotLink).toHaveAttribute("href", ROUTES.FORGOT_PASSWORD);
     });
 
-    it("should route to main page when Login successful", async () => {
-        render(
-            <MemoryRouter>
-                <LoginPage />
-            </MemoryRouter>
-        );
-
-        const user = userEvent.setup();
-        const usernameInput = screen.getByLabelText(/username/i);
-        const passwordInput = screen.getByLabelText(/password/i);
-        const submitButton = screen.getByRole("button", { name: /submit/i });
-
-        await user.type(usernameInput, "testuser");
-        await user.type(passwordInput, "testpassword");
-        await user.click(submitButton);
-
-        await waitFor(() => {
-            const homeHeading = screen.getByRole("heading", /testing page/i);
-            expect(homeHeading).toBeInTheDocument();
-        });
-    });
-
     it("should display error notification when Login fail", async () => {
-        render(
-            <MemoryRouter>
-                <LoginPage />
-            </MemoryRouter>
-        );
+        renderWithProviders(<AppRouter />, { route: "/auth/login" });
 
         const user = userEvent.setup();
         const usernameInput = screen.getByLabelText(/username/i);
         const passwordInput = screen.getByLabelText(/password/i);
         const submitButton = screen.getByRole("button", { name: /submit/i });
 
-        await user.type(usernameInput, "testuser");
-        await user.type(passwordInput, "testpassword1");
+        await user.type(usernameInput, "testUser");
+        await user.type(passwordInput, "wrongPassword");
         await user.click(submitButton);
 
         await waitFor(() => {
@@ -76,12 +65,48 @@ describe("LoginPage", () => {
         });
     });
 
-    it("should route to forgot password page when click forgot password link", async () => {
-        render(
-            <MemoryRouter>
-                <LoginPage />
-            </MemoryRouter>
-        );
+    it("should redirect to dashboard page if not first-time user", async () => {
+        renderWithProviders(<AppRouter />, { route: "/auth/login" });
+
+        const user = userEvent.setup();
+        const usernameInput = screen.getByLabelText(/username/i);
+        const passwordInput = screen.getByLabelText(/password/i);
+        const submitButton = screen.getByRole("button", { name: /submit/i });
+
+        await user.type(usernameInput, "testUser");
+        await user.type(passwordInput, "testPassword123@");
+        await user.click(submitButton);
+
+        await waitFor(() => {
+            expect(screen.getByText(/Testing page/i)).toBeInTheDocument();
+            expect(screen.getByText(/id: 2/i)).toBeInTheDocument();
+            expect(screen.getByText(/username: testUser/i)).toBeInTheDocument();
+        });
+    });
+
+    it("should redirect to setup account page if first-time user", async () => {
+        renderWithProviders(<AppRouter />, { route: "/auth/login" });
+
+        const user = userEvent.setup();
+        const usernameInput = screen.getByLabelText(/username/i);
+        const passwordInput = screen.getByLabelText(/password/i);
+        const submitButton = screen.getByRole("button", { name: /submit/i });
+
+        await user.type(usernameInput, "newTestUser");
+        await user.type(passwordInput, "testPassword");
+        await user.click(submitButton);
+
+        await waitFor(() => {
+            expect(screen.getByText(/Setup account page/i)).toBeInTheDocument();
+            expect(screen.getByText(/id: 1/i)).toBeInTheDocument();
+            expect(
+                screen.getByText(/username: newTestUser/i)
+            ).toBeInTheDocument();
+        });
+    });
+
+    it("should redirect to forgot password page when click forgot password link", async () => {
+        renderWithProviders(<AppRouter />, { route: "/auth/login" });
 
         const user = userEvent.setup();
         const forgotLink = screen.getByRole("link", {
