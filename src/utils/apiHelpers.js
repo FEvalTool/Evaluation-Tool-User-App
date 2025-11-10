@@ -19,6 +19,7 @@ export const withFormSubmit = async (
                 })
             );
         }
+        throw error;
     } finally {
         setLoading(false);
     }

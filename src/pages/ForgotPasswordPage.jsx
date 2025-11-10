@@ -25,46 +25,52 @@ const ForgotPasswordPage = () => {
     const dispatch = useDispatch();
 
     const onSubmitUsernameForm = async (values) => {
-        let response = await withFormSubmit(
-            () => accountService.getUserSecurityQuestions(values),
-            setLoading,
-            dispatch,
-            showMessage
-        );
-        setQuestions(response.data.questions);
-        setUsername(values["username"]);
-        setCurrent(1);
+        try {
+            let response = await withFormSubmit(
+                () => accountService.getUserSecurityQuestions(values),
+                setLoading,
+                dispatch,
+                showMessage
+            );
+            setQuestions(response.data.questions);
+            setUsername(values["username"]);
+            setCurrent(1);
+        } catch (error) {}
     };
 
     const onSubmitSecurityAnswersForm = async (values) => {
-        // Preprocess payloads to send back to backend
-        let question_ids = Object.keys(values).map((key) =>
-            Number(key.replace(ANSWER_KEY_PREFIX, ""))
-        );
-        let answers = Object.values(values);
-        let payloads = {
-            questions: question_ids,
-            answers: answers,
-            username: username,
-        };
-        let response = await withFormSubmit(
-            () => authService.genSecurityQAVerificationToken(payloads),
-            setLoading,
-            dispatch,
-            showMessage
-        );
-        setVerificationToken(response.data.token);
-        setCurrent(2);
+        try {
+            // Preprocess payloads to send back to backend
+            let question_ids = Object.keys(values).map((key) =>
+                Number(key.replace(ANSWER_KEY_PREFIX, ""))
+            );
+            let answers = Object.values(values);
+            let payloads = {
+                questions: question_ids,
+                answers: answers,
+                username: username,
+            };
+            let response = await withFormSubmit(
+                () => authService.genSecurityQAVerificationToken(payloads),
+                setLoading,
+                dispatch,
+                showMessage
+            );
+            setVerificationToken(response.data.token);
+            setCurrent(2);
+        } catch (error) {}
     };
 
     const onSubmitSetPasswordForm = async (values) => {
-        await withFormSubmit(
-            () => accountService.setPassword(values, verificationToken),
-            setLoading,
-            dispatch,
-            showMessage
-        );
-        navigate(ROUTES.LOGIN);
+        try {
+            await withFormSubmit(
+                () => accountService.setPassword(values, verificationToken),
+                setLoading,
+                dispatch,
+                showMessage
+            );
+            navigate(ROUTES.LOGIN);
+        } catch (error) {}
     };
     const steps = [
         {
