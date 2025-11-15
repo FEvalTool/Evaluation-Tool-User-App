@@ -1,13 +1,8 @@
 import { Outlet } from "react-router-dom";
 import { Flex, Divider } from "antd";
-import Icon from "@ant-design/icons";
 
 import Background from "../assets/auth_bg_image.jpg";
-import Logo from "../assets/logo_fpt.png";
-
-const LogoIcon = () => (
-    <img src={Logo} style={{ width: "5vw", height: "auto" }} alt="logo_fpt" />
-);
+import { LogoIcon } from "../components/CustomIcon";
 
 const AuthLayout = () => {
     return (
@@ -68,7 +63,7 @@ const AuthLayout = () => {
                                 gap: "10px",
                             }}
                         >
-                            <Icon component={LogoIcon} />
+                            <LogoIcon size={64} />
                             <Divider style={{ width: "100%", margin: "0px" }} />
                             <Outlet />
                         </div>

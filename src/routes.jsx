@@ -15,18 +15,15 @@ const SetupAccountPage = lazy(() => import("./pages/SetupAccountPage"));
 export const routes = [
     {
         path: "/",
-        element: <ProtectedRoute />,
+        element: <MainLayout />,
         children: [
             {
-                element: <MainLayout />,
+                element: <ProtectedRoute />,
                 children: [
                     { path: "test", element: <TestPage /> },
                     { path: "test1", element: <TestOnePage /> },
+                    { path: "setup-account", element: <SetupAccountPage /> },
                 ],
-            },
-            {
-                path: "setup-account",
-                element: <SetupAccountPage />,
             },
         ],
     },
