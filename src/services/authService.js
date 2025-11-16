@@ -9,13 +9,16 @@ const login = (body) => {
 };
 
 const genSecurityQAVerificationToken = (body) => {
-    return request.post(`${API_URL}/token/qa/`, body);
+    return request.post(`${API_URL}/token/qa/`, body, {
+        withCredentials: true,
+    });
 };
 
-const verifyToken = () => {
+const verifyToken = (tokenType) => {
+    console.log(tokenType);
     return request.post(
         `${API_URL}/token/verify/`,
-        {},
+        { token_type: tokenType },
         {
             withCredentials: true,
         }
@@ -32,11 +35,19 @@ const refreshToken = () => {
     );
 };
 
+const deleteScopeTokenBeacon = () => {
+    const url = `${
+        import.meta.env.VITE_BACKEND_BASE_URL
+    }${API_URL}/token/scope/delete/`;
+    navigator.sendBeacon(url);
+};
+
 const authService = {
     login,
     genSecurityQAVerificationToken,
     verifyToken,
     refreshToken,
+    deleteScopeTokenBeacon,
 };
 
 export default authService;

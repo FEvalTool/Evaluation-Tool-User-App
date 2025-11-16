@@ -14,7 +14,11 @@ const ProtectedRoute = () => {
     useEffect(() => {
         const validateAccessToken = async () => {
             try {
-                await authService.verifyToken();
+                let tokenType = "access";
+                if (user["first_time_setup"]) {
+                    tokenType = "scope";
+                }
+                await authService.verifyToken(tokenType);
                 setIsValidate(true);
             } catch (error) {
                 if (

@@ -18,7 +18,6 @@ const { Link, Title } = Typography;
 const ForgotPasswordPage = () => {
     const navigate = useNavigate();
     const [username, setUsername] = useState("");
-    const [verificationToken, setVerificationToken] = useState("");
     const [current, setCurrent] = useState(0);
     const [questions, setQuestions] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -50,13 +49,12 @@ const ForgotPasswordPage = () => {
                 answers: answers,
                 username: username,
             };
-            let response = await withFormSubmit(
+            await withFormSubmit(
                 () => authService.genSecurityQAVerificationToken(payloads),
                 setLoading,
                 dispatch,
                 showMessage
             );
-            setVerificationToken(response.data.token);
             setCurrent(2);
         } catch (error) {}
     };
@@ -64,7 +62,7 @@ const ForgotPasswordPage = () => {
     const onSubmitSetPasswordForm = async (values) => {
         try {
             await withFormSubmit(
-                () => accountService.setPassword(values, verificationToken),
+                () => accountService.setPassword(values),
                 setLoading,
                 dispatch,
                 showMessage

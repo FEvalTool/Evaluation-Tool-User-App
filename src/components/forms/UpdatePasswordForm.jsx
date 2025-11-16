@@ -2,8 +2,10 @@ import { Form, Input } from "antd";
 import { InfoCircleOutlined } from "@ant-design/icons";
 import BaseForm from "./BaseForm";
 import { PASSWORD_PATTERN, PASSWORD_PATTERN_TOOLTIP } from "../../constants";
+import useBeforeUnload from "../../hooks/useBeforeUnload";
 
 const UpdatePasswordForm = ({ onSubmit, disabled }) => {
+    useBeforeUnload(true);
     return (
         <BaseForm onSubmit={onSubmit} disabled={disabled}>
             <Form.Item

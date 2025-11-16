@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Outlet, Navigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 import authService from "../services/authService";
 import { ROUTES } from "../constants";
@@ -7,11 +8,16 @@ import { ROUTES } from "../constants";
 const GuestRoute = () => {
     const [isValidate, setIsValidate] = useState(false);
     const [isChecking, setIsChecking] = useState(true);
+    const { user } = useSelector((state) => state.auth);
 
     useEffect(() => {
         const validateAccessToken = async () => {
             try {
-                await authService.verifyToken();
+                let tokenType = "access";
+                if (user["first_time_setup"]) {
+                    tokenType = "scope";
+                }
+                await authService.verifyToken(tokenType);
                 setIsValidate(true);
             } catch (error) {
                 if (
