@@ -6,6 +6,7 @@ import { Flex, Steps, Typography } from "antd";
 import UsernameForm from "../components/forms/UsernameForm";
 import SecurityQuestionForm from "../components/forms/SecurityQuestionsForm";
 import UpdatePasswordForm from "../components/forms/UpdatePasswordForm";
+import SecurityAlert from "../components/SecurityAlert";
 import accountService from "../services/accountService";
 import authService from "../services/authService";
 import { withFormSubmit } from "../utils/apiHelpers";
@@ -21,6 +22,7 @@ const ForgotPasswordPage = () => {
     const [current, setCurrent] = useState(0);
     const [questions, setQuestions] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [exp, setExp] = useState(0);
     const dispatch = useDispatch();
 
     const onSubmitUsernameForm = async (values) => {
@@ -49,12 +51,13 @@ const ForgotPasswordPage = () => {
                 answers: answers,
                 username: username,
             };
-            await withFormSubmit(
+            let response = await withFormSubmit(
                 () => authService.genSecurityQAVerificationToken(payloads),
                 setLoading,
                 dispatch,
                 showMessage
             );
+            setExp(response.data.exp);
             setCurrent(2);
         } catch (error) {}
     };
@@ -62,7 +65,11 @@ const ForgotPasswordPage = () => {
     const onSubmitSetPasswordForm = async (values) => {
         try {
             await withFormSubmit(
-                () => accountService.setPassword(values),
+                async () => {
+                    const res1 = await accountService.setPassword(values);
+                    const res2 = await authService.deleteScopeToken();
+                    return { res1, res2 };
+                },
                 setLoading,
                 dispatch,
                 showMessage
@@ -93,10 +100,13 @@ const ForgotPasswordPage = () => {
         {
             title: "Change password",
             content: (
-                <UpdatePasswordForm
-                    onSubmit={onSubmitSetPasswordForm}
-                    disabled={loading}
-                />
+                <>
+                    <SecurityAlert exp={exp * 1000} />
+                    <UpdatePasswordForm
+                        onSubmit={onSubmitSetPasswordForm}
+                        disabled={loading}
+                    />
+                </>
             ),
         },
     ];

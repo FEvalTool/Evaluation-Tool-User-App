@@ -35,6 +35,16 @@ const refreshToken = () => {
     );
 };
 
+const deleteScopeToken = () => {
+    return request.post(
+        `${API_URL}/token/scope/delete/`,
+        {},
+        {
+            withCredentials: true,
+        }
+    );
+};
+
 const deleteScopeTokenBeacon = () => {
     const url = `${
         import.meta.env.VITE_BACKEND_BASE_URL
@@ -47,6 +57,7 @@ const authService = {
     genSecurityQAVerificationToken,
     verifyToken,
     refreshToken,
+    deleteScopeToken,
     deleteScopeTokenBeacon,
 };
 
