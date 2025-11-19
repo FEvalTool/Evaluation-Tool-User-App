@@ -27,6 +27,33 @@ export const login = createAsyncThunk(
     }
 );
 
+export const logout = createAsyncThunk(
+    "auth/logout",
+    async (values, { dispatch, rejectWithValue }) => {
+        try {
+            if (values["first_time_setup"]) {
+                await authService.deleteScopeToken();
+            } else {
+                await authService.logout();
+            }
+            dispatch(
+                showMessage({
+                    type: "success",
+                    content: "Logout successfully",
+                })
+            );
+        } catch (err) {
+            dispatch(
+                showMessage({
+                    type: "error",
+                    content: err.response.data.message,
+                })
+            );
+            return rejectWithValue();
+        }
+    }
+);
+
 const authSlice = createSlice({
     name: "auth",
     initialState: {
@@ -34,12 +61,6 @@ const authSlice = createSlice({
             ? JSON.parse(localStorage.getItem("user"))
             : null,
         loading: false,
-    },
-    reducers: {
-        logout: (state, action) => {
-            state.user = null;
-            localStorage.removeItem("user");
-        },
     },
     extraReducers: (builder) => {
         builder
@@ -56,9 +77,19 @@ const authSlice = createSlice({
             })
             .addCase(login.rejected, (state, action) => {
                 state.loading = false;
+            })
+            .addCase(logout.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(logout.fulfilled, (state, action) => {
+                state.loading = false;
+                state.user = null;
+                localStorage.removeItem("user");
+            })
+            .addCase(logout.rejected, (state, action) => {
+                state.loading = false;
             });
     },
 });
 
-export const { logout } = authSlice.actions;
 export default authSlice.reducer;

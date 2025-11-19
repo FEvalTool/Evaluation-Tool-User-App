@@ -52,6 +52,16 @@ const deleteScopeTokenBeacon = () => {
     navigator.sendBeacon(url);
 };
 
+const logout = () => {
+    return request.post(
+        `${API_URL}/logout/`,
+        {},
+        {
+            withCredentials: true,
+        }
+    );
+};
+
 const authService = {
     login,
     genSecurityQAVerificationToken,
@@ -59,6 +69,7 @@ const authService = {
     refreshToken,
     deleteScopeToken,
     deleteScopeTokenBeacon,
+    logout,
 };
 
 export default authService;

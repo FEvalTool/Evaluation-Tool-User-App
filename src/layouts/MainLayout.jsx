@@ -16,7 +16,11 @@ const MainLayout = () => {
     const dispatch = useDispatch();
 
     const handleLogout = () => {
-        dispatch(logout());
+        dispatch(
+            logout({
+                first_time_setup: user ? user["first_time_setup"] : false,
+            })
+        );
         navigate(ROUTES.LOGIN);
     };
 
@@ -43,7 +47,7 @@ const MainLayout = () => {
                                 icon={<UserOutlined />}
                             />
                             <Text style={{ color: "white" }}>
-                                {user.username}
+                                {user ? user.username : ""}
                             </Text>
                         </Flex>
                     </Flex>
