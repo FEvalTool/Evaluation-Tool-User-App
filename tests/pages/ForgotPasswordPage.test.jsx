@@ -1,7 +1,8 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { Routes, Route } from "react-router-dom";
+import { vi } from "vitest";
 
 import { renderWithProviders } from "../mocks/mockStoreWrapper";
 import {
@@ -32,7 +33,7 @@ function AppRouter() {
     );
 }
 
-describe("ForgotPasswordPage", () => {
+describe("ForgotPasswordPage Step 1 and 2", () => {
     it("should render Forgot Password page correctly", () => {
         renderWithProviders(<AppRouter />, { route: "/auth/forgot-password" });
 
@@ -147,15 +148,39 @@ describe("ForgotPasswordPage", () => {
             expect(stepElement).toHaveClass("ant-steps-item-active");
         });
     });
+});
+
+describe("ForgotPasswordPage Step 3", () => {
+    // Following this to use useFakeTimers
+    // https://github.com/testing-library/user-event/issues/1115#issuecomment-1565730917
+    beforeEach(() => {
+        vi.useFakeTimers({});
+        globalThis.jest = {
+            advanceTimersByTime: vi.advanceTimersByTime.bind(vi),
+        };
+    });
+
+    afterEach(() => {
+        vi.useRealTimers();
+    });
+
+    const getUserEventInstance = () =>
+        userEvent.setup({
+            advanceTimers: vi.advanceTimersByTime.bind(vi),
+        });
 
     it("should go to next step (Change password) and render correctly when Forgot Password - step 2 (Security questions) success", async () => {
-        renderWithProviders(<AppRouter />, { route: "/auth/forgot-password" });
+        renderWithProviders(<AppRouter />, {
+            route: "/auth/forgot-password",
+        });
 
         const thirdStep = screen.getByText(/change password/i);
-        const user = userEvent.setup();
+        const user = getUserEventInstance();
         await goDirectlyToSecurityQuestionsStep(user);
 
-        const submitButton = screen.getByRole("button", { name: /submit/i });
+        const submitButton = screen.getByRole("button", {
+            name: /submit/i,
+        });
         for (const index of securityQuestionsResponse.keys()) {
             const questionInput = screen.getByLabelText(
                 securityQuestionsResponse[index].content
@@ -165,6 +190,8 @@ describe("ForgotPasswordPage", () => {
         await user.click(submitButton);
 
         await waitFor(() => {
+            const timeElement = screen.getByText(/(\d{2}):(\d{2})/);
+            expect(timeElement.textContent).toMatch(/10:00/);
             const passwordInput = screen.getByLabelText(/new password/i);
             const confirmPasswordInput =
                 screen.getByLabelText(/confirm password/i);
@@ -179,13 +206,15 @@ describe("ForgotPasswordPage", () => {
 
     it("should display error notification when Forgot Password - step 3 (Change password) fail", async () => {
         // Override handler to simulate API failure
+        // (we will test the case when user update new password
+        // after 10-minute security session pass)
         server.use(
             http.post("account/password", ({ request }) => {
                 return HttpResponse.json(
                     {
-                        message: "Internal server error",
+                        message: "Token 'scope' not found",
                     },
-                    { status: 500 }
+                    { status: 400 }
                 );
             })
         );
@@ -193,7 +222,7 @@ describe("ForgotPasswordPage", () => {
         renderWithProviders(<AppRouter />, { route: "/auth/forgot-password" });
 
         const thirdStep = screen.getByText(/change password/i);
-        const user = userEvent.setup();
+        const user = getUserEventInstance();
         await goDirectlyToChangePasswordStep(user);
 
         const passwordInput = screen.getByLabelText(/new password/i);
@@ -201,21 +230,26 @@ describe("ForgotPasswordPage", () => {
         const submitButton = screen.getByRole("button", { name: /submit/i });
         await user.type(passwordInput, "newPASSWORD123@");
         await user.type(confirmPasswordInput, "newPASSWORD123@");
+        // 10-minute security session passes
+        vi.advanceTimersByTime(10 * 60 * 1000);
         await user.click(submitButton);
 
         await waitFor(() => {
+            const timeElement = screen.getByText(/(\d{2}):(\d{2})/);
+            expect(timeElement.textContent).toMatch(/00:00/);
             expect(
-                screen.getByText(/internal server error/i)
+                screen.getByText(/Token 'scope' not found/i)
             ).toBeInTheDocument();
             const stepElement = thirdStep.closest(".ant-steps-item");
             expect(stepElement).toHaveClass("ant-steps-item-active");
         });
     });
+
     it("should display confirm password error when user input confirm password different from new password", async () => {
         renderWithProviders(<AppRouter />, { route: "/auth/forgot-password" });
 
         const thirdStep = screen.getByText(/change password/i);
-        const user = userEvent.setup();
+        const user = getUserEventInstance();
         await goDirectlyToChangePasswordStep(user);
 
         const passwordInput = screen.getByLabelText(/new password/i);
@@ -239,7 +273,7 @@ describe("ForgotPasswordPage", () => {
     it("should go back to Login page when complete update password", async () => {
         renderWithProviders(<AppRouter />, { route: "/auth/forgot-password" });
 
-        const user = userEvent.setup();
+        const user = getUserEventInstance();
         await goDirectlyToChangePasswordStep(user);
 
         const passwordInput = screen.getByLabelText(/new password/i);

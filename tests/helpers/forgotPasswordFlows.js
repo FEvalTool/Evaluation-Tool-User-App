@@ -7,7 +7,12 @@ import {
 export const goDirectlyToSecurityQuestionsStep = async (user) => {
     await user.type(screen.getByLabelText(/username/i), "testuser");
     await user.click(screen.getByRole("button", { name: /submit/i }));
-    await waitFor(() => {});
+    await waitFor(() => {
+        // Wait for step 2 - Security questions step to actual load
+        securityQuestionsResponse.forEach((question) => {
+            screen.getByLabelText(question.content);
+        });
+    });
 };
 
 export const goDirectlyToChangePasswordStep = async (user) => {
@@ -20,4 +25,8 @@ export const goDirectlyToChangePasswordStep = async (user) => {
         await user.type(questionInput, securityAnswers[index]);
     }
     await user.click(screen.getByRole("button", { name: /submit/i }));
+    await waitFor(() => {
+        // Wait for step 3 - Update password to actual load
+        screen.getByLabelText(/new password/i);
+    });
 };

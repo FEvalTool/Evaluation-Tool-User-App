@@ -101,7 +101,7 @@ const ForgotPasswordPage = () => {
             title: "Change password",
             content: (
                 <>
-                    <SecurityAlert exp={exp * 1000} />
+                    <SecurityAlert exp={exp} />
                     <UpdatePasswordForm
                         onSubmit={onSubmitSetPasswordForm}
                         disabled={loading}

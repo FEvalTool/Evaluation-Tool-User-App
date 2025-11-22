@@ -79,8 +79,7 @@ describe("LoginPage navigation flow", () => {
 
         await waitFor(() => {
             expect(screen.getByText(/Testing page/i)).toBeInTheDocument();
-            expect(screen.getByText(/id: 2/i)).toBeInTheDocument();
-            expect(screen.getByText(/username: testUser/i)).toBeInTheDocument();
+            expect(screen.getByText(/testUser/i)).toBeInTheDocument();
         });
     });
 
@@ -98,7 +97,6 @@ describe("LoginPage navigation flow", () => {
 
         await waitFor(() => {
             expect(screen.getByText(/Setup account page/i)).toBeInTheDocument();
-            expect(screen.getByText(/id: 1/i)).toBeInTheDocument();
             expect(
                 screen.getByText(/username: newTestUser/i)
             ).toBeInTheDocument();

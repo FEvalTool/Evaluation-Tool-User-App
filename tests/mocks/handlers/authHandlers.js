@@ -35,6 +35,7 @@ const authHandlers = [
             {
                 message: "Successfully retrieve Security QA verification token",
                 token: "fake-refresh-token",
+                exp: Date.now() + 10*60*1000 // 10 minute expirity
             },
             { status: 200 }
         );

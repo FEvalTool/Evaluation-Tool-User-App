@@ -3,7 +3,7 @@ import { Typography } from "antd";
 
 import { testAPI } from "../services/testService";
 
-const { Paragraph } = Typography;
+const { Paragraph, Title } = Typography;
 
 const TestPage = () => {
     const [message, setMessage] = useState();
@@ -23,6 +23,7 @@ const TestPage = () => {
 
     return (
         <>
+            <Title>Testing page</Title>
             <Paragraph>
                 This is a message from Backend (for development purposes)
             </Paragraph>
