@@ -5,7 +5,7 @@ import { PASSWORD_PATTERN, PASSWORD_PATTERN_TOOLTIP } from "../../constants";
 import useBeforeUnload from "../../hooks/useBeforeUnload";
 
 const UpdatePasswordForm = ({ onSubmit, disabled }) => {
-    useBeforeUnload(true);
+    useBeforeUnload();
     return (
         <BaseForm onSubmit={onSubmit} disabled={disabled}>
             <Form.Item

@@ -2,10 +2,8 @@ import { useEffect } from "react";
 
 import authService from "../services/authService";
 
-function useBeforeUnload(shouldWarn) {
+function useBeforeUnload() {
     useEffect(() => {
-        if (!shouldWarn) return;
-
         const callback = (e) => {
             e.preventDefault();
             e.returnValue = ""; // Required in Chrome
@@ -14,7 +12,7 @@ function useBeforeUnload(shouldWarn) {
 
         window.addEventListener("beforeunload", callback);
         return () => window.removeEventListener("beforeunload", callback);
-    }, [shouldWarn]);
+    }, []);
 }
 
 export default useBeforeUnload;
