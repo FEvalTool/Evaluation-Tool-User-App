@@ -1,7 +1,9 @@
+import PropTypes from "prop-types";
 import { Form, Input } from "antd";
+
 import BaseForm from "./BaseForm";
 
-const UsernamePasswordForm = ({ onSubmit, disabled = false }) => {
+const UsernamePasswordForm = ({ onSubmit, disabled }) => {
     return (
         <BaseForm onSubmit={onSubmit} disabled={disabled}>
             <Form.Item
@@ -24,6 +26,15 @@ const UsernamePasswordForm = ({ onSubmit, disabled = false }) => {
             </Form.Item>
         </BaseForm>
     );
+};
+
+UsernamePasswordForm.propTypes = {
+    onSubmit: PropTypes.func.isRequired,
+    disabled: PropTypes.bool,
+};
+
+UsernamePasswordForm.defaultProps = {
+    disabled: false,
 };
 
 export default UsernamePasswordForm;

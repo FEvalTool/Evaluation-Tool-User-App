@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import { Form, Button } from "antd";
 
 const BaseForm = ({ children, onSubmit, disabled }) => {
@@ -19,6 +20,16 @@ const BaseForm = ({ children, onSubmit, disabled }) => {
             </Form.Item>
         </Form>
     );
+};
+
+BaseForm.propTypes = {
+    children: PropTypes.node,
+    onSubmit: PropTypes.func.isRequired,
+    disabled: PropTypes.bool,
+};
+
+BaseForm.defaultProps = {
+    disabled: false,
 };
 
 export default BaseForm;

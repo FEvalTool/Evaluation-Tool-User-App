@@ -1,4 +1,6 @@
+import PropTypes from "prop-types";
 import { Form, Input, Typography } from "antd";
+
 import BaseForm from "./BaseForm";
 
 const { Text } = Typography;
@@ -25,6 +27,15 @@ const UsernameForm = ({ onSubmit, disabled }) => {
             </Form.Item>
         </BaseForm>
     );
+};
+
+UsernameForm.propTypes = {
+    onSubmit: PropTypes.func.isRequired,
+    disabled: PropTypes.bool,
+};
+
+UsernameForm.defaultProps = {
+    disabled: false,
 };
 
 export default UsernameForm;

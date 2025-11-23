@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import PropTypes from "prop-types";
 import { message } from "antd";
 
 import { clearMessage } from "../slices/messageSlice";
@@ -22,6 +23,10 @@ const MessageWrapper = ({ children }) => {
             {children}
         </>
     );
+};
+
+MessageWrapper.propTypes = {
+    children: PropTypes.node,
 };
 
 export default MessageWrapper;

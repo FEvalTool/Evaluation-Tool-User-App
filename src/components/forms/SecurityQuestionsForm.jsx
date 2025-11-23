@@ -1,4 +1,6 @@
+import PropTypes from "prop-types";
 import { Form, Input } from "antd";
+
 import BaseForm from "./BaseForm";
 import { ANSWER_KEY_PREFIX } from "../../constants";
 
@@ -21,6 +23,22 @@ const SecurityQuestionForm = ({ questions, onSubmit, disabled }) => {
             ))}
         </BaseForm>
     );
+};
+
+SecurityQuestionForm.propTypes = {
+    questions: PropTypes.arrayOf(
+        PropTypes.shape({
+            id: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+                .isRequired,
+            content: PropTypes.string.isRequired,
+        })
+    ).isRequired,
+    onSubmit: PropTypes.func.isRequired,
+    disabled: PropTypes.bool,
+};
+
+SecurityQuestionForm.defaultProps = {
+    disabled: false,
 };
 
 export default SecurityQuestionForm;

@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import { Alert, Statistic, Typography } from "antd";
 const { Timer } = Statistic;
 const { Text } = Typography;
@@ -24,6 +25,10 @@ const SecurityAlert = ({ exp }) => {
             closable
         />
     );
+};
+
+SecurityAlert.propTypes = {
+    exp: PropTypes.number.isRequired,
 };
 
 export default SecurityAlert;
