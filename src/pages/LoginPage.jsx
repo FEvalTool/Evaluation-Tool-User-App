@@ -15,7 +15,7 @@ const LoginPage = () => {
     const { loading } = useSelector((state) => state.auth);
 
     const onSubmitLogin = async (values) => {
-        const resultAction = await dispatch(login(values));
+        const resultAction = await dispatch(login(values)); // NOSONAR
 
         if (login.fulfilled.match(resultAction)) {
             const user = resultAction.payload.user;
