@@ -1,4 +1,3 @@
-import { Outlet } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { Typography } from "antd";
 const { Title, Paragraph } = Typography;

@@ -11,8 +11,7 @@ import accountService from "../services/accountService";
 import authService from "../services/authService";
 import { withFormSubmit } from "../utils/apiHelpers";
 import { showMessage } from "../slices/messageSlice";
-import { ANSWER_KEY_PREFIX } from "../constants";
-import { ROUTES } from "../constants";
+import { ANSWER_KEY_PREFIX, ROUTES } from "../constants";
 
 const { Link, Title } = Typography;
 

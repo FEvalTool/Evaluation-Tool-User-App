@@ -25,36 +25,34 @@ const MainLayout = () => {
     };
 
     return (
-        <>
-            <Layout style={{ width: "100vw", height: "100vh" }}>
-                <Header
-                    style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                    }}
-                >
-                    <LogoIcon size={64} />
-                    <Flex gap={10}>
-                        <Button
-                            shape="circle"
-                            icon={<LogoutOutlined />}
-                            onClick={handleLogout}
+        <Layout style={{ width: "100vw", height: "100vh" }}>
+            <Header
+                style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                }}
+            >
+                <LogoIcon size={64} />
+                <Flex gap={10}>
+                    <Button
+                        shape="circle"
+                        icon={<LogoutOutlined />}
+                        onClick={handleLogout}
+                    />
+                    <Flex gap={5} align="center">
+                        <Avatar
+                            style={{ backgroundColor: "#87d068" }}
+                            icon={<UserOutlined />}
                         />
-                        <Flex gap={5} align="center">
-                            <Avatar
-                                style={{ backgroundColor: "#87d068" }}
-                                icon={<UserOutlined />}
-                            />
-                            <Text style={{ color: "white" }}>
-                                {user ? user.username : ""}
-                            </Text>
-                        </Flex>
+                        <Text style={{ color: "white" }}>
+                            {user ? user.username : ""}
+                        </Text>
                     </Flex>
-                </Header>
-                <Outlet />
-            </Layout>
-        </>
+                </Flex>
+            </Header>
+            <Outlet />
+        </Layout>
     );
 };
 
