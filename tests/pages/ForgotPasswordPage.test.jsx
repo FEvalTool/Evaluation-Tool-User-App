@@ -24,10 +24,10 @@ function AppRouter() {
         <MessageWrapper>
             <Routes>
                 <Route
-                    path="/auth/forgot-password"
+                    path={ROUTES.FORGOT_PASSWORD}
                     element={<ForgotPasswordPage />}
                 />
-                <Route path="/auth/login" element={<LoginPage />} />
+                <Route path={ROUTES.LOGIN} element={<LoginPage />} />
             </Routes>
         </MessageWrapper>
     );
@@ -35,7 +35,7 @@ function AppRouter() {
 
 describe("ForgotPasswordPage Step 1 and 2", () => {
     it("should render Forgot Password page correctly", () => {
-        renderWithProviders(<AppRouter />, { route: "/auth/forgot-password" });
+        renderWithProviders(<AppRouter />, { route: ROUTES.FORGOT_PASSWORD });
 
         const heading = screen.getByRole("heading", {
             name: /forgot password/i,
@@ -65,7 +65,7 @@ describe("ForgotPasswordPage Step 1 and 2", () => {
     });
 
     it("should go back to Login page when press Back To Login link", async () => {
-        renderWithProviders(<AppRouter />, { route: "/auth/forgot-password" });
+        renderWithProviders(<AppRouter />, { route: ROUTES.FORGOT_PASSWORD });
 
         const backToLoginLink = screen.getByRole("link", {
             name: /back to login/i,
@@ -80,7 +80,7 @@ describe("ForgotPasswordPage Step 1 and 2", () => {
     });
 
     it("should display error notification when Forgot Password - step 1 (Enter username) fail", async () => {
-        renderWithProviders(<AppRouter />, { route: "/auth/forgot-password" });
+        renderWithProviders(<AppRouter />, { route: ROUTES.FORGOT_PASSWORD });
 
         const usernameInput = screen.getByLabelText(/username/i);
         const submitButton = screen.getByRole("button", { name: /submit/i });
@@ -101,7 +101,7 @@ describe("ForgotPasswordPage Step 1 and 2", () => {
     });
 
     it("should go to next step (Security Questions) and render correctly when Forgot Password - step 1 (Enter username) success", async () => {
-        renderWithProviders(<AppRouter />, { route: "/auth/forgot-password" });
+        renderWithProviders(<AppRouter />, { route: ROUTES.FORGOT_PASSWORD });
 
         const usernameInput = screen.getByLabelText(/username/i);
         const submitButton = screen.getByRole("button", { name: /submit/i });
@@ -127,7 +127,7 @@ describe("ForgotPasswordPage Step 1 and 2", () => {
     });
 
     it("should display error notification when Forgot Password - step 2 (Security questions) fail", async () => {
-        renderWithProviders(<AppRouter />, { route: "/auth/forgot-password" });
+        renderWithProviders(<AppRouter />, { route: ROUTES.FORGOT_PASSWORD });
 
         const secondStep = screen.getByText(/security questions/i);
         const user = userEvent.setup();
@@ -171,7 +171,7 @@ describe("ForgotPasswordPage Step 3", () => {
 
     it("should go to next step (Change password) and render correctly when Forgot Password - step 2 (Security questions) success", async () => {
         renderWithProviders(<AppRouter />, {
-            route: "/auth/forgot-password",
+            route: ROUTES.FORGOT_PASSWORD,
         });
 
         const thirdStep = screen.getByText(/change password/i);
@@ -219,7 +219,7 @@ describe("ForgotPasswordPage Step 3", () => {
             })
         );
 
-        renderWithProviders(<AppRouter />, { route: "/auth/forgot-password" });
+        renderWithProviders(<AppRouter />, { route: ROUTES.FORGOT_PASSWORD });
 
         const thirdStep = screen.getByText(/change password/i);
         const user = getUserEventInstance();
@@ -246,7 +246,7 @@ describe("ForgotPasswordPage Step 3", () => {
     });
 
     it("should display confirm password error when user input confirm password different from new password", async () => {
-        renderWithProviders(<AppRouter />, { route: "/auth/forgot-password" });
+        renderWithProviders(<AppRouter />, { route: ROUTES.FORGOT_PASSWORD });
 
         const thirdStep = screen.getByText(/change password/i);
         const user = getUserEventInstance();
@@ -271,7 +271,7 @@ describe("ForgotPasswordPage Step 3", () => {
     });
 
     it("should go back to Login page when complete update password", async () => {
-        renderWithProviders(<AppRouter />, { route: "/auth/forgot-password" });
+        renderWithProviders(<AppRouter />, { route: ROUTES.FORGOT_PASSWORD });
 
         const user = getUserEventInstance();
         await goDirectlyToChangePasswordStep(user);

@@ -14,11 +14,14 @@ function AppRouter() {
     return (
         <MessageWrapper>
             <Routes>
-                <Route path="/auth/login" element={<LoginPage />} />
+                <Route path={ROUTES.LOGIN} element={<LoginPage />} />
                 <Route element={<MainLayout />}>
-                    <Route path="/test" element={<TestPage />} />
+                    <Route path={ROUTES.TEST_MAIN} element={<TestPage />} />
+                    <Route
+                        path={ROUTES.SETUP_ACCOUNT}
+                        element={<SetupAccountPage />}
+                    />
                 </Route>
-                <Route path="/setup-account" element={<SetupAccountPage />} />
             </Routes>
         </MessageWrapper>
     );
@@ -26,7 +29,7 @@ function AppRouter() {
 
 describe("LoginPage navigation flow", () => {
     it("should render Login page correctly", () => {
-        renderWithProviders(<AppRouter />, { route: "/auth/login" });
+        renderWithProviders(<AppRouter />, { route: ROUTES.LOGIN });
 
         const heading = screen.getByRole("heading", { name: /login/i });
         const usernameInput = screen.getByLabelText(/username/i);
@@ -47,7 +50,7 @@ describe("LoginPage navigation flow", () => {
     });
 
     it("should display error notification when Login fail", async () => {
-        renderWithProviders(<AppRouter />, { route: "/auth/login" });
+        renderWithProviders(<AppRouter />, { route: ROUTES.LOGIN });
 
         const user = userEvent.setup();
         const usernameInput = screen.getByLabelText(/username/i);
@@ -66,7 +69,7 @@ describe("LoginPage navigation flow", () => {
     });
 
     it("should redirect to dashboard page if not first-time user", async () => {
-        renderWithProviders(<AppRouter />, { route: "/auth/login" });
+        renderWithProviders(<AppRouter />, { route: ROUTES.LOGIN });
 
         const user = userEvent.setup();
         const usernameInput = screen.getByLabelText(/username/i);
@@ -84,7 +87,7 @@ describe("LoginPage navigation flow", () => {
     });
 
     it("should redirect to setup account page if first-time user", async () => {
-        renderWithProviders(<AppRouter />, { route: "/auth/login" });
+        renderWithProviders(<AppRouter />, { route: ROUTES.LOGIN });
 
         const user = userEvent.setup();
         const usernameInput = screen.getByLabelText(/username/i);
@@ -104,7 +107,7 @@ describe("LoginPage navigation flow", () => {
     });
 
     it("should redirect to forgot password page when click forgot password link", async () => {
-        renderWithProviders(<AppRouter />, { route: "/auth/login" });
+        renderWithProviders(<AppRouter />, { route: ROUTES.LOGIN });
 
         const user = userEvent.setup();
         const forgotLink = screen.getByRole("link", {
