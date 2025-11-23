@@ -2,7 +2,7 @@ import { useEffect } from "react";
 
 import authService from "../services/authService";
 
-function useBeforeUnload() {
+export default function useBeforeUnload() {
     useEffect(() => {
         const callback = (e) => {
             e.preventDefault();
@@ -14,5 +14,3 @@ function useBeforeUnload() {
         return () => window.removeEventListener("beforeunload", callback);
     }, []);
 }
-
-export default useBeforeUnload;
