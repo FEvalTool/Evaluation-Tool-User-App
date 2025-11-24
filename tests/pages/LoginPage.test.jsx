@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { Route, Routes } from "react-router-dom";
 
 import { renderWithProviders } from "../mocks/mockStoreWrapper";
+import { accountData } from "../mocks/data/account";
 import { ROUTES } from "../../src/constants";
 import LoginPage from "../../src/pages/LoginPage";
 import SetupAccountPage from "../../src/pages/SetupAccountPage";
@@ -83,6 +84,9 @@ describe("LoginPage navigation flow", () => {
         await waitFor(() => {
             expect(screen.getByText(/Testing page/i)).toBeInTheDocument();
             expect(screen.getByText(/testUser/i)).toBeInTheDocument();
+            expect(JSON.parse(localStorage.getItem("user"))).toEqual(
+                accountData[1]
+            );
         });
     });
 
@@ -100,9 +104,10 @@ describe("LoginPage navigation flow", () => {
 
         await waitFor(() => {
             expect(screen.getByText(/Setup account page/i)).toBeInTheDocument();
-            expect(
-                screen.getByText(/username: newTestUser/i)
-            ).toBeInTheDocument();
+            expect(screen.getByText(/newTestUser/i)).toBeInTheDocument();
+            expect(JSON.parse(localStorage.getItem("user"))).toEqual(
+                accountData[0]
+            );
         });
     });
 

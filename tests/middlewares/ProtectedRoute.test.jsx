@@ -4,6 +4,7 @@ import { Routes, Route } from "react-router-dom";
 import ProtectedRoute from "../../src/middlewares/ProtectedRoute";
 import authService from "../../src//services/authService";
 import { renderWithProviders } from "../mocks/mockStoreWrapper";
+import { accountData } from "../mocks/data/account";
 import { ROUTES } from "../../src/constants";
 
 vi.mock("../../src/services/authService");
@@ -28,7 +29,7 @@ describe("ProtectedRoute", () => {
         authService.verifyToken.mockResolvedValueOnce({});
 
         renderWithProviders(<AppRouter />, {
-            preloadedState: { auth: { user: { first_time_setup: false } } },
+            preloadedState: { auth: { user: accountData[1] } },
             route: ROUTES.TEST_MAIN,
         });
 
@@ -45,7 +46,7 @@ describe("ProtectedRoute", () => {
         authService.verifyToken.mockResolvedValueOnce({});
 
         renderWithProviders(<AppRouter />, {
-            preloadedState: { auth: { user: { first_time_setup: false } } },
+            preloadedState: { auth: { user: accountData[1] } },
             route: ROUTES.TEST_MAIN,
         });
 
@@ -61,7 +62,7 @@ describe("ProtectedRoute", () => {
         authService.refreshToken.mockRejectedValue({});
 
         renderWithProviders(<AppRouter />, {
-            preloadedState: { auth: { user: { first_time_setup: false } } },
+            preloadedState: { auth: { user: accountData[1] } },
             route: ROUTES.TEST_MAIN,
         });
 
@@ -74,7 +75,7 @@ describe("ProtectedRoute", () => {
         authService.verifyToken.mockResolvedValue({});
 
         renderWithProviders(<AppRouter />, {
-            preloadedState: { auth: { user: { first_time_setup: true } } },
+            preloadedState: { auth: { user: accountData[0] } },
             route: ROUTES.TEST_MAIN,
         });
 
@@ -87,7 +88,7 @@ describe("ProtectedRoute", () => {
         authService.verifyToken.mockResolvedValue({});
 
         renderWithProviders(<AppRouter />, {
-            preloadedState: { auth: { user: { first_time_setup: false } } },
+            preloadedState: { auth: { user: accountData[1] } },
             route: ROUTES.SETUP_ACCOUNT,
         });
 

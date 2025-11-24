@@ -21,7 +21,6 @@ export const routes = [
                 element: <ProtectedRoute />,
                 children: [
                     { path: "test", element: <TestPage /> },
-                    { path: "test1", element: <TestOnePage /> },
                     { path: "setup-account", element: <SetupAccountPage /> },
                 ],
             },

@@ -4,6 +4,7 @@ import { Routes, Route } from "react-router-dom";
 import GuestRoute from "../../src/middlewares/GuestRoute";
 import authService from "../../src//services/authService";
 import { renderWithProviders } from "../mocks/mockStoreWrapper";
+import { accountData } from "../mocks/data/account";
 import { ROUTES } from "../../src/constants";
 
 vi.mock("../../src/services/authService");
@@ -24,7 +25,7 @@ describe("GuestRoute", () => {
         authService.verifyToken.mockResolvedValueOnce({});
 
         renderWithProviders(<AppRouter />, {
-            preloadedState: { auth: { user: { first_time_setup: false } } },
+            preloadedState: { auth: { user: accountData[1] } },
             route: ROUTES.LOGIN,
         });
 
@@ -41,7 +42,7 @@ describe("GuestRoute", () => {
         authService.verifyToken.mockResolvedValueOnce({});
 
         renderWithProviders(<AppRouter />, {
-            preloadedState: { auth: { user: { first_time_setup: false } } },
+            preloadedState: { auth: { user: accountData[1] } },
             route: ROUTES.LOGIN,
         });
 
@@ -57,7 +58,7 @@ describe("GuestRoute", () => {
         authService.refreshToken.mockRejectedValue({});
 
         renderWithProviders(<AppRouter />, {
-            preloadedState: { auth: { user: { first_time_setup: false } } },
+            preloadedState: { auth: { user: accountData[1] } },
             route: ROUTES.LOGIN,
         });
 

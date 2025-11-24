@@ -39,6 +39,7 @@ const MainLayout = () => {
                         shape="circle"
                         icon={<LogoutOutlined />}
                         onClick={handleLogout}
+                        aria-label="logout"
                     />
                     <Flex gap={5} align="center">
                         <Avatar
