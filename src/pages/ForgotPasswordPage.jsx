@@ -35,7 +35,9 @@ const ForgotPasswordPage = () => {
             setQuestions(response.data.questions);
             setUsername(values["username"]);
             setCurrent(1);
-        } catch (error) {}
+        } catch (error) {
+            console.debug(error); // NOSONAR intentionally ignoring the error
+        }
     };
 
     const onSubmitSecurityAnswersForm = async (values) => {
@@ -58,7 +60,9 @@ const ForgotPasswordPage = () => {
             );
             setExp(response.data.exp);
             setCurrent(2);
-        } catch (error) {}
+        } catch (error) {
+            console.debug(error); // NOSONAR intentionally ignoring the error
+        }
     };
 
     const onSubmitSetPasswordForm = async (values) => {
@@ -74,7 +78,9 @@ const ForgotPasswordPage = () => {
                 showMessage
             );
             navigate(ROUTES.LOGIN);
-        } catch (error) {}
+        } catch (error) {
+            console.debug(error); // NOSONAR intentionally ignoring the error
+        }
     };
     const steps = [
         {
