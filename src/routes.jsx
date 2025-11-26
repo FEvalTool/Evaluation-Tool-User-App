@@ -9,7 +9,6 @@ import GuestRoute from "./middlewares/GuestRoute";
 const LoginPage = lazy(() => import("./pages/LoginPage"));
 const ForgotPasswordPage = lazy(() => import("./pages/ForgotPasswordPage"));
 const TestPage = lazy(() => import("./pages/TestPage"));
-const TestOnePage = lazy(() => import("./pages/TestOnePage"));
 const SetupAccountPage = lazy(() => import("./pages/SetupAccountPage"));
 
 export const routes = [
