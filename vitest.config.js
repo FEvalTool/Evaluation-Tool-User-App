@@ -1,5 +1,6 @@
 import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react-swc";
+import svgr from "vite-plugin-svgr";
 
 export default defineConfig({
     test: {
@@ -12,5 +13,5 @@ export default defineConfig({
         },
         testTimeout: 100000,
     },
-    plugins: [react()],
+    plugins: [react(), svgr()],
 });

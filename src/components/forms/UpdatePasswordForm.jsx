@@ -1,14 +1,15 @@
+import PropTypes from "prop-types";
 import { Form, Input } from "antd";
 import { InfoCircleOutlined } from "@ant-design/icons";
-import BaseForm from "./BaseForm";
-import {
-    PASSWORD_PATTERN,
-    PASSWORD_PATTERN_TOOLTIP,
-} from "../../constants/passwordPatterns";
 
-const UpdatePasswordForm = ({ onSubmit }) => {
+import BaseForm from "./BaseForm";
+import { PASSWORD_PATTERN, PASSWORD_PATTERN_TOOLTIP } from "../../constants";
+import useBeforeUnload from "../../hooks/useBeforeUnload";
+
+const UpdatePasswordForm = ({ onSubmit, disabled }) => {
+    useBeforeUnload();
     return (
-        <BaseForm onSubmit={onSubmit}>
+        <BaseForm onSubmit={onSubmit} disabled={disabled}>
             <Form.Item
                 label="New password"
                 name="password"
@@ -50,6 +51,15 @@ const UpdatePasswordForm = ({ onSubmit }) => {
             </Form.Item>
         </BaseForm>
     );
+};
+
+UpdatePasswordForm.propTypes = {
+    onSubmit: PropTypes.func.isRequired,
+    disabled: PropTypes.bool,
+};
+
+UpdatePasswordForm.defaultProps = {
+    disabled: false,
 };
 
 export default UpdatePasswordForm;

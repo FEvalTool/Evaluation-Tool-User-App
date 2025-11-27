@@ -5,3 +5,8 @@ export const securityQuestionsResponse = [
 ];
 
 export const securityAnswers = ["Bin", "Hanoi", "Bachkhoa"];
+
+export const accountData = [
+    {id: 1, username: "newTestUser", password: "testPassword", first_time_setup: true},
+    {id: 2, username: "testUser", password: "testPassword123@"},
+]

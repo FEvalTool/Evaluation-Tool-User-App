@@ -1,28 +1,17 @@
-import { Form, Button, message } from "antd";
+import PropTypes from "prop-types";
+import { Form, Button } from "antd";
 
-const BaseForm = ({ children, onSubmit }) => {
+const BaseForm = ({ children, onSubmit, disabled }) => {
     const [form] = Form.useForm();
-    const [messageApi, contextHolder] = message.useMessage();
-
-    const onFinish = async (values) => {
-        try {
-            await onSubmit(values);
-        } catch (error) {
-            messageApi.open({
-                type: "error",
-                content: error?.response?.data?.message || "An error occurred",
-            });
-        }
-    };
 
     return (
         <Form
             layout="vertical"
             form={form}
-            onFinish={onFinish}
+            onFinish={onSubmit}
             autoComplete="off"
+            disabled={disabled}
         >
-            {contextHolder}
             {children}
             <Form.Item style={{ float: "right" }}>
                 <Button type="primary" htmlType="submit">
@@ -31,6 +20,16 @@ const BaseForm = ({ children, onSubmit }) => {
             </Form.Item>
         </Form>
     );
+};
+
+BaseForm.propTypes = {
+    children: PropTypes.node,
+    onSubmit: PropTypes.func.isRequired,
+    disabled: PropTypes.bool,
+};
+
+BaseForm.defaultProps = {
+    disabled: false,
 };
 
 export default BaseForm;

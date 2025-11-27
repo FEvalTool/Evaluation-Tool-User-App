@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { Typography } from "antd";
 
-import { testAPI } from "../services/testServices";
+import { testAPI } from "../services/testService";
 
-const { Title, Paragraph } = Typography;
+const { Paragraph, Title } = Typography;
 
 const TestPage = () => {
     const [message, setMessage] = useState();
@@ -23,14 +23,7 @@ const TestPage = () => {
 
     return (
         <>
-            <Title
-                level={3}
-                style={{
-                    textAlign: "center",
-                }}
-            >
-                Testing page
-            </Title>
+            <Title>Testing page</Title>
             <Paragraph>
                 This is a message from Backend (for development purposes)
             </Paragraph>

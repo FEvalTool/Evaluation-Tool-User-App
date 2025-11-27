@@ -1,62 +1,96 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import { Flex, Steps, Typography } from "antd";
 
 import UsernameForm from "../components/forms/UsernameForm";
 import SecurityQuestionForm from "../components/forms/SecurityQuestionsForm";
 import UpdatePasswordForm from "../components/forms/UpdatePasswordForm";
-import {
-    getUserSecurityQuestions,
-    setPassword,
-} from "../services/accountServices";
-import { genSecurityQAVerificationToken } from "../services/authServices";
-import { ANSWER_KEY_PREFIX } from "../constants/prefixes";
-import ROUTES from "../constants/routes";
+import SecurityAlert from "../components/SecurityAlert";
+import accountService from "../services/accountService";
+import authService from "../services/authService";
+import { withFormSubmit } from "../utils/apiHelpers";
+import { showMessage } from "../slices/messageSlice";
+import { ANSWER_KEY_PREFIX, ROUTES } from "../constants";
 
 const { Link, Title } = Typography;
 
 const ForgotPasswordPage = () => {
     const navigate = useNavigate();
     const [username, setUsername] = useState("");
-    const [verificationToken, setVerificationToken] = useState("");
     const [current, setCurrent] = useState(0);
     const [questions, setQuestions] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [exp, setExp] = useState(0);
+    const dispatch = useDispatch();
 
     const onSubmitUsernameForm = async (values) => {
-        let response = await getUserSecurityQuestions(values);
-        setQuestions(response.data.questions);
-        setUsername(values["username"]);
-        setCurrent(1);
+        try {
+            let response = await withFormSubmit(
+                () => accountService.getUserSecurityQuestions(values),
+                setLoading,
+                dispatch,
+                showMessage
+            );
+            setQuestions(response.data.questions);
+            setUsername(values["username"]);
+            setCurrent(1);
+        } catch (error) {
+            console.debug(error); // NOSONAR intentionally ignoring the error
+        }
     };
 
     const onSubmitSecurityAnswersForm = async (values) => {
-        // Preprocess payloads to send back to backend
-        let question_ids = Object.keys(values).map((key) =>
-            Number(key.replace(ANSWER_KEY_PREFIX, ""))
-        );
-        let answers = Object.values(values);
-        let payloads = {
-            questions: question_ids,
-            answers: answers,
-            username: username,
-        };
-        let response = await genSecurityQAVerificationToken(payloads);
-        setVerificationToken(response.data.token);
-        setCurrent(2);
+        try {
+            // Preprocess payloads to send back to backend
+            let question_ids = Object.keys(values).map((key) =>
+                Number(key.replace(ANSWER_KEY_PREFIX, ""))
+            );
+            let answers = Object.values(values);
+            let payloads = {
+                questions: question_ids,
+                answers: answers,
+                username: username,
+            };
+            let response = await withFormSubmit(
+                () => authService.genSecurityQAVerificationToken(payloads),
+                setLoading,
+                dispatch,
+                showMessage
+            );
+            setExp(response.data.exp);
+            setCurrent(2);
+        } catch (error) {
+            console.debug(error); // NOSONAR intentionally ignoring the error
+        }
     };
 
     const onSubmitSetPasswordForm = async (values) => {
-        let payloads = {
-            ...values,
-            token: verificationToken,
-        };
-        await setPassword(payloads);
-        navigate(ROUTES.LOGIN);
+        try {
+            await withFormSubmit(
+                async () => {
+                    const res1 = await accountService.setPassword(values);
+                    const res2 = await authService.deleteScopeToken();
+                    return { res1, res2 };
+                },
+                setLoading,
+                dispatch,
+                showMessage
+            );
+            navigate(ROUTES.LOGIN);
+        } catch (error) {
+            console.debug(error); // NOSONAR intentionally ignoring the error
+        }
     };
     const steps = [
         {
             title: "Enter Username",
-            content: <UsernameForm onSubmit={onSubmitUsernameForm} />,
+            content: (
+                <UsernameForm
+                    onSubmit={onSubmitUsernameForm}
+                    disabled={loading}
+                />
+            ),
         },
         {
             title: "Security Questions",
@@ -64,12 +98,21 @@ const ForgotPasswordPage = () => {
                 <SecurityQuestionForm
                     onSubmit={onSubmitSecurityAnswersForm}
                     questions={questions}
+                    disabled={loading}
                 />
             ),
         },
         {
             title: "Change password",
-            content: <UpdatePasswordForm onSubmit={onSubmitSetPasswordForm} />,
+            content: (
+                <>
+                    <SecurityAlert exp={exp} />
+                    <UpdatePasswordForm
+                        onSubmit={onSubmitSetPasswordForm}
+                        disabled={loading}
+                    />
+                </>
+            ),
         },
     ];
 
@@ -81,7 +124,9 @@ const ForgotPasswordPage = () => {
                 <Title level={3} style={{ margin: "0px" }}>
                     Forgot Password
                 </Title>
-                <Link href={ROUTES.LOGIN}>Back to Login</Link>{" "}
+                <Link href={ROUTES.LOGIN} disabled={loading}>
+                    Back to Login
+                </Link>{" "}
             </Flex>
             <Steps
                 progressDot

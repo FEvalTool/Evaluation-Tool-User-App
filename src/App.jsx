@@ -1,7 +1,8 @@
-import { useRoutes } from "react-router-dom";
 import { Suspense } from "react";
+import { useRoutes } from "react-router-dom";
 
-import { routes } from "./routes/index.jsx";
+import MessageWrapper from "./components/MessageWrapper.jsx";
+import { routes } from "./routes.jsx";
 
 function AppRoutes() {
     return useRoutes(routes);
@@ -10,7 +11,9 @@ function AppRoutes() {
 function App() {
     return (
         <Suspense fallback={<div>Loading...</div>}>
-            <AppRoutes />
+            <MessageWrapper>
+                <AppRoutes />
+            </MessageWrapper>
         </Suspense>
     );
 }
