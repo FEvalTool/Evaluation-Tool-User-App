@@ -25,6 +25,7 @@ export const PASSWORD_PATTERN_TOOLTIP =
     "Password must be at least 12 characters long, including one uppercase letter, one lowercase letter, one number, and one special character."; // NOSONAR
 
 export const ANSWER_KEY_PREFIX = "answer-";
+export const QUESTION_KEY_PREFIX = "question-"
 
 export const ROUTES = {
     LOGIN: "/auth/login",

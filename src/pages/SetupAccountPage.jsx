@@ -13,6 +13,7 @@ import {
 import { PasswordIcon, SecurityQuestionIcon } from "../components/CustomIcon";
 import MenuContainer from "../components/MenuContainer";
 import UpdatePasswordForm from "../components/forms/UpdatePasswordForm";
+import UpdateSecurityQAForm from "../components/forms/UpdateSecurityQAForm";
 import accountService from "../services/accountService";
 import { ROUTES } from "../constants";
 
@@ -33,7 +34,6 @@ const SetupAccountPage = () => {
     };
 
     const onSubmitUpdateSecurityQAForm = async (values) => {};
-    // const onSubmitUpdateProfileForm = async (values) => {};
 
     const handleMenuClick = (e) => {
         setCurrent(e.key);
@@ -65,7 +65,7 @@ const SetupAccountPage = () => {
         securityQuestions: {
             title: "Setup Security Question",
             component: (
-                <UpdatePasswordForm onSubmit={onSubmitUpdatePasswordForm} />
+                <UpdateSecurityQAForm onSubmit={onSubmitUpdateSecurityQAForm} />
             ),
         },
     };
@@ -149,7 +149,9 @@ const SetupAccountPage = () => {
             <Layout>
                 <Content>
                     <Flex vertical={true} style={{ padding: "20px" }}>
-                        <Title level={3}>{components[current]["title"]}</Title>
+                        <Title level={3} style={{ marginTop: "0px" }}>
+                            {components[current]["title"]}
+                        </Title>
                         {components[current]["component"]}
                     </Flex>
                     {/* <Flex style={{ padding: "24px" }} vertical={true}>
