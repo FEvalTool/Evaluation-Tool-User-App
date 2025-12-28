@@ -4,8 +4,10 @@ import { Form, Col, Row, Input, Select } from "antd";
 import securityQuestionService from "../../services/securityQuestionService";
 import BaseForm from "./BaseForm";
 import { QUESTION_KEY_PREFIX, ANSWER_KEY_PREFIX } from "../../constants";
+import useBeforeUnload from "../../hooks/useBeforeUnload";
 
-const UpdateSecurityQAForm = ({ onSubmit }) => {
+const UpdateSecurityQAForm = ({ onSubmit, disabled, shouldWarn }) => {
+    useBeforeUnload(shouldWarn);
     const NUMBER_OF_QUESTIONS = 3;
     const [selectedQuestions, setSelectedQuestions] = useState(
         new Array(NUMBER_OF_QUESTIONS).fill(null)
@@ -46,7 +48,7 @@ const UpdateSecurityQAForm = ({ onSubmit }) => {
     };
 
     return (
-        <BaseForm onSubmit={onSubmit}>
+        <BaseForm onSubmit={onSubmit} disabled={disabled}>
             {Array.from({ length: NUMBER_OF_QUESTIONS }, (_, idx) => (
                 <Row justify="space-between">
                     <Col span={11}>

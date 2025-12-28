@@ -110,6 +110,7 @@ const ForgotPasswordPage = () => {
                     <UpdatePasswordForm
                         onSubmit={onSubmitSetPasswordForm}
                         disabled={loading}
+                        shouldWarn={true}
                     />
                 </>
             ),

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import {
     Badge,
     Button,
@@ -14,8 +15,12 @@ import { PasswordIcon, SecurityQuestionIcon } from "../components/CustomIcon";
 import MenuContainer from "../components/MenuContainer";
 import UpdatePasswordForm from "../components/forms/UpdatePasswordForm";
 import UpdateSecurityQAForm from "../components/forms/UpdateSecurityQAForm";
-import accountService from "../services/accountService";
-import { ROUTES } from "../constants";
+import {
+    setupPasswordFirstTime,
+    setupSecurityQAFirstTime,
+} from "../slices/authSlice";
+import authService from "../services/authService";
+import { ROUTES, QUESTION_KEY_PREFIX, ANSWER_KEY_PREFIX } from "../constants";
 
 const { Content } = Layout;
 const { Title, Paragraph, Text } = Typography;
@@ -23,17 +28,42 @@ const { Title, Paragraph, Text } = Typography;
 const SetupAccountPage = () => {
     const navigate = useNavigate();
     const [current, setCurrent] = useState("welcome");
+    const dispatch = useDispatch();
+    const { user, loading } = useSelector((state) => state.auth);
 
-    const onSubmitUpdatePasswordForm = async (values) => {
-        let payloads = {
-            ...values,
-            token: verificationToken,
-        };
-        await accountService.setPassword(payloads);
-        navigate(ROUTES.LOGIN);
+    const onSubmitSetPasswordForm = async (values) => {
+        const resultAction = await dispatch(setupPasswordFirstTime(values));
+        if (setupPasswordFirstTime.fulfilled.match(resultAction)) {
+        }
     };
 
-    const onSubmitUpdateSecurityQAForm = async (values) => {};
+    const onSubmitSetSecurityQAForm = async (values) => {
+        // Sort values by keys (answer-1, answer-2, ..., question-1, question-2)
+        const sortedKeys = Object.keys(values).sort();
+        // Get questions and answers group
+        const payload = sortedKeys.reduce(
+            (acc, key) => {
+                const value = values[key];
+
+                if (key.startsWith(QUESTION_KEY_PREFIX)) {
+                    acc.questions.push(value);
+                } else if (key.startsWith(ANSWER_KEY_PREFIX)) {
+                    acc.answers.push(value);
+                }
+
+                return acc;
+            },
+            { questions: [], answers: [] }
+        );
+        const resultAction = await dispatch(setupSecurityQAFirstTime(payload));
+        if (setupSecurityQAFirstTime.fulfilled.match(resultAction)) {
+        }
+    };
+
+    const handleCompleteSetup = async (e) => {
+        await authService.deleteScopeToken();
+        navigate(ROUTES.SETUP_ACCOUNT, { replace: true });
+    };
 
     const handleMenuClick = (e) => {
         setCurrent(e.key);
@@ -59,21 +89,36 @@ const SetupAccountPage = () => {
         password: {
             title: "Setup Password",
             component: (
-                <UpdatePasswordForm onSubmit={onSubmitUpdatePasswordForm} />
+                <UpdatePasswordForm
+                    disabled={loading}
+                    onSubmit={onSubmitSetPasswordForm}
+                    shouldWarn={false}
+                />
             ),
         },
         securityQuestions: {
             title: "Setup Security Question",
             component: (
-                <UpdateSecurityQAForm onSubmit={onSubmitUpdateSecurityQAForm} />
+                <UpdateSecurityQAForm
+                    disabled={loading}
+                    onSubmit={onSubmitSetSecurityQAForm}
+                    shouldWarn={false}
+                />
             ),
         },
     };
 
+    const process = user["first_time_setup"]
+        ? ((Number(user["is_password_setup"]) +
+              Number(user["is_security_qa_setup"])) /
+              2) *
+          100
+        : 100;
+
     const menuItems = [
         {
             key: "progress",
-            icon: <Progress type="circle" percent={60} size={50} />,
+            icon: <Progress type="circle" percent={process} size={50} />,
             disabled: true,
             style: {
                 pointerEvents: "none",
@@ -81,7 +126,8 @@ const SetupAccountPage = () => {
             }, // Not displaying disable pointer in the whole menu item
             label: (
                 <Button
-                    disabled={true}
+                    disabled={!(process === 100)}
+                    onClick={handleCompleteSetup}
                     type="primary"
                     style={{
                         border: "None",
@@ -98,7 +144,15 @@ const SetupAccountPage = () => {
         {
             key: "password",
             icon: (
-                <Badge status="success" dot={true}>
+                <Badge
+                    status={
+                        !user["first_time_setup"] ||
+                        user["is_password_setup"] === true
+                            ? "success"
+                            : "error"
+                    }
+                    dot={true}
+                >
                     <PasswordIcon fill="rgba(255,255,255,0.65)" />
                 </Badge>
             ),
@@ -111,7 +165,15 @@ const SetupAccountPage = () => {
         {
             key: "securityQuestions",
             icon: (
-                <Badge status="success" dot={true}>
+                <Badge
+                    status={
+                        !user["first_time_setup"] ||
+                        user["is_security_qa_setup"] === true
+                            ? "success"
+                            : "error"
+                    }
+                    dot={true}
+                >
                     <SecurityQuestionIcon fill="rgba(255,255,255,0.65)" />
                 </Badge>
             ),
@@ -154,10 +216,6 @@ const SetupAccountPage = () => {
                         </Title>
                         {components[current]["component"]}
                     </Flex>
-                    {/* <Flex style={{ padding: "24px" }} vertical={true}>
-                        <Title level={3}>{components[current]["title"]}</Title>
-                        {components[current]["component"]}
-                    </Flex> */}
                 </Content>
             </Layout>
         </Layout>
