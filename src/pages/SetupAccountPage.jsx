@@ -19,6 +19,7 @@ import {
     setupPasswordFirstTime,
     setupSecurityQAFirstTime,
 } from "../slices/authSlice";
+import { showMessage } from "../slices/messageSlice";
 import authService from "../services/authService";
 import { ROUTES, QUESTION_KEY_PREFIX, ANSWER_KEY_PREFIX } from "../constants";
 
@@ -28,13 +29,12 @@ const { Title, Paragraph, Text } = Typography;
 const SetupAccountPage = () => {
     const navigate = useNavigate();
     const [current, setCurrent] = useState("welcome");
+    const [loadingComplete, setLoadingComplete] = useState(false);
     const dispatch = useDispatch();
     const { user, loading } = useSelector((state) => state.auth);
 
     const onSubmitSetPasswordForm = async (values) => {
-        const resultAction = await dispatch(setupPasswordFirstTime(values));
-        if (setupPasswordFirstTime.fulfilled.match(resultAction)) {
-        }
+        await dispatch(setupPasswordFirstTime(values));
     };
 
     const onSubmitSetSecurityQAForm = async (values) => {
@@ -55,14 +55,31 @@ const SetupAccountPage = () => {
             },
             { questions: [], answers: [] }
         );
-        const resultAction = await dispatch(setupSecurityQAFirstTime(payload));
-        if (setupSecurityQAFirstTime.fulfilled.match(resultAction)) {
-        }
+        await dispatch(setupSecurityQAFirstTime(payload));
     };
 
     const handleCompleteSetup = async (e) => {
-        await authService.deleteScopeToken();
-        navigate(ROUTES.SETUP_ACCOUNT, { replace: true });
+        try {
+            setLoadingComplete(true);
+            await authService.deleteScopeToken();
+            navigate(ROUTES.LOGIN, { replace: true });
+            dispatch(
+                showMessage({
+                    type: "success",
+                    content: "Complete account setup",
+                })
+            );
+        } catch (error) {
+            dispatch(
+                showMessage({
+                    type: "error",
+                    content:
+                        error.response?.data?.message || "Something went wrong",
+                })
+            );
+        } finally {
+            setLoadingComplete(false);
+        }
     };
 
     const handleMenuClick = (e) => {
@@ -126,7 +143,8 @@ const SetupAccountPage = () => {
             }, // Not displaying disable pointer in the whole menu item
             label: (
                 <Button
-                    disabled={!(process === 100)}
+                    disabled={process !== 100 || loadingComplete}
+                    loading={loadingComplete}
                     onClick={handleCompleteSetup}
                     type="primary"
                     style={{

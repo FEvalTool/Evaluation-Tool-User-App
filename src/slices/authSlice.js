@@ -67,7 +67,17 @@ export const setupPasswordFirstTime = createAsyncThunk(
                     content: "Set password successfully",
                 })
             );
-            return { user: response.data.user };
+            // If user complete setup account
+            // We don't want first_time_setup to be false
+            // If this flag is false => will redirect to dashboard page 
+            // => redirect to login page (no access token) (scope token still exist)
+            let userPayload = response.data.user
+            if (!userPayload["first_time_setup"]) {
+                userPayload["first_time_setup"] = true
+                userPayload["is_password_setup"] = true
+                userPayload["is_security_qa_setup"] = true
+            }
+            return { user: userPayload };
         } catch (err) {
             dispatch(
                 showMessage({
@@ -92,7 +102,14 @@ export const setupSecurityQAFirstTime = createAsyncThunk(
                     content: "Set security QA successfully",
                 })
             );
-            return { user: response.data.user };
+            // Same issue mentioned in setupPasswordFirstTime
+            let userPayload = response.data.user
+            if (!userPayload["first_time_setup"]) {
+                userPayload["first_time_setup"] = true
+                userPayload["is_password_setup"] = true
+                userPayload["is_security_qa_setup"] = true
+            }
+            return { user: userPayload };
         } catch (err) {
             dispatch(
                 showMessage({
@@ -145,15 +162,7 @@ const authSlice = createSlice({
             })
             .addCase(setupPasswordFirstTime.fulfilled, (state, action) => {
                 state.loading = false;
-                if (action.payload.user["first_time_setup"]) {
-                    state.user["first_time_setup"] = action.payload.user["first_time_setup"]
-                    state.user["is_password_setup"] = action.payload.user["is_password_setup"]
-                    state.user["is_security_qa_setup"] = action.payload.user["is_security_qa_setup"]
-                } else {
-                    delete state.user["first_time_setup"]
-                    delete state.user["is_password_setup"]
-                    delete state.user["is_security_qa_setup"]
-                }
+                state.user = action.payload.user
                 localStorage.setItem(
                     "user",
                     JSON.stringify(state.user)
@@ -167,15 +176,7 @@ const authSlice = createSlice({
             })
             .addCase(setupSecurityQAFirstTime.fulfilled, (state, action) => {
                 state.loading = false;
-                if (action.payload.user["first_time_setup"]) {
-                    state.user["first_time_setup"] = action.payload.user["first_time_setup"]
-                    state.user["is_password_setup"] = action.payload.user["is_password_setup"]
-                    state.user["is_security_qa_setup"] = action.payload.user["is_security_qa_setup"]
-                } else {
-                    delete state.user["first_time_setup"]
-                    delete state.user["is_password_setup"]
-                    delete state.user["is_security_qa_setup"]
-                }
+                state.user = action.payload.user
                 localStorage.setItem(
                     "user",
                     JSON.stringify(state.user)
