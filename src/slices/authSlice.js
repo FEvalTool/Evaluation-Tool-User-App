@@ -15,7 +15,11 @@ export const login = createAsyncThunk(
                     content: response.data.message,
                 })
             );
-            return { user: response.data.user };
+            payload = { user: response.data.user };
+            if (response.data["scope_exp"]) {
+                payload["scopeExp"] = response.data["scope_exp"];
+            }
+            return payload;
         } catch (err) {
             dispatch(
                 showMessage({
@@ -69,13 +73,13 @@ export const setupPasswordFirstTime = createAsyncThunk(
             );
             // If user complete setup account
             // We don't want first_time_setup to be false
-            // If this flag is false => will redirect to dashboard page 
+            // If this flag is false => will redirect to dashboard page
             // => redirect to login page (no access token) (scope token still exist)
-            let userPayload = response.data.user
+            let userPayload = response.data.user;
             if (!userPayload["first_time_setup"]) {
-                userPayload["first_time_setup"] = true
-                userPayload["is_password_setup"] = true
-                userPayload["is_security_qa_setup"] = true
+                userPayload["first_time_setup"] = true;
+                userPayload["is_password_setup"] = true;
+                userPayload["is_security_qa_setup"] = true;
             }
             return { user: userPayload };
         } catch (err) {
@@ -88,7 +92,7 @@ export const setupPasswordFirstTime = createAsyncThunk(
             return rejectWithValue();
         }
     }
-)
+);
 
 export const setupSecurityQAFirstTime = createAsyncThunk(
     "auth/setupSecurityQA",
@@ -103,11 +107,11 @@ export const setupSecurityQAFirstTime = createAsyncThunk(
                 })
             );
             // Same issue mentioned in setupPasswordFirstTime
-            let userPayload = response.data.user
+            let userPayload = response.data.user;
             if (!userPayload["first_time_setup"]) {
-                userPayload["first_time_setup"] = true
-                userPayload["is_password_setup"] = true
-                userPayload["is_security_qa_setup"] = true
+                userPayload["first_time_setup"] = true;
+                userPayload["is_password_setup"] = true;
+                userPayload["is_security_qa_setup"] = true;
             }
             return { user: userPayload };
         } catch (err) {
@@ -120,7 +124,7 @@ export const setupSecurityQAFirstTime = createAsyncThunk(
             return rejectWithValue();
         }
     }
-)
+);
 
 const authSlice = createSlice({
     name: "auth",
@@ -128,7 +132,15 @@ const authSlice = createSlice({
         user: localStorage.getItem("user")
             ? JSON.parse(localStorage.getItem("user"))
             : null,
+        scopeExp: localStorage.getItem("scopeExp")
+            ? JSON.parse(localStorage.getItem("scopeExp"))
+            : 0, // Expire time for scope token
         loading: false,
+    },
+    reducers: {
+        setZeroScopeExp(state) {
+            state.scopeExp = 0;
+        },
     },
     extraReducers: (builder) => {
         builder
@@ -142,6 +154,10 @@ const authSlice = createSlice({
                     "user",
                     JSON.stringify(action.payload.user)
                 );
+                if (action.payload.scopeExp) {
+                    state.scopeExp = action.payload.scopeExp;
+                    localStorage.setItem("scopeExp", action.payload.scopeExp);
+                }
             })
             .addCase(login.rejected, (state, action) => {
                 state.loading = false;
@@ -152,7 +168,9 @@ const authSlice = createSlice({
             .addCase(logout.fulfilled, (state, action) => {
                 state.loading = false;
                 state.user = null;
+                state.scopeExp = 0;
                 localStorage.removeItem("user");
+                localStorage.removeItem("scopeExp");
             })
             .addCase(logout.rejected, (state, action) => {
                 state.loading = false;
@@ -162,10 +180,10 @@ const authSlice = createSlice({
             })
             .addCase(setupPasswordFirstTime.fulfilled, (state, action) => {
                 state.loading = false;
-                state.user = action.payload.user
+                state.user = action.payload.user;
                 localStorage.setItem(
                     "user",
-                    JSON.stringify(state.user)
+                    JSON.stringify(action.payload.user)
                 );
             })
             .addCase(setupPasswordFirstTime.rejected, (state, action) => {
@@ -176,10 +194,10 @@ const authSlice = createSlice({
             })
             .addCase(setupSecurityQAFirstTime.fulfilled, (state, action) => {
                 state.loading = false;
-                state.user = action.payload.user
+                state.user = action.payload.user;
                 localStorage.setItem(
                     "user",
-                    JSON.stringify(state.user)
+                    JSON.stringify(action.payload.user)
                 );
             })
             .addCase(setupSecurityQAFirstTime.rejected, (state, action) => {
@@ -188,4 +206,5 @@ const authSlice = createSlice({
     },
 });
 
+export const { setZeroScopeExp } = authSlice.actions;
 export default authSlice.reducer;

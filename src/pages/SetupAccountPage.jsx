@@ -15,13 +15,16 @@ import { PasswordIcon, SecurityQuestionIcon } from "../components/CustomIcon";
 import MenuContainer from "../components/MenuContainer";
 import UpdatePasswordForm from "../components/forms/UpdatePasswordForm";
 import UpdateSecurityQAForm from "../components/forms/UpdateSecurityQAForm";
+import SecurityAlert from "../components/SecurityAlert";
 import {
     setupPasswordFirstTime,
     setupSecurityQAFirstTime,
+    setZeroScopeExp,
 } from "../slices/authSlice";
 import { showMessage } from "../slices/messageSlice";
 import authService from "../services/authService";
 import { ROUTES, QUESTION_KEY_PREFIX, ANSWER_KEY_PREFIX } from "../constants";
+import SuccessResult from "../components/SuccessResult";
 
 const { Content } = Layout;
 const { Title, Paragraph, Text } = Typography;
@@ -31,7 +34,7 @@ const SetupAccountPage = () => {
     const [current, setCurrent] = useState("welcome");
     const [loadingComplete, setLoadingComplete] = useState(false);
     const dispatch = useDispatch();
-    const { user, loading } = useSelector((state) => state.auth);
+    const { user, loading, scopeExp } = useSelector((state) => state.auth);
 
     const onSubmitSetPasswordForm = async (values) => {
         await dispatch(setupPasswordFirstTime(values));
@@ -62,6 +65,7 @@ const SetupAccountPage = () => {
         try {
             setLoadingComplete(true);
             await authService.deleteScopeToken();
+            dispatch(setZeroScopeExp());
             navigate(ROUTES.LOGIN, { replace: true });
             dispatch(
                 showMessage({
@@ -105,23 +109,37 @@ const SetupAccountPage = () => {
         },
         password: {
             title: "Setup Password",
-            component: (
-                <UpdatePasswordForm
-                    disabled={loading}
-                    onSubmit={onSubmitSetPasswordForm}
-                    shouldWarn={false}
-                />
-            ),
+            component:
+                !user["first_time_setup"] ||
+                user["is_password_setup"] === true ? (
+                    <SuccessResult
+                        title="Complete Setup Password"
+                        subTitle="You can move to unfinished sections and complete the setup"
+                    />
+                ) : (
+                    <UpdatePasswordForm
+                        disabled={loading}
+                        onSubmit={onSubmitSetPasswordForm}
+                        shouldWarn={false}
+                    />
+                ),
         },
         securityQuestions: {
             title: "Setup Security Question",
-            component: (
-                <UpdateSecurityQAForm
-                    disabled={loading}
-                    onSubmit={onSubmitSetSecurityQAForm}
-                    shouldWarn={false}
-                />
-            ),
+            component:
+                !user["first_time_setup"] ||
+                user["is_security_qa_setup"] === true ? (
+                    <SuccessResult
+                        title="Complete Setup Security Question"
+                        subTitle="You can move to unfinished sections and complete the setup"
+                    />
+                ) : (
+                    <UpdateSecurityQAForm
+                        disabled={loading}
+                        onSubmit={onSubmitSetSecurityQAForm}
+                        shouldWarn={false}
+                    />
+                ),
         },
     };
 
@@ -228,6 +246,7 @@ const SetupAccountPage = () => {
             </ConfigProvider>
             <Layout>
                 <Content>
+                    <SecurityAlert exp={scopeExp} />
                     <Flex vertical={true} style={{ padding: "20px" }}>
                         <Title level={3} style={{ marginTop: "0px" }}>
                             {components[current]["title"]}
