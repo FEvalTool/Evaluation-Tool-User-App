@@ -1,13 +1,15 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
+    notification,
     Badge,
     Button,
     ConfigProvider,
     Flex,
     Layout,
     Progress,
+    Space,
     Typography,
 } from "antd";
 
@@ -19,10 +21,8 @@ import SecurityAlert from "../components/SecurityAlert";
 import {
     setupPasswordFirstTime,
     setupSecurityQAFirstTime,
-    setZeroScopeExp,
+    logout,
 } from "../slices/authSlice";
-import { showMessage } from "../slices/messageSlice";
-import authService from "../services/authService";
 import { ROUTES, QUESTION_KEY_PREFIX, ANSWER_KEY_PREFIX } from "../constants";
 import SuccessResult from "../components/SuccessResult";
 
@@ -31,10 +31,76 @@ const { Title, Paragraph, Text } = Typography;
 
 const SetupAccountPage = () => {
     const navigate = useNavigate();
-    const [current, setCurrent] = useState("welcome");
-    const [loadingComplete, setLoadingComplete] = useState(false);
     const dispatch = useDispatch();
     const { user, loading, scopeExp } = useSelector((state) => state.auth);
+
+    const [current, setCurrent] = useState("welcome");
+    const [loadingCompleteButton, setLoadingCompleteButton] = useState(false);
+
+    const stayOnPageRef = useRef(false);
+    const notificationKeyRef = useRef(null);
+    const [api, contextHolder] = notification.useNotification();
+    const openNotification = () => {
+        // 1. If there is an existing notification, destroy it immediately
+        if (notificationKeyRef.current) {
+            api.destroy(notificationKeyRef.current);
+        }
+
+        // 2. Reset our flag
+        stayOnPageRef.current = false;
+        setLoadingCompleteButton(true);
+
+        // 3. Create a truly unique key for THIS specific notification instance
+        const key = `open${Date.now()}`;
+        notificationKeyRef.current = key;
+
+        const notificationBtn = (
+            <Space>
+                <Button
+                    onClick={() => {
+                        stayOnPageRef.current = true;
+                        api.destroy(key);
+                        setLoadingCompleteButton(false);
+                        notificationKeyRef.current = null;
+                    }}
+                >
+                    Stay on page
+                </Button>
+                <Button type="primary" onClick={handleRedirectLogin}>
+                    Login now
+                </Button>
+            </Space>
+        );
+        api.open({
+            title: "Setup Complete!",
+            description:
+                "You've finished the required steps. We'll redirect you to the login page shortly, but feel free to stay if you want to complete any remaining optional information.",
+            btn: notificationBtn,
+            key,
+            onClose: () => {
+                // ONLY redirect if:
+                // - The user didn't click "Stay on page"
+                // - AND this specific notification is still the "active" one
+                if (
+                    !stayOnPageRef.current &&
+                    notificationKeyRef.current === key
+                ) {
+                    handleRedirectLogin();
+                }
+            },
+            closeIcon: false,
+            duration: 5,
+            showProgress: true,
+            pauseOnHover: false,
+        });
+    };
+    const handleRedirectLogin = async () => {
+        const resultAction = await dispatch(logout({ first_time_setup: true }));
+        if (logout.fulfilled.match(resultAction)) {
+            navigate(ROUTES.LOGIN, { replace: true });
+        }
+        setLoadingCompleteButton(false);
+    };
 
     const onSubmitSetPasswordForm = async (values) => {
         await dispatch(setupPasswordFirstTime(values));
@@ -59,31 +125,6 @@ const SetupAccountPage = () => {
             { questions: [], answers: [] }
         );
         await dispatch(setupSecurityQAFirstTime(payload));
-    };
-
-    const handleCompleteSetup = async (e) => {
-        try {
-            setLoadingComplete(true);
-            await authService.deleteScopeToken();
-            dispatch(setZeroScopeExp());
-            navigate(ROUTES.LOGIN, { replace: true });
-            dispatch(
-                showMessage({
-                    type: "success",
-                    content: "Complete account setup",
-                })
-            );
-        } catch (error) {
-            dispatch(
-                showMessage({
-                    type: "error",
-                    content:
-                        error.response?.data?.message || "Something went wrong",
-                })
-            );
-        } finally {
-            setLoadingComplete(false);
-        }
     };
 
     const handleMenuClick = (e) => {
@@ -118,7 +159,7 @@ const SetupAccountPage = () => {
                     />
                 ) : (
                     <UpdatePasswordForm
-                        disabled={loading}
+                        disabled={loading || loadingCompleteButton}
                         onSubmit={onSubmitSetPasswordForm}
                         shouldWarn={false}
                     />
@@ -135,7 +176,7 @@ const SetupAccountPage = () => {
                     />
                 ) : (
                     <UpdateSecurityQAForm
-                        disabled={loading}
+                        disabled={loading || loadingCompleteButton}
                         onSubmit={onSubmitSetSecurityQAForm}
                         shouldWarn={false}
                     />
@@ -161,9 +202,9 @@ const SetupAccountPage = () => {
             }, // Not displaying disable pointer in the whole menu item
             label: (
                 <Button
-                    disabled={process !== 100 || loadingComplete}
-                    loading={loadingComplete}
-                    onClick={handleCompleteSetup}
+                    disabled={process !== 100 || loadingCompleteButton}
+                    loading={loadingCompleteButton}
+                    onClick={openNotification}
                     type="primary"
                     style={{
                         border: "None",
@@ -179,6 +220,7 @@ const SetupAccountPage = () => {
         },
         {
             key: "password",
+            disabled: loadingCompleteButton,
             icon: (
                 <Badge
                     status={
@@ -200,6 +242,7 @@ const SetupAccountPage = () => {
         },
         {
             key: "securityQuestions",
+            disabled: loadingCompleteButton,
             icon: (
                 <Badge
                     status={
@@ -223,6 +266,7 @@ const SetupAccountPage = () => {
 
     return (
         <Layout style={{ width: "100vw", height: "100vh" }}>
+            {contextHolder}
             <ConfigProvider
                 theme={{
                     token: {

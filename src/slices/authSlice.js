@@ -15,7 +15,7 @@ export const login = createAsyncThunk(
                     content: response.data.message,
                 })
             );
-            payload = { user: response.data.user };
+            let payload = { user: response.data.user };
             if (response.data["scope_exp"]) {
                 payload["scopeExp"] = response.data["scope_exp"];
             }
@@ -24,7 +24,8 @@ export const login = createAsyncThunk(
             dispatch(
                 showMessage({
                     type: "error",
-                    content: err.response.data.message,
+                    content:
+                        err?.response?.data?.message || "Something went wrong",
                 })
             );
             return rejectWithValue();
@@ -51,7 +52,8 @@ export const logout = createAsyncThunk(
             dispatch(
                 showMessage({
                     type: "error",
-                    content: err.response.data.message,
+                    content:
+                        err?.response?.data?.message || "Something went wrong",
                 })
             );
             return rejectWithValue();
@@ -86,7 +88,8 @@ export const setupPasswordFirstTime = createAsyncThunk(
             dispatch(
                 showMessage({
                     type: "error",
-                    content: err.response.data.message,
+                    content:
+                        err?.response?.data?.message || "Something went wrong",
                 })
             );
             return rejectWithValue();
@@ -118,7 +121,8 @@ export const setupSecurityQAFirstTime = createAsyncThunk(
             dispatch(
                 showMessage({
                     type: "error",
-                    content: err.response.data.message,
+                    content:
+                        err?.response?.data?.message || "Something went wrong",
                 })
             );
             return rejectWithValue();
@@ -131,16 +135,11 @@ const authSlice = createSlice({
     initialState: {
         user: localStorage.getItem("user")
             ? JSON.parse(localStorage.getItem("user"))
-            : null,
+            : {},
         scopeExp: localStorage.getItem("scopeExp")
             ? JSON.parse(localStorage.getItem("scopeExp"))
             : 0, // Expire time for scope token
         loading: false,
-    },
-    reducers: {
-        setZeroScopeExp(state) {
-            state.scopeExp = 0;
-        },
     },
     extraReducers: (builder) => {
         builder
@@ -167,7 +166,7 @@ const authSlice = createSlice({
             })
             .addCase(logout.fulfilled, (state, action) => {
                 state.loading = false;
-                state.user = null;
+                state.user = {};
                 state.scopeExp = 0;
                 localStorage.removeItem("user");
                 localStorage.removeItem("scopeExp");
