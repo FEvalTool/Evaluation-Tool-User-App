@@ -205,5 +205,4 @@ const authSlice = createSlice({
     },
 });
 
-export const { setZeroScopeExp } = authSlice.actions;
 export default authSlice.reducer;
