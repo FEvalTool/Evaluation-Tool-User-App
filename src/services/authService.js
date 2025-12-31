@@ -15,7 +15,6 @@ const genSecurityQAVerificationToken = (body) => {
 };
 
 const verifyToken = (tokenType) => {
-    console.log(tokenType);
     return request.post(
         `${API_URL}/token/verify/`,
         { token_type: tokenType },

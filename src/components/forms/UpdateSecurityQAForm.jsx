@@ -26,7 +26,6 @@ const UpdateSecurityQAForm = ({ onSubmit, disabled, shouldWarn }) => {
                 value: question.id,
                 label: question.content,
             }));
-            console.log("options", questionOptions);
             setQuestions(questionOptions);
         };
         fetchQuestions();
