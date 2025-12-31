@@ -6,8 +6,8 @@ const getUserSecurityQuestions = (params) => {
     return request.get(`${API_URL}/security_questions`, { params });
 };
 
-const getUserInfo = () => {
-    return request.get(`${API_URL}/info`, { withCredentials: true });
+const getUserSetupStatus = () => {
+    return request.get(`${API_URL}/setup_status`, { withCredentials: true });
 };
 
 const setPassword = (body) => {
@@ -24,7 +24,7 @@ const setSecurityQA = (body) => {
 
 const accountService = {
     getUserSecurityQuestions,
-    getUserInfo,
+    getUserSetupStatus,
     setPassword,
     setSecurityQA
 };

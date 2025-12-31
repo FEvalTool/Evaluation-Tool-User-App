@@ -66,7 +66,7 @@ export const setupPasswordFirstTime = createAsyncThunk(
     async (values, { dispatch, rejectWithValue }) => {
         try {
             await accountService.setPassword(values);
-            const response = await accountService.getUserInfo();
+            const response = await accountService.getUserSetupStatus();
             dispatch(
                 showMessage({
                     type: "success",
@@ -102,7 +102,7 @@ export const setupSecurityQAFirstTime = createAsyncThunk(
     async (values, { dispatch, rejectWithValue }) => {
         try {
             await accountService.setSecurityQA(values);
-            const response = await accountService.getUserInfo();
+            const response = await accountService.getUserSetupStatus();
             dispatch(
                 showMessage({
                     type: "success",
