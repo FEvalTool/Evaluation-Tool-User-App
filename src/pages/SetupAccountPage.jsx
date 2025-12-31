@@ -133,7 +133,7 @@ const SetupAccountPage = () => {
 
     const components = {
         welcome: {
-            title: "Welcome",
+            title: "Welcome to setup account page",
             component: (
                 <>
                     <Paragraph>

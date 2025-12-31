@@ -103,7 +103,9 @@ describe("LoginPage navigation flow", () => {
         await user.click(submitButton);
 
         await waitFor(() => {
-            expect(screen.getByText(/Setup account page/i)).toBeInTheDocument();
+            expect(
+                screen.getByText(/Welcome to setup account page/i)
+            ).toBeInTheDocument();
             expect(screen.getByText(/newTestUser/i)).toBeInTheDocument();
             expect(JSON.parse(localStorage.getItem("user"))).toEqual(
                 accountData[0]
