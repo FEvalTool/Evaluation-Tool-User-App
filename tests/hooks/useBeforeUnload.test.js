@@ -10,11 +10,11 @@ describe("useBeforeUnload", () => {
         });
     });
 
-    it("calls deleteScopeTokenBeacon on beforeunload", () => {
+    it("should call deleteScopeTokenBeacon on beforeunload (shouldWarn = true)", () => {
         const spy = vi.spyOn(authService, "deleteScopeTokenBeacon");
 
         // Render the hook with shouldWarn = true
-        renderHook(() => useBeforeUnload());
+        renderHook(() => useBeforeUnload(true));
 
         const event = new Event("beforeunload");
         event.preventDefault = vi.fn();
@@ -23,5 +23,20 @@ describe("useBeforeUnload", () => {
 
         expect(event.preventDefault).toHaveBeenCalled();
         expect(spy).toHaveBeenCalled();
+    });
+
+    it("should not call deleteScopeTokenBeacon on beforeunload (shouldWarn = false)", () => {
+        const spy = vi.spyOn(authService, "deleteScopeTokenBeacon");
+
+        // Render the hook with shouldWarn = false
+        renderHook(() => useBeforeUnload(false));
+
+        const event = new Event("beforeunload");
+        event.preventDefault = vi.fn();
+
+        window.dispatchEvent(event);
+
+        expect(event.preventDefault).not.toHaveBeenCalled();
+        expect(spy).not.toHaveBeenCalled();
     });
 });

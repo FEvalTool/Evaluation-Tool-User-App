@@ -31,6 +31,9 @@ const MainLayout = () => {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "space-between",
+                    backgroundColor: "#153450",
+                    boxShadow: "0 3px 12px rgba(0, 0, 0, 0.25)",
+                    zIndex: 10,
                 }}
             >
                 <LogoIcon size={64} />
