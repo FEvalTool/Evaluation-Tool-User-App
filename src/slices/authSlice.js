@@ -137,7 +137,7 @@ const authSlice = createSlice({
             ? JSON.parse(localStorage.getItem("user"))
             : {},
         scopeExp: localStorage.getItem("scopeExp")
-            ? JSON.parse(localStorage.getItem("scopeExp"))
+            ? parseInt(localStorage.getItem("scopeExp"), 10)
             : 0, // Expire time for scope token
         loading: false,
     },
