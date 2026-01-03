@@ -20,3 +20,11 @@ export const setupSecurityQA = async (user) => {
         await user.type(answerInput, securityAnswers[i]);
     }
 };
+
+export const setupPassword = async (user) => {
+    const passwordInput = screen.getByLabelText(/new password/i);
+    const confirmPasswordInput = screen.getByLabelText(/confirm password/i);
+
+    await user.type(passwordInput, "newPASSWORD123@");
+    await user.type(confirmPasswordInput, "newPASSWORD123@");
+};

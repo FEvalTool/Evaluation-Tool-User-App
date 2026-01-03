@@ -6,7 +6,7 @@ import { http, HttpResponse } from "msw";
 import { renderWithProviders } from "../mocks/mockStoreWrapper";
 import { accountData } from "../mocks/data/account";
 import { server } from "../mocks/server";
-import { setupSecurityQA } from "../helpers/setupAccountFlows";
+import { setupPassword, setupSecurityQA } from "../helpers/setupAccountFlows";
 import { ROUTES } from "../../src/constants";
 import MessageWrapper from "../../src/components/MessageWrapper";
 import LoginPage from "../../src/pages/LoginPage";
@@ -135,6 +135,90 @@ describe("SetupAccountPage - Password setup flow", () => {
             expect(confirmPasswordInput).toBeInTheDocument();
             expect(confirmPasswordInput).toHaveAttribute("type", "password");
             expect(submitButton).toBeInTheDocument();
+        });
+    });
+
+    it("should render success result when submit success", async () => {
+        renderWithProviders(<AppRouter />, {
+            preloadedState: { auth: { user: accountData[0] } },
+            route: ROUTES.SETUP_ACCOUNT,
+        });
+        const user = getUserEventInstance();
+
+        // Mock user status API response after submit
+        mockSetupStatus({
+            first_time_setup: true,
+            is_password_setup: true,
+            is_security_qa_setup: false,
+        });
+
+        const passwordMenuItem = screen
+            .getByText(/Setup Password/i)
+            .closest(".ant-menu-item");
+        await user.click(passwordMenuItem);
+
+        await setupPassword(user);
+        await user.click(screen.getByRole("button", { name: /submit/i }));
+
+        await waitFor(() => {
+            expect(
+                screen.getByText(/Complete Setup Password/i)
+            ).toBeInTheDocument();
+            // Status check
+            const passwordBadgeDot =
+                passwordMenuItem.querySelector(".ant-badge-dot");
+            expect(passwordBadgeDot).toHaveClass("ant-badge-status-success");
+            const progressText = screen.getByText(/50%/);
+            expect(progressText).toBeInTheDocument();
+        });
+    });
+
+    it("should render error notification when submit failed", async () => {
+        let currentTime = Date.now() + 10 * 60 * 1000;
+        renderWithProviders(<AppRouter />, {
+            preloadedState: {
+                auth: { user: accountData[0], scopeExp: currentTime },
+            },
+            route: ROUTES.SETUP_ACCOUNT,
+        });
+        const user = getUserEventInstance();
+
+        // Mock set security questions API failed
+        // (we will test the case when user update
+        // after 10-minute security session pass)
+        server.use(
+            http.post("account/password", ({ request }) => {
+                return HttpResponse.json(
+                    {
+                        message: "Token 'scope' not found",
+                    },
+                    { status: 400 }
+                );
+            })
+        );
+
+        const passwordMenuItem = screen
+            .getByText(/Setup Password/i)
+            .closest(".ant-menu-item");
+        await user.click(passwordMenuItem);
+
+        await setupPassword(user);
+        // 10-minute security session passes
+        vi.advanceTimersByTime(10 * 60 * 1000);
+        await user.click(screen.getByRole("button", { name: /submit/i }));
+
+        await waitFor(() => {
+            const timeElement = screen.getByText(/(\d{2}):(\d{2})/);
+            expect(timeElement.textContent).toMatch(/00:00/);
+            expect(
+                screen.getByText(/Token 'scope' not found/i)
+            ).toBeInTheDocument();
+            // Status check
+            const passwordBadgeDot =
+                passwordMenuItem.querySelector(".ant-badge-dot");
+            expect(passwordBadgeDot).toHaveClass("ant-badge-status-error");
+            const progressText = screen.getByText(/0%/);
+            expect(progressText).toBeInTheDocument();
         });
     });
 });
