@@ -1,11 +1,14 @@
 import { screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { Route, Routes } from "react-router-dom";
+import userEvent from "@testing-library/user-event";
+import { http, HttpResponse } from "msw";
 
-import MessageWrapper from "../../src/components/MessageWrapper";
 import { renderWithProviders } from "../mocks/mockStoreWrapper";
 import { accountData } from "../mocks/data/account";
+import { server } from "../mocks/server";
+import { setupSecurityQA } from "../helpers/setupAccountFlows";
 import { ROUTES } from "../../src/constants";
+import MessageWrapper from "../../src/components/MessageWrapper";
 import LoginPage from "../../src/pages/LoginPage";
 import SetupAccountPage from "../../src/pages/SetupAccountPage";
 
@@ -39,6 +42,15 @@ const getUserEventInstance = () =>
     userEvent.setup({
         advanceTimers: vi.advanceTimersByTime.bind(vi),
     });
+
+// Mock get user setup api function
+const mockSetupStatus = (data) => {
+    server.use(
+        http.get("account/setup_status", () => {
+            return HttpResponse.json({ user: data });
+        })
+    );
+};
 
 describe("SetupAccountPage - integration test flow", () => {
     it("should render Setup Account Page correctly", async () => {
@@ -145,7 +157,6 @@ describe("SetupAccountPage - Security Question Answer setup flow", () => {
         const securityMenuItem = screen
             .getByText(/Setup Security Questions/i)
             .closest(".ant-menu-item");
-
         await user.click(securityMenuItem);
 
         await waitFor(() => {
@@ -164,6 +175,87 @@ describe("SetupAccountPage - Security Question Answer setup flow", () => {
                 name: /submit/i,
             });
             expect(submitButton).toBeInTheDocument();
+        });
+    });
+
+    it("should render success result when submit success", async () => {
+        renderWithProviders(<AppRouter />, {
+            preloadedState: {
+                auth: { user: accountData[0] },
+            },
+            route: ROUTES.SETUP_ACCOUNT,
+        });
+        const user = getUserEventInstance();
+
+        // Mock user status API response after submit
+        mockSetupStatus({
+            first_time_setup: true,
+            is_password_setup: false,
+            is_security_qa_setup: true,
+        });
+
+        const securityMenuItem = screen
+            .getByText(/Setup Security Questions/i)
+            .closest(".ant-menu-item");
+        await user.click(securityMenuItem);
+
+        // Setup security qa
+        await setupSecurityQA(user);
+        await user.click(screen.getByRole("button", { name: /submit/i }));
+
+        await waitFor(() => {
+            expect(
+                screen.getByText(/Complete Setup Security Question/i)
+            ).toBeInTheDocument();
+            // Status check
+            const securityBadgeDot =
+                securityMenuItem.querySelector(".ant-badge-dot");
+            expect(securityBadgeDot).toHaveClass("ant-badge-status-success");
+            const progressText = screen.getByText(/50%/);
+            expect(progressText).toBeInTheDocument();
+        });
+    });
+
+    it("should render error notification when submit failed", async () => {
+        renderWithProviders(<AppRouter />, {
+            preloadedState: {
+                auth: { user: accountData[0] },
+            },
+            route: ROUTES.SETUP_ACCOUNT,
+        });
+        const user = getUserEventInstance();
+
+        // Mock set security questions API failed
+        server.use(
+            http.post("account/security_questions", ({ request }) => {
+                return HttpResponse.json(
+                    {
+                        message: "Token 'scope' not found",
+                    },
+                    { status: 400 }
+                );
+            })
+        );
+
+        const securityMenuItem = screen
+            .getByText(/Setup Security Questions/i)
+            .closest(".ant-menu-item");
+        await user.click(securityMenuItem);
+
+        // Setup security qa
+        await setupSecurityQA(user);
+        await user.click(screen.getByRole("button", { name: /submit/i }));
+
+        await waitFor(() => {
+            expect(
+                screen.getByText(/Token 'scope' not found/i)
+            ).toBeInTheDocument();
+            // Status check
+            const securityBadgeDot =
+                securityMenuItem.querySelector(".ant-badge-dot");
+            expect(securityBadgeDot).toHaveClass("ant-badge-status-error");
+            const progressText = screen.getByText(/0%/);
+            expect(progressText).toBeInTheDocument();
         });
     });
 });

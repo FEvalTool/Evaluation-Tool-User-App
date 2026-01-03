@@ -25,7 +25,14 @@ const accountHandlers = [
         return HttpResponse.json(
             {
                 messages: "Set new password success",
-                questions: securityQuestionsResponse,
+            },
+            { status: 200 }
+        );
+    }),
+    http.post(`${API_URL}/security_questions`, async ({ request }) => {
+        return HttpResponse.json(
+            {
+                messages: "Set security questions success",
             },
             { status: 200 }
         );
