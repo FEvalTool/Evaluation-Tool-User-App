@@ -55,8 +55,6 @@ const mockSetupStatus = (data) => {
 describe("SetupAccountPage - integration test flow", () => {
     it("should render Setup Account Page correctly", async () => {
         let currentTime = Date.now() + 10 * 60 * 1000;
-        localStorage.setItem("user", accountData[0]);
-        localStorage.setItem("scopeExp", currentTime);
         renderWithProviders(<AppRouter />, {
             preloadedState: {
                 auth: { user: accountData[0], scopeExp: currentTime },
@@ -115,9 +113,7 @@ describe("SetupAccountPage - integration test flow", () => {
 describe("SetupAccountPage - Password setup flow", () => {
     it("should render Setup password form correctly", async () => {
         renderWithProviders(<AppRouter />, {
-            preloadedState: {
-                auth: { user: accountData[0] },
-            },
+            preloadedState: { auth: { user: accountData[0] } },
             route: ROUTES.SETUP_ACCOUNT,
         });
         const user = getUserEventInstance();
@@ -125,7 +121,6 @@ describe("SetupAccountPage - Password setup flow", () => {
         const passwordMenuItem = screen
             .getByText(/Setup Password/i)
             .closest(".ant-menu-item");
-
         await user.click(passwordMenuItem);
 
         await waitFor(() => {
@@ -147,9 +142,7 @@ describe("SetupAccountPage - Password setup flow", () => {
 describe("SetupAccountPage - Security Question Answer setup flow", () => {
     it("should render Setup security question answer form correctly", async () => {
         renderWithProviders(<AppRouter />, {
-            preloadedState: {
-                auth: { user: accountData[0] },
-            },
+            preloadedState: { auth: { user: accountData[0] } },
             route: ROUTES.SETUP_ACCOUNT,
         });
         const user = getUserEventInstance();
@@ -180,9 +173,7 @@ describe("SetupAccountPage - Security Question Answer setup flow", () => {
 
     it("should render success result when submit success", async () => {
         renderWithProviders(<AppRouter />, {
-            preloadedState: {
-                auth: { user: accountData[0] },
-            },
+            preloadedState: { auth: { user: accountData[0] } },
             route: ROUTES.SETUP_ACCOUNT,
         });
         const user = getUserEventInstance();
@@ -217,15 +208,18 @@ describe("SetupAccountPage - Security Question Answer setup flow", () => {
     });
 
     it("should render error notification when submit failed", async () => {
+        let currentTime = Date.now() + 10 * 60 * 1000;
         renderWithProviders(<AppRouter />, {
             preloadedState: {
-                auth: { user: accountData[0] },
+                auth: { user: accountData[0], scopeExp: currentTime },
             },
             route: ROUTES.SETUP_ACCOUNT,
         });
         const user = getUserEventInstance();
 
         // Mock set security questions API failed
+        // (we will test the case when user update
+        // after 10-minute security session pass)
         server.use(
             http.post("account/security_questions", ({ request }) => {
                 return HttpResponse.json(
@@ -244,9 +238,13 @@ describe("SetupAccountPage - Security Question Answer setup flow", () => {
 
         // Setup security qa
         await setupSecurityQA(user);
+        // 10-minute security session passes
+        vi.advanceTimersByTime(10 * 60 * 1000);
         await user.click(screen.getByRole("button", { name: /submit/i }));
 
         await waitFor(() => {
+            const timeElement = screen.getByText(/(\d{2}):(\d{2})/);
+            expect(timeElement.textContent).toMatch(/00:00/);
             expect(
                 screen.getByText(/Token 'scope' not found/i)
             ).toBeInTheDocument();
