@@ -40,6 +40,12 @@ const authHandlers = [
             { status: 200 }
         );
     }),
+    http.post(`${API_URL}/token/scope/delete/`, async ({ request }) => {
+        return HttpResponse.json(
+            {message: "Token scope delete successfully"},
+            { status: 200 }
+        );
+    })
 ];
 
 export default authHandlers;

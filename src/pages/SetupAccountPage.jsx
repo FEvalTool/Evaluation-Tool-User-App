@@ -72,7 +72,7 @@ const SetupAccountPage = () => {
             </Space>
         );
         api.open({
-            title: "Setup Complete!",
+            message: "Setup Account Complete!",
             description:
                 "You've finished the required steps. We'll redirect you to the login page shortly, but feel free to stay if you want to complete any remaining optional information.",
             btn: notificationBtn,

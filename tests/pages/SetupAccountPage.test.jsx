@@ -108,6 +108,240 @@ describe("SetupAccountPage - integration test flow", () => {
         const timeElement = screen.getByText(/(\d{2}):(\d{2})/);
         expect(timeElement.textContent).toMatch(/10:00/);
     });
+
+    // Full flow setup process
+    const fullFlowSetup = async (user) => {
+        // Mock user status API response after submit setup password form
+        mockSetupStatus({
+            first_time_setup: true,
+            is_password_setup: true,
+            is_security_qa_setup: false,
+        });
+
+        // Setup password
+        await user.click(
+            screen.getByText(/Setup Password/i).closest(".ant-menu-item")
+        );
+        await setupPassword(user);
+        await user.click(screen.getByRole("button", { name: /submit/i }));
+        // Make sure password setup complete
+        await waitFor(() => {
+            expect(
+                screen.getByText(/Complete Setup Password/i)
+            ).toBeInTheDocument();
+        });
+
+        // Mock user status API response after submit setup security qa form
+        mockSetupStatus({});
+
+        // Setup security qa
+        await user.click(
+            screen
+                .getByText(/Setup Security Questions/i)
+                .closest(".ant-menu-item")
+        );
+        await setupSecurityQA(user);
+        await user.click(screen.getByRole("button", { name: /submit/i }));
+        // Make sure security questions setup complete
+        await waitFor(() => {
+            expect(
+                screen.getByText(/Complete Setup Security Question/i)
+            ).toBeInTheDocument();
+        });
+    };
+
+    it("should render Setup Account Page correctly after complete setup account", async () => {
+        renderWithProviders(<AppRouter />, {
+            preloadedState: {
+                auth: { user: accountData[0] },
+            },
+            route: ROUTES.SETUP_ACCOUNT,
+        });
+        const user = getUserEventInstance();
+        await fullFlowSetup(user);
+
+        await waitFor(() => {
+            // Status section check
+            const progress = document.querySelector(".ant-progress");
+            expect(progress).toHaveClass("ant-progress-status-success");
+
+            const completeButton = screen.getByRole("button", {
+                name: /complete setup/i,
+            });
+            expect(completeButton).not.toBeDisabled();
+
+            // Status menu item check
+            const passwordMenuItem = screen
+                .getByText(/Setup Password/i)
+                .closest(".ant-menu-item");
+            const securityMenuItem = screen
+                .getByText(/Setup Security Questions/i)
+                .closest(".ant-menu-item");
+            const passwordBadgeDot =
+                passwordMenuItem.querySelector(".ant-badge-dot");
+            expect(passwordBadgeDot).toHaveClass("ant-badge-status-success");
+            const securityBadgeDot =
+                securityMenuItem.querySelector(".ant-badge-dot");
+            expect(securityBadgeDot).toHaveClass("ant-badge-status-success");
+        });
+    });
+
+    it("should display 'complete notification' correctly when click 'Complete setup' button", async () => {
+        renderWithProviders(<AppRouter />, {
+            preloadedState: {
+                auth: { user: accountData[0] },
+            },
+            route: ROUTES.SETUP_ACCOUNT,
+        });
+        const user = getUserEventInstance();
+        await fullFlowSetup(user);
+
+        // Press Complete setup button
+        await user.click(
+            screen.getByRole("button", {
+                name: /complete setup/i,
+            })
+        );
+
+        await waitFor(() => {
+            // Complete notification check
+            const notificationTitle = screen.getByText(
+                /Setup Account Complete!/i
+            );
+            const notificationLoginButton = screen.getByRole("button", {
+                name: /Login now/i,
+            });
+            const notificationCancelButton = screen.getByRole("button", {
+                name: /Stay on page/i,
+            });
+            expect(notificationTitle).toBeInTheDocument();
+            expect(notificationLoginButton).toBeInTheDocument();
+            expect(notificationCancelButton).toBeInTheDocument();
+
+            // Menu disabled check
+            const completeButton = screen.getByRole("button", {
+                name: /complete setup/i,
+            });
+            const passwordMenuItem = screen
+                .getByText(/Setup Password/i)
+                .closest(".ant-menu-item");
+            const securityMenuItem = screen
+                .getByText(/Setup Security Questions/i)
+                .closest(".ant-menu-item");
+            expect(completeButton).toBeDisabled();
+            expect(passwordMenuItem).toHaveAttribute("aria-disabled", "true");
+            expect(securityMenuItem).toHaveAttribute("aria-disabled", "true");
+        });
+    });
+
+    it("should close 'complete notification' when click 'Stay on page' button", async () => {
+        renderWithProviders(<AppRouter />, {
+            preloadedState: {
+                auth: { user: accountData[0] },
+            },
+            route: ROUTES.SETUP_ACCOUNT,
+        });
+        const user = getUserEventInstance();
+        await fullFlowSetup(user);
+
+        // Press Complete setup button
+        await user.click(
+            screen.getByRole("button", {
+                name: /complete setup/i,
+            })
+        );
+
+        // Press Stay on page Button
+        await user.click(
+            screen.getByRole("button", {
+                name: /Stay on page/i,
+            })
+        );
+
+        await waitFor(() => {
+            // Menu disabled check
+            const completeButton = screen.getByRole("button", {
+                name: /complete setup/i,
+            });
+            const passwordMenuItem = screen
+                .getByText(/Setup Password/i)
+                .closest(".ant-menu-item");
+            const securityMenuItem = screen
+                .getByText(/Setup Security Questions/i)
+                .closest(".ant-menu-item");
+            expect(completeButton).not.toBeDisabled();
+            expect(passwordMenuItem).not.toHaveAttribute(
+                "aria-disabled",
+                "true"
+            );
+            expect(securityMenuItem).not.toHaveAttribute(
+                "aria-disabled",
+                "true"
+            );
+        });
+    });
+
+    it("should go back to Login page when click 'Login now' button", async () => {
+        renderWithProviders(<AppRouter />, {
+            preloadedState: {
+                auth: { user: accountData[0] },
+            },
+            route: ROUTES.SETUP_ACCOUNT,
+        });
+        const user = getUserEventInstance();
+        await fullFlowSetup(user);
+
+        // Press Complete setup button
+        await user.click(
+            screen.getByRole("button", {
+                name: /complete setup/i,
+            })
+        );
+
+        // Press Login now Button
+        await user.click(
+            screen.getByRole("button", {
+                name: /Login now/i,
+            })
+        );
+
+        await waitFor(() => {
+            const heading = screen.getByRole("heading", /login/i);
+            expect(heading).toBeInTheDocument();
+            // Check if user data is remove in local storage
+            expect(localStorage.getItem("user")).toBe(null);
+            expect(localStorage.getItem("scopeExp")).toBe(null);
+        });
+    });
+
+    it("should go back to Login page when user not do anything in 5 second", async () => {
+        renderWithProviders(<AppRouter />, {
+            preloadedState: {
+                auth: { user: accountData[0] },
+            },
+            route: ROUTES.SETUP_ACCOUNT,
+        });
+        const user = getUserEventInstance();
+        await fullFlowSetup(user);
+
+        // Press Complete setup button
+        await user.click(
+            screen.getByRole("button", {
+                name: /complete setup/i,
+            })
+        );
+
+        // User not do anything in 5 seconds
+        vi.advanceTimersByTime(5 * 1000);
+
+        await waitFor(() => {
+            const heading = screen.getByRole("heading", /login/i);
+            expect(heading).toBeInTheDocument();
+            // Check if user data is remove in local storage
+            expect(localStorage.getItem("user")).toBe(null);
+            expect(localStorage.getItem("scopeExp")).toBe(null);
+        });
+    });
 });
 
 describe("SetupAccountPage - Password setup flow", () => {
@@ -118,10 +352,9 @@ describe("SetupAccountPage - Password setup flow", () => {
         });
         const user = getUserEventInstance();
 
-        const passwordMenuItem = screen
-            .getByText(/Setup Password/i)
-            .closest(".ant-menu-item");
-        await user.click(passwordMenuItem);
+        await user.click(
+            screen.getByText(/Setup Password/i).closest(".ant-menu-item")
+        );
 
         await waitFor(() => {
             const passwordInput = screen.getByLabelText(/new password/i);
@@ -231,10 +464,11 @@ describe("SetupAccountPage - Security Question Answer setup flow", () => {
         });
         const user = getUserEventInstance();
 
-        const securityMenuItem = screen
-            .getByText(/Setup Security Questions/i)
-            .closest(".ant-menu-item");
-        await user.click(securityMenuItem);
+        await user.click(
+            screen
+                .getByText(/Setup Security Questions/i)
+                .closest(".ant-menu-item")
+        );
 
         await waitFor(() => {
             for (let i = 1; i <= 3; i++) {
