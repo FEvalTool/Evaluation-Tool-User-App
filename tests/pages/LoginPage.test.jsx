@@ -135,6 +135,14 @@ describe("LoginPage navigation flow", () => {
             name: /username \/ password/i,
         });
 
+        // --- FIX: Intercept the event to stop JSDOM navigation ---
+        // Suppress stderr: Not implemented: navigation to another Document
+        forgotPasswordLink.addEventListener(
+            "click",
+            (e) => e.preventDefault(),
+            { once: true }
+        );
+
         await user.click(forgotPasswordLink);
 
         await waitFor(() => {
