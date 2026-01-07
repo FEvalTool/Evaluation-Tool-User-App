@@ -4,6 +4,11 @@ import { Route, Routes } from "react-router-dom";
 
 import { renderWithProviders } from "../mocks/mockStoreWrapper";
 import { accountData } from "../mocks/data/account";
+import {
+    requestCallTracker,
+    requestValidationErrorTracker,
+    REQUEST_KEYS,
+} from "../helpers/requestHelpers";
 import { ROUTES } from "../../src/constants";
 import LoginPage from "../../src/pages/LoginPage";
 import SetupAccountPage from "../../src/pages/SetupAccountPage";
@@ -36,7 +41,7 @@ describe("LoginPage navigation flow", () => {
         const usernameInput = screen.getByLabelText(/username/i);
         const passwordInput = screen.getByLabelText(/password/i);
         const submitButton = screen.getByRole("button", { name: /submit/i });
-        const forgotLink = screen.getByRole("link", {
+        const forgotPasswordLink = screen.getByRole("link", {
             name: /username \/ password/i,
         });
 
@@ -46,8 +51,11 @@ describe("LoginPage navigation flow", () => {
         expect(passwordInput).toBeInTheDocument();
         expect(passwordInput).toHaveAttribute("type", "password");
         expect(submitButton).toBeInTheDocument();
-        expect(forgotLink).toBeInTheDocument();
-        expect(forgotLink).toHaveAttribute("href", ROUTES.FORGOT_PASSWORD);
+        expect(forgotPasswordLink).toBeInTheDocument();
+        expect(forgotPasswordLink).toHaveAttribute(
+            "href",
+            ROUTES.FORGOT_PASSWORD
+        );
     });
 
     it("should display error notification when Login fail", async () => {
@@ -63,6 +71,8 @@ describe("LoginPage navigation flow", () => {
         await user.click(submitButton);
 
         await waitFor(() => {
+            expect(requestValidationErrorTracker.getAll()).toEqual([]);
+            expect(requestCallTracker.get(REQUEST_KEYS.LOGIN)).toBe(1);
             expect(
                 screen.getByText(/invalid username or password/i)
             ).toBeInTheDocument();
@@ -82,6 +92,8 @@ describe("LoginPage navigation flow", () => {
         await user.click(submitButton);
 
         await waitFor(() => {
+            expect(requestValidationErrorTracker.getAll()).toEqual([]);
+            expect(requestCallTracker.get(REQUEST_KEYS.LOGIN)).toBe(1);
             expect(screen.getByText(/Testing page/i)).toBeInTheDocument();
             expect(screen.getByText(/testUser/i)).toBeInTheDocument();
             expect(JSON.parse(localStorage.getItem("user"))).toEqual(
@@ -103,6 +115,8 @@ describe("LoginPage navigation flow", () => {
         await user.click(submitButton);
 
         await waitFor(() => {
+            expect(requestValidationErrorTracker.getAll()).toEqual([]);
+            expect(requestCallTracker.get(REQUEST_KEYS.LOGIN)).toBe(1);
             expect(
                 screen.getByText(/Welcome to setup account page/i)
             ).toBeInTheDocument();
@@ -117,11 +131,11 @@ describe("LoginPage navigation flow", () => {
         renderWithProviders(<AppRouter />, { route: ROUTES.LOGIN });
 
         const user = userEvent.setup();
-        const forgotLink = screen.getByRole("link", {
+        const forgotPasswordLink = screen.getByRole("link", {
             name: /username \/ password/i,
         });
 
-        await user.click(forgotLink);
+        await user.click(forgotPasswordLink);
 
         await waitFor(() => {
             const heading = screen.getByRole("heading", /forgot password/i);

@@ -11,9 +11,15 @@ import {
 } from "../mocks/data/account";
 import { server } from "../mocks/server";
 import {
+    requestCallTracker,
+    requestValidationErrorTracker,
+    REQUEST_KEYS,
+} from "../helpers/requestHelpers";
+import {
     goDirectlyToSecurityQuestionsStep,
     goDirectlyToChangePasswordStep,
 } from "../helpers/forgotPasswordFlows";
+import { setPasswordSchema } from "../schemas/accountSchema";
 import { ROUTES } from "../../src/constants";
 import ForgotPasswordPage from "../../src/pages/ForgotPasswordPage";
 import LoginPage from "../../src/pages/LoginPage";
@@ -91,6 +97,10 @@ describe("ForgotPasswordPage Step 1 and 2", () => {
         await user.click(submitButton);
 
         await waitFor(() => {
+            expect(requestValidationErrorTracker.getAll()).toEqual([]);
+            expect(
+                requestCallTracker.get(REQUEST_KEYS.GET_USER_SECURITY_QA)
+            ).toBe(1);
             expect(
                 screen.getByText(/user does not exist/i)
             ).toBeInTheDocument();
@@ -112,6 +122,10 @@ describe("ForgotPasswordPage Step 1 and 2", () => {
         await user.click(submitButton);
 
         await waitFor(() => {
+            expect(requestValidationErrorTracker.getAll()).toEqual([]);
+            expect(
+                requestCallTracker.get(REQUEST_KEYS.GET_USER_SECURITY_QA)
+            ).toBe(1);
             // Verify that username input disappear
             expect(usernameInput).not.toBeInTheDocument();
             const questionInputs = screen.getAllByRole("textbox");
@@ -141,6 +155,10 @@ describe("ForgotPasswordPage Step 1 and 2", () => {
         await user.click(submitButton);
 
         await waitFor(() => {
+            expect(requestValidationErrorTracker.getAll()).toEqual([]);
+            expect(
+                requestCallTracker.get(REQUEST_KEYS.GEN_SECURITY_TOKEN_QA)
+            ).toBe(1);
             expect(
                 screen.getByText(/security qa validation failed/i)
             ).toBeInTheDocument();
@@ -190,6 +208,10 @@ describe("ForgotPasswordPage Step 3", () => {
         await user.click(submitButton);
 
         await waitFor(() => {
+            expect(requestValidationErrorTracker.getAll()).toEqual([]);
+            expect(
+                requestCallTracker.get(REQUEST_KEYS.GEN_SECURITY_TOKEN_QA)
+            ).toBe(1);
             const timeElement = screen.getByText(/(\d{2}):(\d{2})/);
             expect(timeElement.textContent).toMatch(/10:00/);
             const passwordInput = screen.getByLabelText(/new password/i);
@@ -209,12 +231,28 @@ describe("ForgotPasswordPage Step 3", () => {
         // (we will test the case when user update new password
         // after 10-minute security session pass)
         server.use(
-            http.post("account/password", ({ request }) => {
+            http.post("account/password", async ({ request }) => {
+                requestCallTracker.track(REQUEST_KEYS.SET_PASSWORD);
+                const body = await request.json();
+                // Request check
+                const validation = setPasswordSchema.safeParse(body);
+                if (!validation.success) {
+                    requestValidationErrorTracker.record({
+                        endpoint: REQUEST_KEYS.SET_PASSWORD,
+                        issues: validation.error.issues,
+                        payload: body,
+                    });
+                    return HttpResponse.json(
+                        { message: "Invalid request payload" },
+                        { status: 400 }
+                    );
+                }
+
                 return HttpResponse.json(
                     {
                         message: "Token 'scope' not found",
                     },
-                    { status: 400 }
+                    { status: 401 }
                 );
             })
         );
@@ -235,6 +273,8 @@ describe("ForgotPasswordPage Step 3", () => {
         await user.click(submitButton);
 
         await waitFor(() => {
+            expect(requestValidationErrorTracker.getAll()).toEqual([]);
+            expect(requestCallTracker.get(REQUEST_KEYS.SET_PASSWORD)).toBe(1);
             const timeElement = screen.getByText(/(\d{2}):(\d{2})/);
             expect(timeElement.textContent).toMatch(/00:00/);
             expect(
@@ -260,6 +300,7 @@ describe("ForgotPasswordPage Step 3", () => {
         await user.click(submitButton);
 
         await waitFor(() => {
+            expect(requestCallTracker.get(REQUEST_KEYS.SET_PASSWORD)).toBe(0);
             expect(
                 screen.getByText(
                     /the new password that you entered do not match/i
@@ -284,6 +325,8 @@ describe("ForgotPasswordPage Step 3", () => {
         await user.click(submitButton);
 
         await waitFor(() => {
+            expect(requestValidationErrorTracker.getAll()).toEqual([]);
+            expect(requestCallTracker.get(REQUEST_KEYS.SET_PASSWORD)).toBe(1);
             const heading = screen.getByRole("heading", /login/i);
             expect(heading).toBeInTheDocument();
         });

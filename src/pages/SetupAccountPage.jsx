@@ -103,7 +103,8 @@ const SetupAccountPage = () => {
     };
 
     const onSubmitSetPasswordForm = async (values) => {
-        await dispatch(setupPasswordFirstTime(values));
+        let payload = { password: values["password"] };
+        await dispatch(setupPasswordFirstTime(payload));
     };
 
     const onSubmitSetSecurityQAForm = async (values) => {

@@ -21,7 +21,8 @@
     "react-dom": "^19.1.1",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.9.3",
-    "vite-plugin-svgr": "^4.5.0"
+    "vite-plugin-svgr": "^4.5.0",
+    "zod": "^4.3.5"
   },
   "devDependencies": {
     "@csstools/css-parser-algorithms": "^3.0.5",

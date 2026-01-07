@@ -7,6 +7,15 @@ import { renderWithProviders } from "../mocks/mockStoreWrapper";
 import { accountData } from "../mocks/data/account";
 import { server } from "../mocks/server";
 import { setupPassword, setupSecurityQA } from "../helpers/setupAccountFlows";
+import {
+    requestCallTracker,
+    requestValidationErrorTracker,
+    REQUEST_KEYS,
+} from "../helpers/requestHelpers";
+import {
+    setPasswordSchema,
+    setSecurityQASchema,
+} from "../schemas/accountSchema";
 import { ROUTES } from "../../src/constants";
 import MessageWrapper from "../../src/components/MessageWrapper";
 import LoginPage from "../../src/pages/LoginPage";
@@ -47,6 +56,7 @@ const getUserEventInstance = () =>
 const mockSetupStatus = (data) => {
     server.use(
         http.get("account/setup_status", () => {
+            requestCallTracker.track(REQUEST_KEYS.GET_USER_SETUP_STATUS);
             return HttpResponse.json({ user: data });
         })
     );
@@ -81,28 +91,25 @@ describe("SetupAccountPage - integration test flow", () => {
 
         // Menu items check
         const passwordMenu = screen.getByText(/Setup Password/i);
-        const securityQuestionsMenu = screen.getByText(
-            /Setup Security Questions/i
-        );
+        const securityQAMenu = screen.getByText(/Setup Security Questions/i);
         expect(passwordMenu).toBeInTheDocument();
-        expect(securityQuestionsMenu).toBeInTheDocument();
+        expect(securityQAMenu).toBeInTheDocument();
 
         // All menu items not selected check
         const passwordMenuItem = passwordMenu.closest(".ant-menu-item");
-        const securityMenuItem =
-            securityQuestionsMenu.closest(".ant-menu-item");
+        const securityQAMenuItem = securityQAMenu.closest(".ant-menu-item");
         expect(passwordMenuItem).not.toHaveClass("ant-menu-item-selected");
-        expect(securityMenuItem).not.toHaveClass("ant-menu-item-selected");
+        expect(securityQAMenuItem).not.toHaveClass("ant-menu-item-selected");
 
         // Menu items status check
         const passwordBadgeDot =
             passwordMenuItem.querySelector(".ant-badge-dot");
-        const securityBadgeDot =
-            securityMenuItem.querySelector(".ant-badge-dot");
+        const securityQABadgeDot =
+            securityQAMenuItem.querySelector(".ant-badge-dot");
         expect(passwordBadgeDot).toBeInTheDocument();
-        expect(securityBadgeDot).toBeInTheDocument();
+        expect(securityQABadgeDot).toBeInTheDocument();
         expect(passwordBadgeDot).toHaveClass("ant-badge-status-error");
-        expect(securityBadgeDot).toHaveClass("ant-badge-status-error");
+        expect(securityQABadgeDot).toHaveClass("ant-badge-status-error");
 
         // Warning alert check
         const timeElement = screen.getByText(/(\d{2}):(\d{2})/);
@@ -174,15 +181,15 @@ describe("SetupAccountPage - integration test flow", () => {
             const passwordMenuItem = screen
                 .getByText(/Setup Password/i)
                 .closest(".ant-menu-item");
-            const securityMenuItem = screen
+            const securityQAMenuItem = screen
                 .getByText(/Setup Security Questions/i)
                 .closest(".ant-menu-item");
             const passwordBadgeDot =
                 passwordMenuItem.querySelector(".ant-badge-dot");
             expect(passwordBadgeDot).toHaveClass("ant-badge-status-success");
-            const securityBadgeDot =
-                securityMenuItem.querySelector(".ant-badge-dot");
-            expect(securityBadgeDot).toHaveClass("ant-badge-status-success");
+            const securityQABadgeDot =
+                securityQAMenuItem.querySelector(".ant-badge-dot");
+            expect(securityQABadgeDot).toHaveClass("ant-badge-status-success");
         });
     });
 
@@ -225,12 +232,12 @@ describe("SetupAccountPage - integration test flow", () => {
             const passwordMenuItem = screen
                 .getByText(/Setup Password/i)
                 .closest(".ant-menu-item");
-            const securityMenuItem = screen
+            const securityQAMenuItem = screen
                 .getByText(/Setup Security Questions/i)
                 .closest(".ant-menu-item");
             expect(completeButton).toBeDisabled();
             expect(passwordMenuItem).toHaveAttribute("aria-disabled", "true");
-            expect(securityMenuItem).toHaveAttribute("aria-disabled", "true");
+            expect(securityQAMenuItem).toHaveAttribute("aria-disabled", "true");
         });
     });
 
@@ -259,6 +266,9 @@ describe("SetupAccountPage - integration test flow", () => {
         );
 
         await waitFor(() => {
+            expect(
+                requestCallTracker.get(REQUEST_KEYS.DELETE_SCOPE_TOKEN)
+            ).toBe(0);
             // Menu disabled check
             const completeButton = screen.getByRole("button", {
                 name: /complete setup/i,
@@ -266,7 +276,7 @@ describe("SetupAccountPage - integration test flow", () => {
             const passwordMenuItem = screen
                 .getByText(/Setup Password/i)
                 .closest(".ant-menu-item");
-            const securityMenuItem = screen
+            const securityQAMenuItem = screen
                 .getByText(/Setup Security Questions/i)
                 .closest(".ant-menu-item");
             expect(completeButton).not.toBeDisabled();
@@ -274,7 +284,7 @@ describe("SetupAccountPage - integration test flow", () => {
                 "aria-disabled",
                 "true"
             );
-            expect(securityMenuItem).not.toHaveAttribute(
+            expect(securityQAMenuItem).not.toHaveAttribute(
                 "aria-disabled",
                 "true"
             );
@@ -306,6 +316,9 @@ describe("SetupAccountPage - integration test flow", () => {
         );
 
         await waitFor(() => {
+            expect(
+                requestCallTracker.get(REQUEST_KEYS.DELETE_SCOPE_TOKEN)
+            ).toBe(1);
             const heading = screen.getByRole("heading", /login/i);
             expect(heading).toBeInTheDocument();
             // Check if user data is remove in local storage
@@ -335,6 +348,9 @@ describe("SetupAccountPage - integration test flow", () => {
         vi.advanceTimersByTime(5 * 1000);
 
         await waitFor(() => {
+            expect(
+                requestCallTracker.get(REQUEST_KEYS.DELETE_SCOPE_TOKEN)
+            ).toBe(1);
             const heading = screen.getByRole("heading", /login/i);
             expect(heading).toBeInTheDocument();
             // Check if user data is remove in local storage
@@ -394,6 +410,11 @@ describe("SetupAccountPage - Password setup flow", () => {
         await user.click(screen.getByRole("button", { name: /submit/i }));
 
         await waitFor(() => {
+            expect(requestValidationErrorTracker.getAll()).toEqual([]);
+            expect(requestCallTracker.get(REQUEST_KEYS.SET_PASSWORD)).toBe(1);
+            expect(
+                requestCallTracker.get(REQUEST_KEYS.GET_USER_SETUP_STATUS)
+            ).toBe(1);
             expect(
                 screen.getByText(/Complete Setup Password/i)
             ).toBeInTheDocument();
@@ -420,12 +441,28 @@ describe("SetupAccountPage - Password setup flow", () => {
         // (we will test the case when user update
         // after 10-minute security session pass)
         server.use(
-            http.post("account/password", ({ request }) => {
+            http.post("account/password", async ({ request }) => {
+                requestCallTracker.track(REQUEST_KEYS.SET_PASSWORD);
+                const body = await request.json();
+                // Request check
+                const validation = setPasswordSchema.safeParse(body);
+                if (!validation.success) {
+                    requestValidationErrorTracker.record({
+                        endpoint: REQUEST_KEYS.SET_PASSWORD,
+                        issues: validation.error.issues,
+                        payload: body,
+                    });
+                    return HttpResponse.json(
+                        { message: "Invalid request payload" },
+                        { status: 400 }
+                    );
+                }
+
                 return HttpResponse.json(
                     {
                         message: "Token 'scope' not found",
                     },
-                    { status: 400 }
+                    { status: 401 }
                 );
             })
         );
@@ -441,6 +478,11 @@ describe("SetupAccountPage - Password setup flow", () => {
         await user.click(screen.getByRole("button", { name: /submit/i }));
 
         await waitFor(() => {
+            expect(requestValidationErrorTracker.getAll()).toEqual([]);
+            expect(requestCallTracker.get(REQUEST_KEYS.SET_PASSWORD)).toBe(1);
+            expect(
+                requestCallTracker.get(REQUEST_KEYS.GET_USER_SETUP_STATUS)
+            ).toBe(0);
             const timeElement = screen.getByText(/(\d{2}):(\d{2})/);
             expect(timeElement.textContent).toMatch(/00:00/);
             expect(
@@ -503,23 +545,30 @@ describe("SetupAccountPage - Security Question Answer setup flow", () => {
             is_security_qa_setup: true,
         });
 
-        const securityMenuItem = screen
+        const securityQAMenuItem = screen
             .getByText(/Setup Security Questions/i)
             .closest(".ant-menu-item");
-        await user.click(securityMenuItem);
+        await user.click(securityQAMenuItem);
 
         // Setup security qa
         await setupSecurityQA(user);
         await user.click(screen.getByRole("button", { name: /submit/i }));
 
         await waitFor(() => {
+            expect(requestValidationErrorTracker.getAll()).toEqual([]);
+            expect(requestCallTracker.get(REQUEST_KEYS.SET_SECURITY_QA)).toBe(
+                1
+            );
+            expect(
+                requestCallTracker.get(REQUEST_KEYS.GET_USER_SETUP_STATUS)
+            ).toBe(1);
             expect(
                 screen.getByText(/Complete Setup Security Question/i)
             ).toBeInTheDocument();
             // Status check
-            const securityBadgeDot =
-                securityMenuItem.querySelector(".ant-badge-dot");
-            expect(securityBadgeDot).toHaveClass("ant-badge-status-success");
+            const securityQABadgeDot =
+                securityQAMenuItem.querySelector(".ant-badge-dot");
+            expect(securityQABadgeDot).toHaveClass("ant-badge-status-success");
             const progressText = screen.getByText(/50%/);
             expect(progressText).toBeInTheDocument();
         });
@@ -539,20 +588,36 @@ describe("SetupAccountPage - Security Question Answer setup flow", () => {
         // (we will test the case when user update
         // after 10-minute security session pass)
         server.use(
-            http.post("account/security_questions", ({ request }) => {
+            http.post("account/security_questions", async ({ request }) => {
+                requestCallTracker.track(REQUEST_KEYS.SET_SECURITY_QA);
+                const body = await request.json();
+                // Request check
+                const validation = setSecurityQASchema.safeParse(body);
+                if (!validation.success) {
+                    requestValidationErrorTracker.record({
+                        endpoint: REQUEST_KEYS.SET_SECURITY_QA,
+                        issues: validation.error.issues,
+                        payload: body,
+                    });
+                    return HttpResponse.json(
+                        { message: "Invalid request payload" },
+                        { status: 400 }
+                    );
+                }
+
                 return HttpResponse.json(
                     {
                         message: "Token 'scope' not found",
                     },
-                    { status: 400 }
+                    { status: 401 }
                 );
             })
         );
 
-        const securityMenuItem = screen
+        const securityQAMenuItem = screen
             .getByText(/Setup Security Questions/i)
             .closest(".ant-menu-item");
-        await user.click(securityMenuItem);
+        await user.click(securityQAMenuItem);
 
         // Setup security qa
         await setupSecurityQA(user);
@@ -561,15 +626,22 @@ describe("SetupAccountPage - Security Question Answer setup flow", () => {
         await user.click(screen.getByRole("button", { name: /submit/i }));
 
         await waitFor(() => {
+            expect(requestValidationErrorTracker.getAll()).toEqual([]);
+            expect(requestCallTracker.get(REQUEST_KEYS.SET_SECURITY_QA)).toBe(
+                1
+            );
+            expect(
+                requestCallTracker.get(REQUEST_KEYS.GET_USER_SETUP_STATUS)
+            ).toBe(0);
             const timeElement = screen.getByText(/(\d{2}):(\d{2})/);
             expect(timeElement.textContent).toMatch(/00:00/);
             expect(
                 screen.getByText(/Token 'scope' not found/i)
             ).toBeInTheDocument();
             // Status check
-            const securityBadgeDot =
-                securityMenuItem.querySelector(".ant-badge-dot");
-            expect(securityBadgeDot).toHaveClass("ant-badge-status-error");
+            const securityQABadgeDot =
+                securityQAMenuItem.querySelector(".ant-badge-dot");
+            expect(securityQABadgeDot).toHaveClass("ant-badge-status-error");
             const progressText = screen.getByText(/0%/);
             expect(progressText).toBeInTheDocument();
         });

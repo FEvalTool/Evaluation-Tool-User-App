@@ -2,6 +2,10 @@ import { vi } from "vitest";
 // Define here so that we don't need to define this in every test
 import "@testing-library/jest-dom/vitest";
 import { server } from "./mocks/server";
+import {
+    requestCallTracker,
+    requestValidationErrorTracker,
+} from "./helpers/requestHelpers";
 
 // Mock API server
 // Start the mock server before all tests
@@ -26,4 +30,10 @@ Object.defineProperty(window, "matchMedia", {
         removeEventListener: vi.fn(),
         dispatchEvent: vi.fn(),
     })),
+});
+
+// Reset request trackers after each test
+beforeEach(() => {
+    requestCallTracker.reset();
+    requestValidationErrorTracker.reset();
 });

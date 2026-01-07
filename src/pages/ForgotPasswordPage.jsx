@@ -69,7 +69,10 @@ const ForgotPasswordPage = () => {
         try {
             await withFormSubmit(
                 async () => {
-                    const res1 = await accountService.setPassword(values);
+                    let payload = {
+                        password: values["password"],
+                    };
+                    const res1 = await accountService.setPassword(payload);
                     const res2 = await authService.deleteScopeToken();
                     return { res1, res2 };
                 },
