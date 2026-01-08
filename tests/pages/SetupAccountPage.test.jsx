@@ -1,4 +1,4 @@
-import { screen, waitFor } from "@testing-library/react";
+import { screen, waitFor, act } from "@testing-library/react";
 import { Route, Routes } from "react-router-dom";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
@@ -49,7 +49,11 @@ afterEach(() => {
 
 const getUserEventInstance = () =>
     userEvent.setup({
-        advanceTimers: vi.advanceTimersByTime.bind(vi),
+        advanceTimers: async (ms) => {
+            await act(async () => {
+                await vi.advanceTimersByTimeAsync(ms);
+            });
+        },
     });
 
 // Mock get user setup api function
@@ -72,48 +76,54 @@ describe("SetupAccountPage - integration test flow", () => {
             route: ROUTES.SETUP_ACCOUNT,
         });
 
-        // Welcome page check
-        expect(
-            screen.getByText(/Welcome to setup account page/i)
-        ).toBeInTheDocument();
-        expect(
-            screen.getByText(/To get started, choose a setup option/i)
-        ).toBeInTheDocument();
+        await waitFor(() => {
+            // Welcome page check
+            expect(
+                screen.getByText(/Welcome to setup account page/i)
+            ).toBeInTheDocument();
+            expect(
+                screen.getByText(/To get started, choose a setup option/i)
+            ).toBeInTheDocument();
 
-        // Status section check
-        const progressText = screen.getByText(/0%/);
-        expect(progressText).toBeInTheDocument();
-        const completeButton = screen.getByRole("button", {
-            name: /complete setup/i,
+            // Status section check
+            const progressText = screen.getByText(/0%/);
+            expect(progressText).toBeInTheDocument();
+            const completeButton = screen.getByRole("button", {
+                name: /complete setup/i,
+            });
+            expect(completeButton).toBeInTheDocument();
+            expect(completeButton).toBeDisabled();
+
+            // Menu items check
+            const passwordMenu = screen.getByText(/Setup Password/i);
+            const securityQAMenu = screen.getByText(
+                /Setup Security Questions/i
+            );
+            expect(passwordMenu).toBeInTheDocument();
+            expect(securityQAMenu).toBeInTheDocument();
+
+            // All menu items not selected check
+            const passwordMenuItem = passwordMenu.closest(".ant-menu-item");
+            const securityQAMenuItem = securityQAMenu.closest(".ant-menu-item");
+            expect(passwordMenuItem).not.toHaveClass("ant-menu-item-selected");
+            expect(securityQAMenuItem).not.toHaveClass(
+                "ant-menu-item-selected"
+            );
+
+            // Menu items status check
+            const passwordBadgeDot =
+                passwordMenuItem.querySelector(".ant-badge-dot");
+            const securityQABadgeDot =
+                securityQAMenuItem.querySelector(".ant-badge-dot");
+            expect(passwordBadgeDot).toBeInTheDocument();
+            expect(securityQABadgeDot).toBeInTheDocument();
+            expect(passwordBadgeDot).toHaveClass("ant-badge-status-error");
+            expect(securityQABadgeDot).toHaveClass("ant-badge-status-error");
+
+            // Warning alert check
+            const timeElement = screen.getByText(/(\d{2}):(\d{2})/);
+            expect(timeElement.textContent).toMatch(/10:00/);
         });
-        expect(completeButton).toBeInTheDocument();
-        expect(completeButton).toBeDisabled();
-
-        // Menu items check
-        const passwordMenu = screen.getByText(/Setup Password/i);
-        const securityQAMenu = screen.getByText(/Setup Security Questions/i);
-        expect(passwordMenu).toBeInTheDocument();
-        expect(securityQAMenu).toBeInTheDocument();
-
-        // All menu items not selected check
-        const passwordMenuItem = passwordMenu.closest(".ant-menu-item");
-        const securityQAMenuItem = securityQAMenu.closest(".ant-menu-item");
-        expect(passwordMenuItem).not.toHaveClass("ant-menu-item-selected");
-        expect(securityQAMenuItem).not.toHaveClass("ant-menu-item-selected");
-
-        // Menu items status check
-        const passwordBadgeDot =
-            passwordMenuItem.querySelector(".ant-badge-dot");
-        const securityQABadgeDot =
-            securityQAMenuItem.querySelector(".ant-badge-dot");
-        expect(passwordBadgeDot).toBeInTheDocument();
-        expect(securityQABadgeDot).toBeInTheDocument();
-        expect(passwordBadgeDot).toHaveClass("ant-badge-status-error");
-        expect(securityQABadgeDot).toHaveClass("ant-badge-status-error");
-
-        // Warning alert check
-        const timeElement = screen.getByText(/(\d{2}):(\d{2})/);
-        expect(timeElement.textContent).toMatch(/10:00/);
     });
 
     // Full flow setup process
@@ -345,7 +355,9 @@ describe("SetupAccountPage - integration test flow", () => {
         );
 
         // User not do anything in 5 seconds
-        vi.advanceTimersByTime(5 * 1000);
+        act(() => {
+            vi.advanceTimersByTime(5 * 1000);
+        });
 
         await waitFor(() => {
             expect(
@@ -474,7 +486,9 @@ describe("SetupAccountPage - Password setup flow", () => {
 
         await setupPassword(user);
         // 10-minute security session passes
-        vi.advanceTimersByTime(10 * 60 * 1000);
+        act(() => {
+            vi.advanceTimersByTime(10 * 60 * 1000);
+        });
         await user.click(screen.getByRole("button", { name: /submit/i }));
 
         await waitFor(() => {
@@ -622,7 +636,9 @@ describe("SetupAccountPage - Security Question Answer setup flow", () => {
         // Setup security qa
         await setupSecurityQA(user);
         // 10-minute security session passes
-        vi.advanceTimersByTime(10 * 60 * 1000);
+        act(() => {
+            vi.advanceTimersByTime(10 * 60 * 1000);
+        });
         await user.click(screen.getByRole("button", { name: /submit/i }));
 
         await waitFor(() => {

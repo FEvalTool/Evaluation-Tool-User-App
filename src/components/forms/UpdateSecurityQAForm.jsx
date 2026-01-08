@@ -49,7 +49,7 @@ const UpdateSecurityQAForm = ({ onSubmit, disabled, shouldWarn }) => {
     return (
         <BaseForm onSubmit={onSubmit} disabled={disabled}>
             {Array.from({ length: NUMBER_OF_QUESTIONS }, (_, idx) => (
-                <Row justify="space-between">
+                <Row justify="space-between" key={idx}>
                     <Col span={11}>
                         <Form.Item
                             label={`Question ${idx + 1}`}
