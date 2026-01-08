@@ -77,10 +77,17 @@ const authHandlers = [
             { status: 200 }
         );
     }),
-    http.post(`${API_URL}/token/scope/delete/`, async () => {
+    http.post(`${API_URL}/token/scope/delete`, async () => {
         requestCallTracker.track(REQUEST_KEYS.DELETE_SCOPE_TOKEN);
         return HttpResponse.json(
             { message: "Token scope delete successfully" },
+            { status: 200 }
+        );
+    }),
+    http.post(`${API_URL}/logout`, async () => {
+        requestCallTracker.track(REQUEST_KEYS.LOGOUT);
+        return HttpResponse.json(
+            { message: "Logout successfully" },
             { status: 200 }
         );
     }),
