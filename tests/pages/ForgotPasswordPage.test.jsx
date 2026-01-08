@@ -1,4 +1,4 @@
-import { screen, waitFor } from "@testing-library/react";
+import { screen, waitFor, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { Routes, Route } from "react-router-dom";
@@ -73,10 +73,16 @@ describe("ForgotPasswordPage Step 1 and 2", () => {
     it("should go back to Login page when press Back To Login link", async () => {
         renderWithProviders(<AppRouter />, { route: ROUTES.FORGOT_PASSWORD });
 
+        const user = userEvent.setup();
         const backToLoginLink = screen.getByRole("link", {
             name: /back to login/i,
         });
-        const user = userEvent.setup();
+
+        // Suppress stderr: Not implemented: navigation to another Document
+        backToLoginLink.addEventListener("click", (e) => e.preventDefault(), {
+            once: true,
+        });
+
         await user.click(backToLoginLink);
 
         await waitFor(() => {
@@ -183,8 +189,14 @@ describe("ForgotPasswordPage Step 3", () => {
     });
 
     const getUserEventInstance = () =>
+        // Wrap act around advanceTimers and everything related to useFakeTimer to avoid warnings
+        // Reference: https://davidwcai.medium.com/react-testing-library-and-the-not-wrapped-in-act-errors-491a5629193b
         userEvent.setup({
-            advanceTimers: vi.advanceTimersByTime.bind(vi),
+            advanceTimers: async (ms) => {
+                await act(async () => {
+                    await vi.advanceTimersByTimeAsync(ms);
+                });
+            },
         });
 
     it("should go to next step (Change password) and render correctly when Forgot Password - step 2 (Security questions) success", async () => {
@@ -269,7 +281,10 @@ describe("ForgotPasswordPage Step 3", () => {
         await user.type(passwordInput, "newPASSWORD123@");
         await user.type(confirmPasswordInput, "newPASSWORD123@");
         // 10-minute security session passes
-        vi.advanceTimersByTime(10 * 60 * 1000);
+        act(() => {
+            vi.advanceTimersByTime(10 * 60 * 1000);
+        });
+        // vi.advanceTimersByTime(10 * 60 * 1000);
         await user.click(submitButton);
 
         await waitFor(() => {

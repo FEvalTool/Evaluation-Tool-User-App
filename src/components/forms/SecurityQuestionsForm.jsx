@@ -9,6 +9,7 @@ const SecurityQuestionForm = ({ questions, onSubmit, disabled }) => {
         <BaseForm onSubmit={onSubmit} disabled={disabled}>
             {questions.map((question) => (
                 <Form.Item
+                    key={question.id}
                     label={question.content}
                     name={`${ANSWER_KEY_PREFIX}${question.id}`}
                     rules={[
