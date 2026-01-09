@@ -17,3 +17,7 @@ export const genTokenQASchema = z.object({
         .array(z.string().nonempty())
         .length(3, "Must provide exactly 3 answers"),
 });
+
+export const verifyTokenSchema = z.object({
+    token_type: z.enum(["scope", "access"]),
+})

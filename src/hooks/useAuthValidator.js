@@ -9,6 +9,7 @@ export default function useAuthValidator() {
     const { user } = useSelector((state) => state.auth);
 
     useEffect(() => {
+        const tokenType = user.first_time_setup ? "scope" : "access";
         const run = async () => {
             try {
                 await validate();
@@ -22,12 +23,12 @@ export default function useAuthValidator() {
 
         const validate = async () => {
             try {
-                const tokenType = user.first_time_setup ? "scope" : "access";
                 await authService.verifyToken(tokenType);
             } catch (error) {
                 if (
-                    error?.response?.status === 401 ||
-                    error?.response?.status === 400
+                    (error?.response?.status === 401 ||
+                        error?.response?.status === 400) &&
+                    tokenType === "access"
                 ) {
                     await refreshAccessToken();
                 } else {
@@ -37,12 +38,8 @@ export default function useAuthValidator() {
         };
 
         const refreshAccessToken = async () => {
-            try {
-                await authService.refreshToken();
-                await authService.verifyToken();
-            } catch (error) {
-                throw error;
-            }
+            await authService.refreshToken();
+            await authService.verifyToken("access");
         };
 
         run();

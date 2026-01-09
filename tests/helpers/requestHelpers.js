@@ -3,6 +3,8 @@ export const REQUEST_KEYS = {
     LOGOUT: "auth.logout",
     DELETE_SCOPE_TOKEN: "auth.deleteScopeToken",
     GEN_SECURITY_TOKEN_QA: "auth.genSecurityQAVerificationToken",
+    VERIFY_TOKEN: "auth.verifyToken",
+    REFRESH_TOKEN: "auth.refreshToken",
 
     GET_USER_SECURITY_QA: "account.getUserSecurityQuestions",
     GET_USER_SETUP_STATUS: "account.getUserSetupStatus",
