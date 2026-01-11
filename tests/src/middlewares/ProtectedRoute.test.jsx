@@ -1,16 +1,16 @@
 import { screen, waitFor } from "@testing-library/react";
 import { Routes, Route } from "react-router-dom";
 
-import { accountData } from "../mocks/data/account";
+import { accountData } from "../../mocks/data/account";
 import {
     requestCallTracker,
     requestValidationErrorTracker,
     responseQueue,
-} from "../mocks/mockServer";
-import { REQUEST_KEYS } from "../helpers/requestHelpers";
-import { ROUTES } from "../../src/constants";
-import ProtectedRoute from "../../src/middlewares/ProtectedRoute";
-import { renderWithProviders } from "../mocks/mockStoreWrapper";
+} from "../../mocks/mockServer";
+import { renderWithProviders } from "../../mocks/mockStoreWrapper";
+import { REQUEST_KEYS } from "../../helpers/requestHelpers";
+import { ROUTES } from "../../../src/constants";
+import ProtectedRoute from "../../../src/middlewares/ProtectedRoute";
 
 function AppRouter() {
     return (

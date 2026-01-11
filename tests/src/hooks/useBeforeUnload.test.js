@@ -1,6 +1,6 @@
 import { renderHook } from "@testing-library/react";
-import useBeforeUnload from "../../src/hooks/useBeforeUnload";
-import authService from "../../src/services/authService";
+import useBeforeUnload from "../../../src/hooks/useBeforeUnload";
+import authService from "../../../src/services/authService";
 
 describe("useBeforeUnload", () => {
     beforeAll(() => {

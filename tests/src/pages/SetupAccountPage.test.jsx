@@ -2,20 +2,22 @@ import { screen, waitFor, act } from "@testing-library/react";
 import { Route, Routes } from "react-router-dom";
 import userEvent from "@testing-library/user-event";
 
-import { renderWithProviders } from "../mocks/mockStoreWrapper";
-import { accountData } from "../mocks/data/account";
+import { renderWithProviders } from "../../mocks/mockStoreWrapper";
+import { accountData } from "../../mocks/data/account";
 import {
     requestCallTracker,
     requestValidationErrorTracker,
     responseQueue,
-} from "../mocks/mockServer";
-import { setupPassword, setupSecurityQA } from "../helpers/setupAccountFlows";
-import { REQUEST_KEYS } from "../helpers/requestHelpers";
-import { ROUTES } from "../../src/constants";
-import MessageWrapper from "../../src/components/MessageWrapper";
-import LoginPage from "../../src/pages/LoginPage";
-import SetupAccountPage from "../../src/pages/SetupAccountPage";
-import { expect } from "vitest";
+} from "../../mocks/mockServer";
+import {
+    setupPassword,
+    setupSecurityQA,
+} from "../../helpers/setupAccountFlows";
+import { REQUEST_KEYS } from "../../helpers/requestHelpers";
+import { ROUTES } from "../../../src/constants";
+import MessageWrapper from "../../../src/components/MessageWrapper";
+import LoginPage from "../../../src/pages/LoginPage";
+import SetupAccountPage from "../../../src/pages/SetupAccountPage";
 
 function AppRouter() {
     return (

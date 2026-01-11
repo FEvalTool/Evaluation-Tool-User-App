@@ -3,25 +3,25 @@ import userEvent from "@testing-library/user-event";
 import { Routes, Route } from "react-router-dom";
 import { vi } from "vitest";
 
-import { renderWithProviders } from "../mocks/mockStoreWrapper";
+import { renderWithProviders } from "../../mocks/mockStoreWrapper";
 import {
     securityQuestionsResponse,
     securityAnswers,
-} from "../mocks/data/account";
+} from "../../mocks/data/account";
 import {
     requestCallTracker,
     requestValidationErrorTracker,
     responseQueue,
-} from "../mocks/mockServer";
-import { REQUEST_KEYS } from "../helpers/requestHelpers";
+} from "../../mocks/mockServer";
+import { REQUEST_KEYS } from "../../helpers/requestHelpers";
 import {
     goDirectlyToSecurityQuestionsStep,
     goDirectlyToChangePasswordStep,
-} from "../helpers/forgotPasswordFlows";
-import { ROUTES } from "../../src/constants";
-import ForgotPasswordPage from "../../src/pages/ForgotPasswordPage";
-import LoginPage from "../../src/pages/LoginPage";
-import MessageWrapper from "../../src/components/MessageWrapper";
+} from "../../helpers/forgotPasswordFlows";
+import { ROUTES } from "../../../src/constants";
+import ForgotPasswordPage from "../../../src/pages/ForgotPasswordPage";
+import LoginPage from "../../../src/pages/LoginPage";
+import MessageWrapper from "../../../src/components/MessageWrapper";
 
 function AppRouter() {
     return (

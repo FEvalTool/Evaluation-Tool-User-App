@@ -2,10 +2,10 @@ import { screen, waitFor } from "@testing-library/react";
 import { render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { requestCallTracker } from "../../mocks/mockServer";
-import { REQUEST_KEYS } from "../../helpers/requestHelpers";
-import accountService from "../../../src/services/accountService";
-import UpdatePasswordForm from "../../../src/components/forms/UpdatePasswordForm";
+import { requestCallTracker } from "../../../mocks/mockServer";
+import { REQUEST_KEYS } from "../../../helpers/requestHelpers";
+import accountService from "../../../../src/services/accountService";
+import UpdatePasswordForm from "../../../../src/components/forms/UpdatePasswordForm";
 
 const renderForm = () => {
     render(

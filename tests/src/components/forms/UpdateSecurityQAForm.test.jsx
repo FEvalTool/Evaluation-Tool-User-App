@@ -3,9 +3,9 @@ import { render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { expect, vi } from "vitest";
 
-import UpdateSecurityQAForm from "../../../src/components/forms/UpdateSecurityQAForm";
-import { REQUEST_KEYS } from "../../helpers/requestHelpers";
-import { requestCallTracker } from "../../mocks/mockServer";
+import UpdateSecurityQAForm from "../../../../src/components/forms/UpdateSecurityQAForm";
+import { REQUEST_KEYS } from "../../../helpers/requestHelpers";
+import { requestCallTracker } from "../../../mocks/mockServer";
 
 const renderForm = () => {
     render(<UpdateSecurityQAForm onSubmit={vi.fn()} />);

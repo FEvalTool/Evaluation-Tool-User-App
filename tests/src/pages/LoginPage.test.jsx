@@ -2,19 +2,19 @@ import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Route, Routes } from "react-router-dom";
 
-import { renderWithProviders } from "../mocks/mockStoreWrapper";
-import { accountData } from "../mocks/data/account";
-import { REQUEST_KEYS } from "../helpers/requestHelpers";
+import { renderWithProviders } from "../../mocks/mockStoreWrapper";
+import { accountData } from "../../mocks/data/account";
+import { REQUEST_KEYS } from "../../helpers/requestHelpers";
 import {
     requestCallTracker,
     requestValidationErrorTracker,
-} from "../mocks/mockServer";
-import { ROUTES } from "../../src/constants";
-import LoginPage from "../../src/pages/LoginPage";
-import SetupAccountPage from "../../src/pages/SetupAccountPage";
-import TestPage from "../../src/pages/TestPage";
-import MainLayout from "../../src/layouts/MainLayout";
-import MessageWrapper from "../../src/components/MessageWrapper";
+} from "../../mocks/mockServer";
+import { ROUTES } from "../../../src/constants";
+import LoginPage from "../../../src/pages/LoginPage";
+import SetupAccountPage from "../../../src/pages/SetupAccountPage";
+import TestPage from "../../../src/pages/TestPage";
+import MainLayout from "../../../src/layouts/MainLayout";
+import MessageWrapper from "../../../src/components/MessageWrapper";
 
 function AppRouter() {
     return (
