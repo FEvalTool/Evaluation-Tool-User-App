@@ -1,6 +1,6 @@
 import { http, HttpResponse } from "msw";
 
-const healthCheckHandlers = [
+const createHealthCheckHandlers = () => [
     http.get(`/health/check`, async () => {
         return HttpResponse.json(
             {
@@ -11,4 +11,4 @@ const healthCheckHandlers = [
     }),
 ];
 
-export default healthCheckHandlers;
+export default createHealthCheckHandlers;

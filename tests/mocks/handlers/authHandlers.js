@@ -1,19 +1,22 @@
 import { http, HttpResponse } from "msw";
 import { securityAnswers, accountData } from "../data/account";
-import { loginSchema, genTokenQASchema } from "../../schemas/authSchema";
 import {
-    requestCallTracker,
-    requestValidationErrorTracker,
-    REQUEST_KEYS,
-} from "../../helpers/requestHelpers";
+    loginSchema,
+    genTokenQASchema,
+    verifyTokenSchema,
+} from "../../schemas/authSchema";
 
 const API_URL = "/auth";
 
-const authHandlers = [
+const createAuthHandlers = ({
+    responseQueue,
+    requestCallTracker,
+    requestValidationErrorTracker,
+    REQUEST_KEYS,
+}) => [
     http.post(`${API_URL}/login`, async ({ request }) => {
         requestCallTracker.track(REQUEST_KEYS.LOGIN);
         const body = await request.json();
-        // Request check
         const validation = loginSchema.safeParse(body);
         if (!validation.success) {
             requestValidationErrorTracker.record({
@@ -46,7 +49,6 @@ const authHandlers = [
     http.post(`${API_URL}/token/qa`, async ({ request }) => {
         requestCallTracker.track(REQUEST_KEYS.GEN_SECURITY_TOKEN_QA);
         const body = await request.json();
-        // Request check
         const validation = genTokenQASchema.safeParse(body);
         if (!validation.success) {
             requestValidationErrorTracker.record({
@@ -86,11 +88,45 @@ const authHandlers = [
     }),
     http.post(`${API_URL}/logout`, async () => {
         requestCallTracker.track(REQUEST_KEYS.LOGOUT);
+        if (responseQueue.has(REQUEST_KEYS.LOGOUT)) {
+            const response = responseQueue.next(REQUEST_KEYS.LOGOUT);
+            return HttpResponse.json(response.data, {
+                status: response.status,
+            });
+        }
         return HttpResponse.json(
             { message: "Logout successfully" },
             { status: 200 }
         );
     }),
+    http.post(`${API_URL}/token/verify`, async ({ request }) => {
+        const body = await request.json();
+        const validation = verifyTokenSchema.safeParse(body);
+        if (!validation.success) {
+            requestValidationErrorTracker.record({
+                endpoint: REQUEST_KEYS.VERIFY_TOKEN,
+                issues: validation.error.issues,
+                payload: body,
+            });
+            return HttpResponse.json(
+                { message: "Invalid request payload" },
+                { status: 400 }
+            );
+        }
+
+        requestCallTracker.track(REQUEST_KEYS.VERIFY_TOKEN);
+        const response = responseQueue.next(REQUEST_KEYS.VERIFY_TOKEN);
+        return HttpResponse.json(response.data, {
+            status: response.status,
+        });
+    }),
+    http.post(`${API_URL}/token/refresh`, async () => {
+        requestCallTracker.track(REQUEST_KEYS.REFRESH_TOKEN);
+        const response = responseQueue.next(REQUEST_KEYS.REFRESH_TOKEN);
+        return HttpResponse.json(response.data, {
+            status: response.status,
+        });
+    }),
 ];
 
-export default authHandlers;
+export default createAuthHandlers;

@@ -1,13 +1,16 @@
 import { screen, waitFor } from "@testing-library/react";
 import { Routes, Route } from "react-router-dom";
 
-import ProtectedRoute from "../../src/middlewares/ProtectedRoute";
-import authService from "../../src//services/authService";
-import { renderWithProviders } from "../mocks/mockStoreWrapper";
 import { accountData } from "../mocks/data/account";
+import {
+    requestCallTracker,
+    requestValidationErrorTracker,
+    responseQueue,
+} from "../mocks/mockServer";
+import { REQUEST_KEYS } from "../helpers/requestHelpers";
 import { ROUTES } from "../../src/constants";
-
-vi.mock("../../src/services/authService");
+import ProtectedRoute from "../../src/middlewares/ProtectedRoute";
+import { renderWithProviders } from "../mocks/mockStoreWrapper";
 
 function AppRouter() {
     return (
@@ -25,8 +28,8 @@ function AppRouter() {
 }
 
 describe("ProtectedRoute", () => {
-    test("should show protected page when token valid", async () => {
-        authService.verifyToken.mockResolvedValueOnce({});
+    test("should show protected page when token valid for not first time user", async () => {
+        responseQueue.add(REQUEST_KEYS.VERIFY_TOKEN, 200);
 
         renderWithProviders(<AppRouter />, {
             preloadedState: { auth: { user: accountData[1] } },
@@ -36,14 +39,29 @@ describe("ProtectedRoute", () => {
         await waitFor(() => {
             expect(screen.getByText("Dashboard")).toBeInTheDocument();
         });
+        expect(requestCallTracker.get(REQUEST_KEYS.VERIFY_TOKEN)).toBe(1);
+        expect(requestValidationErrorTracker.getAll()).toEqual([]);
+    });
+
+    test("should show setup account page when token valid for first time user", async () => {
+        responseQueue.add(REQUEST_KEYS.VERIFY_TOKEN, 200);
+
+        renderWithProviders(<AppRouter />, {
+            preloadedState: { auth: { user: accountData[0] } },
+            route: ROUTES.SETUP_ACCOUNT,
+        });
+
+        await waitFor(() => {
+            expect(screen.getByText("SetupPage")).toBeInTheDocument();
+        });
+        expect(requestCallTracker.get(REQUEST_KEYS.VERIFY_TOKEN)).toBe(1);
+        expect(requestValidationErrorTracker.getAll()).toEqual([]);
     });
 
     test("should show protected page when token expired but refresh success", async () => {
-        authService.verifyToken.mockRejectedValueOnce({
-            response: { status: 401 },
-        });
-        authService.refreshToken.mockResolvedValueOnce({});
-        authService.verifyToken.mockResolvedValueOnce({});
+        responseQueue.add(REQUEST_KEYS.VERIFY_TOKEN, 401);
+        responseQueue.add(REQUEST_KEYS.REFRESH_TOKEN, 200);
+        responseQueue.add(REQUEST_KEYS.VERIFY_TOKEN, 200);
 
         renderWithProviders(<AppRouter />, {
             preloadedState: { auth: { user: accountData[1] } },
@@ -53,47 +71,94 @@ describe("ProtectedRoute", () => {
         await waitFor(() => {
             expect(screen.getByText("Dashboard")).toBeInTheDocument();
         });
+        expect(requestCallTracker.get(REQUEST_KEYS.VERIFY_TOKEN)).toBe(2);
+        expect(requestCallTracker.get(REQUEST_KEYS.REFRESH_TOKEN)).toBe(1);
+        expect(requestValidationErrorTracker.getAll()).toEqual([]);
     });
 
-    test("should redirect to login page when refresh token failed", async () => {
-        authService.verifyToken.mockRejectedValue({
-            response: { status: 401 },
-        });
-        authService.refreshToken.mockRejectedValue({});
+    test("should redirect to login page when refresh token failed - for not first time user", async () => {
+        responseQueue.add(REQUEST_KEYS.VERIFY_TOKEN, 401);
+        responseQueue.add(REQUEST_KEYS.REFRESH_TOKEN, 401);
 
         renderWithProviders(<AppRouter />, {
             preloadedState: { auth: { user: accountData[1] } },
             route: ROUTES.TEST_MAIN,
         });
 
-        await waitFor(() =>
-            expect(screen.getByText("LoginPage")).toBeInTheDocument()
+        await waitFor(
+            () => {
+                expect(screen.getByText("LoginPage")).toBeInTheDocument();
+            },
+            // (Optional) Add and increase timeout when debugging
+            // to avoid false positive when running navigation
+            // (Explain in GuestRoute.test.jsx)
+            { timeout: 10000 }
         );
+        expect(requestCallTracker.get(REQUEST_KEYS.VERIFY_TOKEN)).toBe(1);
+        expect(requestCallTracker.get(REQUEST_KEYS.REFRESH_TOKEN)).toBe(1);
+        expect(requestValidationErrorTracker.getAll()).toEqual([]);
+    });
+
+    test("should redirect to login page when verify token failed - for first time user", async () => {
+        responseQueue.add(REQUEST_KEYS.VERIFY_TOKEN, 401);
+
+        renderWithProviders(<AppRouter />, {
+            preloadedState: { auth: { user: accountData[0] } },
+            route: ROUTES.SETUP_ACCOUNT,
+        });
+
+        await waitFor(
+            () => {
+                expect(screen.getByText("LoginPage")).toBeInTheDocument();
+            },
+            // (Optional) Add and increase timeout when debugging
+            // to avoid false positive when running navigation
+            // (Explain in GuestRoute.test.jsx)
+            { timeout: 10000 }
+        );
+        expect(requestCallTracker.get(REQUEST_KEYS.VERIFY_TOKEN)).toBe(1);
+        expect(requestValidationErrorTracker.getAll()).toEqual([]);
     });
 
     test("should prevent accessing other page (except setup account page) if user first time setup account", async () => {
-        authService.verifyToken.mockResolvedValue({});
+        responseQueue.add(REQUEST_KEYS.VERIFY_TOKEN, 200);
 
         renderWithProviders(<AppRouter />, {
             preloadedState: { auth: { user: accountData[0] } },
             route: ROUTES.TEST_MAIN,
         });
 
-        await waitFor(() =>
-            expect(screen.getByText("SetupPage")).toBeInTheDocument()
+        await waitFor(
+            () => {
+                expect(screen.getByText("SetupPage")).toBeInTheDocument();
+            },
+            // (Optional) Add and increase timeout when debugging
+            // to avoid false positive when running navigation
+            // (Explain in GuestRoute.test.jsx)
+            { timeout: 10000 }
         );
+        expect(requestCallTracker.get(REQUEST_KEYS.VERIFY_TOKEN)).toBe(1);
+        expect(requestValidationErrorTracker.getAll()).toEqual([]);
     });
 
     test("should prevent accessing setup account page when user already setup account", async () => {
-        authService.verifyToken.mockResolvedValue({});
+        responseQueue.add(REQUEST_KEYS.VERIFY_TOKEN, 200);
 
         renderWithProviders(<AppRouter />, {
             preloadedState: { auth: { user: accountData[1] } },
             route: ROUTES.SETUP_ACCOUNT,
         });
 
-        await waitFor(() =>
-            expect(screen.getByText("Dashboard")).toBeInTheDocument()
+        await waitFor(
+            () => {
+                expect(screen.getByText("Dashboard")).toBeInTheDocument();
+            },
+            // (Optional) Add and increase timeout when debugging
+            // to avoid false positive when running navigation
+            // (Explain in GuestRoute.test.jsx)
+            { timeout: 10000 }
         );
+        expect(requestCallTracker.get(REQUEST_KEYS.VERIFY_TOKEN)).toBe(1);
+        expect(requestValidationErrorTracker.getAll()).toEqual([]);
     });
 });

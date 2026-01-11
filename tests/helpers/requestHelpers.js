@@ -7,45 +7,78 @@ export const REQUEST_KEYS = {
     REFRESH_TOKEN: "auth.refreshToken",
 
     GET_USER_SECURITY_QA: "account.getUserSecurityQuestions",
-    GET_USER_SETUP_STATUS: "account.getUserSetupStatus",
+    GET_ACCOUNT_SETUP_STATUS: "account.getUserSetupStatus",
     SET_SECURITY_QA: "account.setSecurityQA",
     SET_PASSWORD: "account.setPassword",
 
     GET_SECURITY_QUESTIONS: "question.getSecurityQuestions",
 };
 
-export const requestCallTracker = {
-    calls: {},
-
-    track(key) {
-        this.calls[key] = (this.calls[key] ?? 0) + 1;
-    },
-
-    get(key) {
-        return this.calls[key] ?? 0;
-    },
-
-    reset() {
-        this.calls = {};
-    },
+export const createRequestCallTracker = () => {
+    const calls = new Map();
+    return {
+        track: (key) => {
+            calls.set(key, (calls.get(key) ?? 0) + 1);
+        },
+        get: (key) => {
+            return calls.get(key) ?? 0;
+        },
+        reset: () => {
+            calls.clear();
+        },
+    };
 };
 
-export const requestValidationErrorTracker = {
-    errors: [],
+export const createRequestValidationErrorTracker = () => {
+    const errors = [];
 
-    record(error) {
-        this.errors.push(error);
-    },
+    return {
+        record: (error) => {
+            errors.push(error);
+        },
+        getAll: () => {
+            return errors;
+        },
+        reset: () => {
+            errors.length = 0;
+        },
+    };
+};
 
-    getAll() {
-        return this.errors;
-    },
+export const createResponseQueue = () => {
+    const queues = new Map();
 
-    getByEndpoint(endpoint) {
-        return this.errors.filter((e) => e.endpoint === endpoint);
-    },
-
-    reset() {
-        this.errors = [];
-    },
+    return {
+        add: (key, status, data = {}) => {
+            if (!queues.has(key)) {
+                queues.set(key, []);
+            }
+            queues.get(key).push({ status, data });
+        },
+        next: (key) => {
+            const queue = queues.get(key);
+            if (!queue || queue.length === 0) {
+                console.warn(
+                    `⚠️ No response queued for ${key}, returning default 200`
+                );
+                return { status: 200, data: {} };
+            }
+            const response = queue.shift();
+            console.log(
+                `✅ [${key}] Returning status ${response.status}, ${queue.length} remaining`
+            );
+            return response;
+        },
+        has: (key) => {
+            const queue = queues.get(key);
+            return queue && queue.length > 0;
+        },
+        clear: () => {
+            queues.clear();
+        },
+        // For debugging purposes
+        getAll: () => {
+            return queues;
+        },
+    };
 };

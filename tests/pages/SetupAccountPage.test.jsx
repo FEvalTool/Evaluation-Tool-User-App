@@ -1,25 +1,21 @@
 import { screen, waitFor, act } from "@testing-library/react";
 import { Route, Routes } from "react-router-dom";
 import userEvent from "@testing-library/user-event";
-import { http, HttpResponse } from "msw";
 
 import { renderWithProviders } from "../mocks/mockStoreWrapper";
 import { accountData } from "../mocks/data/account";
-import { server } from "../mocks/server";
-import { setupPassword, setupSecurityQA } from "../helpers/setupAccountFlows";
 import {
     requestCallTracker,
     requestValidationErrorTracker,
-    REQUEST_KEYS,
-} from "../helpers/requestHelpers";
-import {
-    setPasswordSchema,
-    setSecurityQASchema,
-} from "../schemas/accountSchema";
+    responseQueue,
+} from "../mocks/mockServer";
+import { setupPassword, setupSecurityQA } from "../helpers/setupAccountFlows";
+import { REQUEST_KEYS } from "../helpers/requestHelpers";
 import { ROUTES } from "../../src/constants";
 import MessageWrapper from "../../src/components/MessageWrapper";
 import LoginPage from "../../src/pages/LoginPage";
 import SetupAccountPage from "../../src/pages/SetupAccountPage";
+import { expect } from "vitest";
 
 function AppRouter() {
     return (
@@ -55,16 +51,6 @@ const getUserEventInstance = () =>
             });
         },
     });
-
-// Mock get user setup api function
-const mockSetupStatus = (data) => {
-    server.use(
-        http.get("account/setup_status", () => {
-            requestCallTracker.track(REQUEST_KEYS.GET_USER_SETUP_STATUS);
-            return HttpResponse.json({ user: data });
-        })
-    );
-};
 
 describe("SetupAccountPage - integration test flow", () => {
     it("should render Setup Account Page correctly", async () => {
@@ -126,13 +112,22 @@ describe("SetupAccountPage - integration test flow", () => {
         });
     });
 
-    // Full flow setup process
-    const fullFlowSetup = async (user) => {
+    it("should render Setup Account Page correctly after complete setup account", async () => {
+        renderWithProviders(<AppRouter />, {
+            preloadedState: {
+                auth: { user: accountData[0] },
+            },
+            route: ROUTES.SETUP_ACCOUNT,
+        });
+        const user = getUserEventInstance();
+
         // Mock user status API response after submit setup password form
-        mockSetupStatus({
-            first_time_setup: true,
-            is_password_setup: true,
-            is_security_qa_setup: false,
+        responseQueue.add(REQUEST_KEYS.GET_ACCOUNT_SETUP_STATUS, 200, {
+            user: {
+                first_time_setup: true,
+                is_password_setup: true,
+                is_security_qa_setup: false,
+            },
         });
 
         // Setup password
@@ -149,7 +144,9 @@ describe("SetupAccountPage - integration test flow", () => {
         });
 
         // Mock user status API response after submit setup security qa form
-        mockSetupStatus({});
+        responseQueue.add(REQUEST_KEYS.GET_ACCOUNT_SETUP_STATUS, 200, {
+            user: {},
+        });
 
         // Setup security qa
         await user.click(
@@ -165,17 +162,6 @@ describe("SetupAccountPage - integration test flow", () => {
                 screen.getByText(/Complete Setup Security Question/i)
             ).toBeInTheDocument();
         });
-    };
-
-    it("should render Setup Account Page correctly after complete setup account", async () => {
-        renderWithProviders(<AppRouter />, {
-            preloadedState: {
-                auth: { user: accountData[0] },
-            },
-            route: ROUTES.SETUP_ACCOUNT,
-        });
-        const user = getUserEventInstance();
-        await fullFlowSetup(user);
 
         await waitFor(() => {
             // Status section check
@@ -200,18 +186,33 @@ describe("SetupAccountPage - integration test flow", () => {
             const securityQABadgeDot =
                 securityQAMenuItem.querySelector(".ant-badge-dot");
             expect(securityQABadgeDot).toHaveClass("ant-badge-status-success");
+            // Local storage check
+            const userData = localStorage.getItem("user");
+            expect(userData).not.toBeNull();
+            const userDataObj = JSON.parse(userData);
+            expect(userDataObj["first_time_setup"]).toBe(true);
+            expect(userDataObj["is_password_setup"]).toBe(true);
+            expect(userDataObj["is_security_qa_setup"]).toBe(true);
         });
     });
 
     it("should display 'complete notification' correctly when click 'Complete setup' button", async () => {
+        // Pre-set user state as completed both setup password and security questions
+        // to enable Complete setup button
         renderWithProviders(<AppRouter />, {
             preloadedState: {
-                auth: { user: accountData[0] },
+                auth: {
+                    user: {
+                        ...accountData[0],
+                        first_time_setup: true,
+                        is_password_setup: true,
+                        is_security_qa_setup: true,
+                    },
+                },
             },
             route: ROUTES.SETUP_ACCOUNT,
         });
         const user = getUserEventInstance();
-        await fullFlowSetup(user);
 
         // Press Complete setup button
         await user.click(
@@ -252,14 +253,22 @@ describe("SetupAccountPage - integration test flow", () => {
     });
 
     it("should close 'complete notification' when click 'Stay on page' button", async () => {
+        // Pre-set user state as completed both setup password and security questions
+        // to enable Complete setup button
         renderWithProviders(<AppRouter />, {
             preloadedState: {
-                auth: { user: accountData[0] },
+                auth: {
+                    user: {
+                        ...accountData[0],
+                        first_time_setup: true,
+                        is_password_setup: true,
+                        is_security_qa_setup: true,
+                    },
+                },
             },
             route: ROUTES.SETUP_ACCOUNT,
         });
         const user = getUserEventInstance();
-        await fullFlowSetup(user);
 
         // Press Complete setup button
         await user.click(
@@ -302,14 +311,22 @@ describe("SetupAccountPage - integration test flow", () => {
     });
 
     it("should go back to Login page when click 'Login now' button", async () => {
+        // Pre-set user state as completed both setup password and security questions
+        // to enable Complete setup button
         renderWithProviders(<AppRouter />, {
             preloadedState: {
-                auth: { user: accountData[0] },
+                auth: {
+                    user: {
+                        ...accountData[0],
+                        first_time_setup: true,
+                        is_password_setup: true,
+                        is_security_qa_setup: true,
+                    },
+                },
             },
             route: ROUTES.SETUP_ACCOUNT,
         });
         const user = getUserEventInstance();
-        await fullFlowSetup(user);
 
         // Press Complete setup button
         await user.click(
@@ -338,14 +355,22 @@ describe("SetupAccountPage - integration test flow", () => {
     });
 
     it("should go back to Login page when user not do anything in 5 second", async () => {
+        // Pre-set user state as completed both setup password and security questions
+        // to enable Complete setup button
         renderWithProviders(<AppRouter />, {
             preloadedState: {
-                auth: { user: accountData[0] },
+                auth: {
+                    user: {
+                        ...accountData[0],
+                        first_time_setup: true,
+                        is_password_setup: true,
+                        is_security_qa_setup: true,
+                    },
+                },
             },
             route: ROUTES.SETUP_ACCOUNT,
         });
         const user = getUserEventInstance();
-        await fullFlowSetup(user);
 
         // Press Complete setup button
         await user.click(
@@ -407,10 +432,12 @@ describe("SetupAccountPage - Password setup flow", () => {
         const user = getUserEventInstance();
 
         // Mock user status API response after submit
-        mockSetupStatus({
-            first_time_setup: true,
-            is_password_setup: true,
-            is_security_qa_setup: false,
+        responseQueue.add(REQUEST_KEYS.GET_ACCOUNT_SETUP_STATUS, 200, {
+            user: {
+                first_time_setup: true,
+                is_password_setup: true,
+                is_security_qa_setup: false,
+            },
         });
 
         const passwordMenuItem = screen
@@ -425,7 +452,7 @@ describe("SetupAccountPage - Password setup flow", () => {
             expect(requestValidationErrorTracker.getAll()).toEqual([]);
             expect(requestCallTracker.get(REQUEST_KEYS.SET_PASSWORD)).toBe(1);
             expect(
-                requestCallTracker.get(REQUEST_KEYS.GET_USER_SETUP_STATUS)
+                requestCallTracker.get(REQUEST_KEYS.GET_ACCOUNT_SETUP_STATUS)
             ).toBe(1);
             expect(
                 screen.getByText(/Complete Setup Password/i)
@@ -452,32 +479,9 @@ describe("SetupAccountPage - Password setup flow", () => {
         // Mock set security questions API failed
         // (we will test the case when user update
         // after 10-minute security session pass)
-        server.use(
-            http.post("account/password", async ({ request }) => {
-                requestCallTracker.track(REQUEST_KEYS.SET_PASSWORD);
-                const body = await request.json();
-                // Request check
-                const validation = setPasswordSchema.safeParse(body);
-                if (!validation.success) {
-                    requestValidationErrorTracker.record({
-                        endpoint: REQUEST_KEYS.SET_PASSWORD,
-                        issues: validation.error.issues,
-                        payload: body,
-                    });
-                    return HttpResponse.json(
-                        { message: "Invalid request payload" },
-                        { status: 400 }
-                    );
-                }
-
-                return HttpResponse.json(
-                    {
-                        message: "Token 'scope' not found",
-                    },
-                    { status: 401 }
-                );
-            })
-        );
+        responseQueue.add(REQUEST_KEYS.SET_PASSWORD, 401, {
+            message: "Token 'scope' not found",
+        });
 
         const passwordMenuItem = screen
             .getByText(/Setup Password/i)
@@ -495,7 +499,7 @@ describe("SetupAccountPage - Password setup flow", () => {
             expect(requestValidationErrorTracker.getAll()).toEqual([]);
             expect(requestCallTracker.get(REQUEST_KEYS.SET_PASSWORD)).toBe(1);
             expect(
-                requestCallTracker.get(REQUEST_KEYS.GET_USER_SETUP_STATUS)
+                requestCallTracker.get(REQUEST_KEYS.GET_ACCOUNT_SETUP_STATUS)
             ).toBe(0);
             const timeElement = screen.getByText(/(\d{2}):(\d{2})/);
             expect(timeElement.textContent).toMatch(/00:00/);
@@ -553,10 +557,12 @@ describe("SetupAccountPage - Security Question Answer setup flow", () => {
         const user = getUserEventInstance();
 
         // Mock user status API response after submit
-        mockSetupStatus({
-            first_time_setup: true,
-            is_password_setup: false,
-            is_security_qa_setup: true,
+        responseQueue.add(REQUEST_KEYS.GET_ACCOUNT_SETUP_STATUS, 200, {
+            user: {
+                first_time_setup: true,
+                is_password_setup: false,
+                is_security_qa_setup: true,
+            },
         });
 
         const securityQAMenuItem = screen
@@ -574,7 +580,7 @@ describe("SetupAccountPage - Security Question Answer setup flow", () => {
                 1
             );
             expect(
-                requestCallTracker.get(REQUEST_KEYS.GET_USER_SETUP_STATUS)
+                requestCallTracker.get(REQUEST_KEYS.GET_ACCOUNT_SETUP_STATUS)
             ).toBe(1);
             expect(
                 screen.getByText(/Complete Setup Security Question/i)
@@ -601,32 +607,9 @@ describe("SetupAccountPage - Security Question Answer setup flow", () => {
         // Mock set security questions API failed
         // (we will test the case when user update
         // after 10-minute security session pass)
-        server.use(
-            http.post("account/security_questions", async ({ request }) => {
-                requestCallTracker.track(REQUEST_KEYS.SET_SECURITY_QA);
-                const body = await request.json();
-                // Request check
-                const validation = setSecurityQASchema.safeParse(body);
-                if (!validation.success) {
-                    requestValidationErrorTracker.record({
-                        endpoint: REQUEST_KEYS.SET_SECURITY_QA,
-                        issues: validation.error.issues,
-                        payload: body,
-                    });
-                    return HttpResponse.json(
-                        { message: "Invalid request payload" },
-                        { status: 400 }
-                    );
-                }
-
-                return HttpResponse.json(
-                    {
-                        message: "Token 'scope' not found",
-                    },
-                    { status: 401 }
-                );
-            })
-        );
+        responseQueue.add(REQUEST_KEYS.SET_SECURITY_QA, 401, {
+            message: "Token 'scope' not found",
+        });
 
         const securityQAMenuItem = screen
             .getByText(/Setup Security Questions/i)
@@ -647,7 +630,7 @@ describe("SetupAccountPage - Security Question Answer setup flow", () => {
                 1
             );
             expect(
-                requestCallTracker.get(REQUEST_KEYS.GET_USER_SETUP_STATUS)
+                requestCallTracker.get(REQUEST_KEYS.GET_ACCOUNT_SETUP_STATUS)
             ).toBe(0);
             const timeElement = screen.getByText(/(\d{2}):(\d{2})/);
             expect(timeElement.textContent).toMatch(/00:00/);

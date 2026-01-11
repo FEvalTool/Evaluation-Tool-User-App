@@ -2,11 +2,12 @@ import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Routes, Route } from "react-router-dom";
 
-import MainLayout from "../../src/layouts/MainLayout";
-import { requestCallTracker, REQUEST_KEYS } from "../helpers/requestHelpers";
 import { renderWithProviders } from "../mocks/mockStoreWrapper";
 import { accountData } from "../mocks/data/account";
+import { requestCallTracker } from "../mocks/mockServer";
+import { REQUEST_KEYS } from "../helpers/requestHelpers";
 import { ROUTES } from "../../src/constants";
+import MainLayout from "../../src/layouts/MainLayout";
 
 function AppRouter() {
     return (

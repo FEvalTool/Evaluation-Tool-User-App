@@ -4,11 +4,11 @@ import { Route, Routes } from "react-router-dom";
 
 import { renderWithProviders } from "../mocks/mockStoreWrapper";
 import { accountData } from "../mocks/data/account";
+import { REQUEST_KEYS } from "../helpers/requestHelpers";
 import {
     requestCallTracker,
     requestValidationErrorTracker,
-    REQUEST_KEYS,
-} from "../helpers/requestHelpers";
+} from "../mocks/mockServer";
 import { ROUTES } from "../../src/constants";
 import LoginPage from "../../src/pages/LoginPage";
 import SetupAccountPage from "../../src/pages/SetupAccountPage";

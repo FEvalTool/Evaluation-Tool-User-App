@@ -1,6 +1,5 @@
 import { screen, waitFor, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { http, HttpResponse } from "msw";
 import { Routes, Route } from "react-router-dom";
 import { vi } from "vitest";
 
@@ -9,17 +8,16 @@ import {
     securityQuestionsResponse,
     securityAnswers,
 } from "../mocks/data/account";
-import { server } from "../mocks/server";
 import {
     requestCallTracker,
     requestValidationErrorTracker,
-    REQUEST_KEYS,
-} from "../helpers/requestHelpers";
+    responseQueue,
+} from "../mocks/mockServer";
+import { REQUEST_KEYS } from "../helpers/requestHelpers";
 import {
     goDirectlyToSecurityQuestionsStep,
     goDirectlyToChangePasswordStep,
 } from "../helpers/forgotPasswordFlows";
-import { setPasswordSchema } from "../schemas/accountSchema";
 import { ROUTES } from "../../src/constants";
 import ForgotPasswordPage from "../../src/pages/ForgotPasswordPage";
 import LoginPage from "../../src/pages/LoginPage";
@@ -242,32 +240,9 @@ describe("ForgotPasswordPage Step 3", () => {
         // Override handler to simulate API failure
         // (we will test the case when user update new password
         // after 10-minute security session pass)
-        server.use(
-            http.post("account/password", async ({ request }) => {
-                requestCallTracker.track(REQUEST_KEYS.SET_PASSWORD);
-                const body = await request.json();
-                // Request check
-                const validation = setPasswordSchema.safeParse(body);
-                if (!validation.success) {
-                    requestValidationErrorTracker.record({
-                        endpoint: REQUEST_KEYS.SET_PASSWORD,
-                        issues: validation.error.issues,
-                        payload: body,
-                    });
-                    return HttpResponse.json(
-                        { message: "Invalid request payload" },
-                        { status: 400 }
-                    );
-                }
-
-                return HttpResponse.json(
-                    {
-                        message: "Token 'scope' not found",
-                    },
-                    { status: 401 }
-                );
-            })
-        );
+        responseQueue.add(REQUEST_KEYS.SET_PASSWORD, 401, {
+            message: "Token 'scope' not found",
+        });
 
         renderWithProviders(<AppRouter />, { route: ROUTES.FORGOT_PASSWORD });
 
