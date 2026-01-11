@@ -67,6 +67,8 @@ const UpdateSecurityQAForm = ({ onSubmit, disabled, shouldWarn }) => {
                                 onChange={(value) =>
                                     handleSelectChange(value, idx)
                                 }
+                                // https://stackoverflow.com/questions/79179376/antd-select-component-does-not-show-more-than-2-options-in-tests
+                                virtual={false}
                             />
                         </Form.Item>
                     </Col>

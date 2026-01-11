@@ -1,10 +1,12 @@
-import { screen, waitFor } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import {
     securityQuestionsResponse,
     securityAnswers,
 } from "../mocks/data/account";
 
 export const setupSecurityQA = async (user) => {
+    // Options selection references:
+    // https://blog.octalabs.com/testing-insights-for-ant-design-components-in-react-a090f217b784
     const questionInputList = screen.getAllByRole("combobox");
 
     // qa setup

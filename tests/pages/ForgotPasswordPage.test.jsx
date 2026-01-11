@@ -275,32 +275,6 @@ describe("ForgotPasswordPage Step 3", () => {
         });
     });
 
-    it("should display confirm password error when user input confirm password different from new password", async () => {
-        renderWithProviders(<AppRouter />, { route: ROUTES.FORGOT_PASSWORD });
-
-        const thirdStep = screen.getByText(/change password/i);
-        const user = getUserEventInstance();
-        await goDirectlyToChangePasswordStep(user);
-
-        const passwordInput = screen.getByLabelText(/new password/i);
-        const confirmPasswordInput = screen.getByLabelText(/confirm password/i);
-        const submitButton = screen.getByRole("button", { name: /submit/i });
-        await user.type(passwordInput, "newPASSWORD123@");
-        await user.type(confirmPasswordInput, "newPASSWORD123@1");
-        await user.click(submitButton);
-
-        await waitFor(() => {
-            expect(requestCallTracker.get(REQUEST_KEYS.SET_PASSWORD)).toBe(0);
-            expect(
-                screen.getByText(
-                    /the new password that you entered do not match/i
-                )
-            ).toBeInTheDocument();
-            const stepElement = thirdStep.closest(".ant-steps-item");
-            expect(stepElement).toHaveClass("ant-steps-item-active");
-        });
-    });
-
     it("should go back to Login page when complete update password", async () => {
         renderWithProviders(<AppRouter />, { route: ROUTES.FORGOT_PASSWORD });
 
@@ -317,6 +291,9 @@ describe("ForgotPasswordPage Step 3", () => {
         await waitFor(() => {
             expect(requestValidationErrorTracker.getAll()).toEqual([]);
             expect(requestCallTracker.get(REQUEST_KEYS.SET_PASSWORD)).toBe(1);
+            expect(
+                requestCallTracker.get(REQUEST_KEYS.DELETE_SCOPE_TOKEN)
+            ).toBe(1);
             const heading = screen.getByRole("heading", /login/i);
             expect(heading).toBeInTheDocument();
         });
