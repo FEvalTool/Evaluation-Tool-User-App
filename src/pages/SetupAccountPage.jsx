@@ -109,7 +109,9 @@ const SetupAccountPage = () => {
 
     const onSubmitSetSecurityQAForm = async (values) => {
         // Sort values by keys (answer-1, answer-2, ..., question-1, question-2)
-        const sortedKeys = Object.keys(values).sort();
+        const sortedKeys = Object.keys(values).sort((a, b) =>
+            a.localeCompare(b)
+        );
         // Get questions and answers group
         const payload = sortedKeys.reduce(
             (acc, key) => {
