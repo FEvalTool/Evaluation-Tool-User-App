@@ -22,14 +22,10 @@ describe("UpdatePasswordForm", async () => {
         renderForm();
         const user = userEvent.setup();
 
-        await user.type(
-            screen.getByLabelText(/new password/i),
-            "newPASSWORD123@"
-        );
-        await user.type(
-            screen.getByLabelText(/confirm password/i),
-            "newPASSWORD123@1"
-        );
+        await user.click(screen.getByLabelText(/new password/i));
+        await user.paste("newPASSWORD123@");
+        await user.click(screen.getByLabelText(/confirm password/i));
+        await user.paste("newPASSWORD123@1");
         await user.click(screen.getByRole("button", { name: /submit/i }));
 
         await waitFor(() => {

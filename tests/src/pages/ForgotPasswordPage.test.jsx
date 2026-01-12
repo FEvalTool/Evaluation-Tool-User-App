@@ -97,7 +97,8 @@ describe("ForgotPasswordPage Step 1 and 2", () => {
         const firstStep = screen.getByText(/enter username/i);
 
         const user = userEvent.setup();
-        await user.type(usernameInput, "testuser1");
+        await user.click(usernameInput);
+        await user.paste("unknownuser");
         await user.click(submitButton);
 
         await waitFor(() => {
@@ -122,7 +123,8 @@ describe("ForgotPasswordPage Step 1 and 2", () => {
         const secondStep = screen.getByText(/security questions/i);
 
         const user = userEvent.setup();
-        await user.type(usernameInput, "testuser");
+        await user.click(usernameInput);
+        await user.paste("testuser");
         await user.click(submitButton);
 
         await waitFor(() => {
@@ -154,7 +156,8 @@ describe("ForgotPasswordPage Step 1 and 2", () => {
         const submitButton = screen.getByRole("button", { name: /submit/i });
         for (const question of securityQuestionsResponse) {
             const questionInput = screen.getByLabelText(question.content);
-            await user.type(questionInput, "error");
+            await user.click(questionInput);
+            await user.paste("error");
         }
         await user.click(submitButton);
 
@@ -213,7 +216,8 @@ describe("ForgotPasswordPage Step 3", () => {
             const questionInput = screen.getByLabelText(
                 securityQuestionsResponse[index].content
             );
-            await user.type(questionInput, securityAnswers[index]);
+            await user.click(questionInput);
+            await user.paste(securityAnswers[index]);
         }
         await user.click(submitButton);
 
@@ -253,8 +257,10 @@ describe("ForgotPasswordPage Step 3", () => {
         const passwordInput = screen.getByLabelText(/new password/i);
         const confirmPasswordInput = screen.getByLabelText(/confirm password/i);
         const submitButton = screen.getByRole("button", { name: /submit/i });
-        await user.type(passwordInput, "newPASSWORD123@");
-        await user.type(confirmPasswordInput, "newPASSWORD123@");
+        await user.click(passwordInput);
+        await user.paste("newPASSWORD123@");
+        await user.click(confirmPasswordInput);
+        await user.paste("newPASSWORD123@");
         // 10-minute security session passes
         act(() => {
             vi.advanceTimersByTime(10 * 60 * 1000);
@@ -284,8 +290,10 @@ describe("ForgotPasswordPage Step 3", () => {
         const passwordInput = screen.getByLabelText(/new password/i);
         const confirmPasswordInput = screen.getByLabelText(/confirm password/i);
         const submitButton = screen.getByRole("button", { name: /submit/i });
-        await user.type(passwordInput, "newPASSWORD123@");
-        await user.type(confirmPasswordInput, "newPASSWORD123@");
+        await user.click(passwordInput);
+        await user.paste("newPASSWORD123@");
+        await user.click(confirmPasswordInput);
+        await user.paste("newPASSWORD123@");
         await user.click(submitButton);
 
         await waitFor(() => {

@@ -66,8 +66,10 @@ describe("LoginPage navigation flow", () => {
         const passwordInput = screen.getByLabelText(/password/i);
         const submitButton = screen.getByRole("button", { name: /submit/i });
 
-        await user.type(usernameInput, "testUser");
-        await user.type(passwordInput, "wrongPassword");
+        await user.click(usernameInput);
+        await user.paste("testUser");
+        await user.click(passwordInput);
+        await user.paste("wrongPassword");
         await user.click(submitButton);
 
         await waitFor(() => {
@@ -87,8 +89,10 @@ describe("LoginPage navigation flow", () => {
         const passwordInput = screen.getByLabelText(/password/i);
         const submitButton = screen.getByRole("button", { name: /submit/i });
 
-        await user.type(usernameInput, "testUser");
-        await user.type(passwordInput, "testPassword123@");
+        await user.click(usernameInput);
+        await user.paste("testUser");
+        await user.click(passwordInput);
+        await user.paste("testPassword123@");
         await user.click(submitButton);
 
         await waitFor(() => {
@@ -110,8 +114,10 @@ describe("LoginPage navigation flow", () => {
         const passwordInput = screen.getByLabelText(/password/i);
         const submitButton = screen.getByRole("button", { name: /submit/i });
 
-        await user.type(usernameInput, "newTestUser");
-        await user.type(passwordInput, "testPassword");
+        await user.click(usernameInput);
+        await user.paste("newTestUser");
+        await user.click(passwordInput);
+        await user.paste("testPassword");
         await user.click(submitButton);
 
         await waitFor(() => {
