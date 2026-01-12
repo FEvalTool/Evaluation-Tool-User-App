@@ -32,3 +32,13 @@ export const SecurityQuestionIcon = ({ size, fill }) => (
 LogoIcon.propTypes = {
     size: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
 };
+
+PasswordIcon.propTypes = {
+    size: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
+    fill: PropTypes.string.isRequired,
+};
+
+SecurityQuestionIcon.propTypes = {
+    size: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
+    fill: PropTypes.string.isRequired,
+};

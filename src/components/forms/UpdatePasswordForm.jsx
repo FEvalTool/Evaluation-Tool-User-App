@@ -54,11 +54,13 @@ const UpdatePasswordForm = ({ onSubmit, disabled, shouldWarn }) => {
 };
 
 UpdatePasswordForm.propTypes = {
+    shouldWarn: PropTypes.bool,
     onSubmit: PropTypes.func.isRequired,
     disabled: PropTypes.bool,
 };
 
 UpdatePasswordForm.defaultProps = {
+    shouldWarn: false,
     disabled: false,
 };
 

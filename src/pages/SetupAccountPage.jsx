@@ -95,7 +95,7 @@ const SetupAccountPage = () => {
         });
     };
     const handleRedirectLogin = async () => {
-        const resultAction = await dispatch(logout({ first_time_setup: true }));
+        const resultAction = await dispatch(logout({ first_time_setup: true })); // NOSONAR
         if (logout.fulfilled.match(resultAction)) {
             navigate(ROUTES.LOGIN, { replace: true });
         }
@@ -104,7 +104,7 @@ const SetupAccountPage = () => {
 
     const onSubmitSetPasswordForm = async (values) => {
         let payload = { password: values["password"] };
-        await dispatch(setupPasswordFirstTime(payload));
+        await dispatch(setupPasswordFirstTime(payload)); // NOSONAR
     };
 
     const onSubmitSetSecurityQAForm = async (values) => {
@@ -127,7 +127,7 @@ const SetupAccountPage = () => {
             },
             { questions: [], answers: [] }
         );
-        await dispatch(setupSecurityQAFirstTime(payload));
+        await dispatch(setupSecurityQAFirstTime(payload)); // NOSONAR
     };
 
     const handleMenuClick = (e) => {

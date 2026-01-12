@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import { useState, useEffect } from "react";
 import { Form, Col, Row, Input, Select } from "antd";
 
@@ -40,10 +41,10 @@ const UpdateSecurityQAForm = ({ onSubmit, disabled, shouldWarn }) => {
     };
 
     const getOptions = (index) => {
-        const chosen = selectedQuestions.filter(
-            (v, i) => v !== null && i !== index
+        const chosen = new Set(
+            selectedQuestions.filter((v, i) => v !== null && i !== index)
         );
-        return questions.filter((q) => !chosen.includes(q.value));
+        return questions.filter((q) => !chosen.has(q.value));
     };
 
     return (
@@ -91,6 +92,17 @@ const UpdateSecurityQAForm = ({ onSubmit, disabled, shouldWarn }) => {
             ))}
         </BaseForm>
     );
+};
+
+UpdateSecurityQAForm.propTypes = {
+    shouldWarn: PropTypes.bool,
+    onSubmit: PropTypes.func.isRequired,
+    disabled: PropTypes.bool,
+};
+
+UpdateSecurityQAForm.defaultProps = {
+    shouldWarn: false,
+    disabled: false,
 };
 
 export default UpdateSecurityQAForm;
