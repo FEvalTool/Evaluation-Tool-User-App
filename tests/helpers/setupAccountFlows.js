@@ -19,7 +19,8 @@ export const setupSecurityQA = async (user) => {
         const answerInput = screen.getByLabelText(
             new RegExp(`Answer ${i + 1}`, "i")
         );
-        await user.type(answerInput, securityAnswers[i]);
+        await user.click(answerInput)
+        await user.paste(securityAnswers[i]);
     }
 };
 
@@ -27,6 +28,8 @@ export const setupPassword = async (user) => {
     const passwordInput = screen.getByLabelText(/new password/i);
     const confirmPasswordInput = screen.getByLabelText(/confirm password/i);
 
-    await user.type(passwordInput, "newPASSWORD123@");
-    await user.type(confirmPasswordInput, "newPASSWORD123@");
+    await user.click(passwordInput);
+    await user.paste("newPASSWORD123@");
+    await user.click(confirmPasswordInput);
+    await user.paste("newPASSWORD123@");
 };
