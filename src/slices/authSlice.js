@@ -61,29 +61,47 @@ export const logout = createAsyncThunk(
     }
 );
 
+// Helper function for common setup logic
+const handleSetupCompletion = async (
+    setupAction,
+    values,
+    successMessage,
+    dispatch
+) => {
+    await setupAction(values);
+    const response = await accountService.getUserSetupStatus();
+
+    dispatch(
+        showMessage({
+            type: "success",
+            content: successMessage,
+        })
+    );
+
+    // If user complete setup account, preserve first_time_setup flag
+    let userPayload = response.data.user;
+    if (!userPayload["first_time_setup"]) {
+        userPayload = {
+            ...userPayload,
+            first_time_setup: true,
+            is_password_setup: true,
+            is_security_qa_setup: true,
+        };
+    }
+
+    return { user: userPayload };
+};
+
 export const setupPasswordFirstTime = createAsyncThunk(
     "auth/setupPassword",
     async (values, { dispatch, rejectWithValue }) => {
         try {
-            await accountService.setPassword(values);
-            const response = await accountService.getUserSetupStatus();
-            dispatch(
-                showMessage({
-                    type: "success",
-                    content: "Set password successfully",
-                })
+            return await handleSetupCompletion(
+                accountService.setPassword,
+                values,
+                "Set password successfully",
+                dispatch
             );
-            // If user complete setup account
-            // We don't want first_time_setup to be false
-            // If this flag is false => will redirect to dashboard page
-            // => redirect to login page (no access token) (scope token still exist)
-            let userPayload = response.data.user;
-            if (!userPayload["first_time_setup"]) {
-                userPayload["first_time_setup"] = true;
-                userPayload["is_password_setup"] = true;
-                userPayload["is_security_qa_setup"] = true;
-            }
-            return { user: userPayload };
         } catch (err) {
             dispatch(
                 showMessage({
@@ -101,22 +119,12 @@ export const setupSecurityQAFirstTime = createAsyncThunk(
     "auth/setupSecurityQA",
     async (values, { dispatch, rejectWithValue }) => {
         try {
-            await accountService.setSecurityQA(values);
-            const response = await accountService.getUserSetupStatus();
-            dispatch(
-                showMessage({
-                    type: "success",
-                    content: "Set security QA successfully",
-                })
+            return await handleSetupCompletion(
+                accountService.setSecurityQA,
+                values,
+                "Set security QA successfully",
+                dispatch
             );
-            // Same issue mentioned in setupPasswordFirstTime
-            let userPayload = response.data.user;
-            if (!userPayload["first_time_setup"]) {
-                userPayload["first_time_setup"] = true;
-                userPayload["is_password_setup"] = true;
-                userPayload["is_security_qa_setup"] = true;
-            }
-            return { user: userPayload };
         } catch (err) {
             dispatch(
                 showMessage({
