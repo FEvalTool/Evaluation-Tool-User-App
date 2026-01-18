@@ -11,6 +11,7 @@ const BaseForm = ({ children, onSubmit, disabled }) => {
             onFinish={onSubmit}
             autoComplete="off"
             disabled={disabled}
+            style={{ width: "100%" }}
         >
             {children}
             <Form.Item style={{ float: "right" }}>

@@ -1,13 +1,17 @@
 import { vi } from "vitest";
 // Define here so that we don't need to define this in every test
 import "@testing-library/jest-dom/vitest";
-import { server } from "./mocks/server";
+import { server, resetTrackers } from "./mocks/mockServer";
 
 // Mock API server
 // Start the mock server before all tests
 beforeAll(() => server.listen());
-// Reset handlers after each test (to clear overrides)
-afterEach(() => server.resetHandlers());
+afterEach(() => {
+    // Reset handlers after each test (to clear overrides)
+    server.resetHandlers();
+    // Reset request trackers after each test
+    resetTrackers();
+});
 // Stop server after all tests
 afterAll(() => server.close());
 

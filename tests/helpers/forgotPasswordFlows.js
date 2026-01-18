@@ -5,7 +5,8 @@ import {
 } from "../mocks/data/account";
 
 export const goDirectlyToSecurityQuestionsStep = async (user) => {
-    await user.type(screen.getByLabelText(/username/i), "testuser");
+    await user.click(screen.getByLabelText(/username/i))
+    await user.paste("testuser");
     await user.click(screen.getByRole("button", { name: /submit/i }));
     await waitFor(() => {
         // Wait for step 2 - Security questions step to actual load
@@ -22,7 +23,8 @@ export const goDirectlyToChangePasswordStep = async (user) => {
         const questionInput = screen.getByLabelText(
             securityQuestionsResponse[index].content
         );
-        await user.type(questionInput, securityAnswers[index]);
+        await user.click(questionInput)
+        await user.paste(securityAnswers[index]);
     }
     await user.click(screen.getByRole("button", { name: /submit/i }));
     await waitFor(() => {

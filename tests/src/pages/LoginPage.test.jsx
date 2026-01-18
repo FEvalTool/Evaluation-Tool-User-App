@@ -2,14 +2,19 @@ import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Route, Routes } from "react-router-dom";
 
-import { renderWithProviders } from "../mocks/mockStoreWrapper";
-import { accountData } from "../mocks/data/account";
-import { ROUTES } from "../../src/constants";
-import LoginPage from "../../src/pages/LoginPage";
-import SetupAccountPage from "../../src/pages/SetupAccountPage";
-import TestPage from "../../src/pages/TestPage";
-import MainLayout from "../../src/layouts/MainLayout";
-import MessageWrapper from "../../src/components/MessageWrapper";
+import { renderWithProviders } from "../../mocks/mockStoreWrapper";
+import { accountData } from "../../mocks/data/account";
+import { REQUEST_KEYS } from "../../helpers/requestHelpers";
+import {
+    requestCallTracker,
+    requestValidationErrorTracker,
+} from "../../mocks/mockServer";
+import { ROUTES } from "../../../src/constants";
+import LoginPage from "../../../src/pages/LoginPage";
+import SetupAccountPage from "../../../src/pages/SetupAccountPage";
+import TestPage from "../../../src/pages/TestPage";
+import MainLayout from "../../../src/layouts/MainLayout";
+import MessageWrapper from "../../../src/components/MessageWrapper";
 
 function AppRouter() {
     return (
@@ -36,7 +41,7 @@ describe("LoginPage navigation flow", () => {
         const usernameInput = screen.getByLabelText(/username/i);
         const passwordInput = screen.getByLabelText(/password/i);
         const submitButton = screen.getByRole("button", { name: /submit/i });
-        const forgotLink = screen.getByRole("link", {
+        const forgotPasswordLink = screen.getByRole("link", {
             name: /username \/ password/i,
         });
 
@@ -46,8 +51,11 @@ describe("LoginPage navigation flow", () => {
         expect(passwordInput).toBeInTheDocument();
         expect(passwordInput).toHaveAttribute("type", "password");
         expect(submitButton).toBeInTheDocument();
-        expect(forgotLink).toBeInTheDocument();
-        expect(forgotLink).toHaveAttribute("href", ROUTES.FORGOT_PASSWORD);
+        expect(forgotPasswordLink).toBeInTheDocument();
+        expect(forgotPasswordLink).toHaveAttribute(
+            "href",
+            ROUTES.FORGOT_PASSWORD
+        );
     });
 
     it("should display error notification when Login fail", async () => {
@@ -58,11 +66,15 @@ describe("LoginPage navigation flow", () => {
         const passwordInput = screen.getByLabelText(/password/i);
         const submitButton = screen.getByRole("button", { name: /submit/i });
 
-        await user.type(usernameInput, "testUser");
-        await user.type(passwordInput, "wrongPassword");
+        await user.click(usernameInput);
+        await user.paste("testUser");
+        await user.click(passwordInput);
+        await user.paste("wrongPassword");
         await user.click(submitButton);
 
         await waitFor(() => {
+            expect(requestValidationErrorTracker.getAll()).toEqual([]);
+            expect(requestCallTracker.get(REQUEST_KEYS.LOGIN)).toBe(1);
             expect(
                 screen.getByText(/invalid username or password/i)
             ).toBeInTheDocument();
@@ -77,11 +89,15 @@ describe("LoginPage navigation flow", () => {
         const passwordInput = screen.getByLabelText(/password/i);
         const submitButton = screen.getByRole("button", { name: /submit/i });
 
-        await user.type(usernameInput, "testUser");
-        await user.type(passwordInput, "testPassword123@");
+        await user.click(usernameInput);
+        await user.paste("testUser");
+        await user.click(passwordInput);
+        await user.paste("testPassword123@");
         await user.click(submitButton);
 
         await waitFor(() => {
+            expect(requestValidationErrorTracker.getAll()).toEqual([]);
+            expect(requestCallTracker.get(REQUEST_KEYS.LOGIN)).toBe(1);
             expect(screen.getByText(/Testing page/i)).toBeInTheDocument();
             expect(screen.getByText(/testUser/i)).toBeInTheDocument();
             expect(JSON.parse(localStorage.getItem("user"))).toEqual(
@@ -98,12 +114,18 @@ describe("LoginPage navigation flow", () => {
         const passwordInput = screen.getByLabelText(/password/i);
         const submitButton = screen.getByRole("button", { name: /submit/i });
 
-        await user.type(usernameInput, "newTestUser");
-        await user.type(passwordInput, "testPassword");
+        await user.click(usernameInput);
+        await user.paste("newTestUser");
+        await user.click(passwordInput);
+        await user.paste("testPassword");
         await user.click(submitButton);
 
         await waitFor(() => {
-            expect(screen.getByText(/Setup account page/i)).toBeInTheDocument();
+            expect(requestValidationErrorTracker.getAll()).toEqual([]);
+            expect(requestCallTracker.get(REQUEST_KEYS.LOGIN)).toBe(1);
+            expect(
+                screen.getByText(/Welcome to setup account page/i)
+            ).toBeInTheDocument();
             expect(screen.getByText(/newTestUser/i)).toBeInTheDocument();
             expect(JSON.parse(localStorage.getItem("user"))).toEqual(
                 accountData[0]
@@ -115,11 +137,19 @@ describe("LoginPage navigation flow", () => {
         renderWithProviders(<AppRouter />, { route: ROUTES.LOGIN });
 
         const user = userEvent.setup();
-        const forgotLink = screen.getByRole("link", {
+        const forgotPasswordLink = screen.getByRole("link", {
             name: /username \/ password/i,
         });
 
-        await user.click(forgotLink);
+        // --- FIX: Intercept the event to stop JSDOM navigation ---
+        // Suppress stderr: Not implemented: navigation to another Document
+        forgotPasswordLink.addEventListener(
+            "click",
+            (e) => e.preventDefault(),
+            { once: true }
+        );
+
+        await user.click(forgotPasswordLink);
 
         await waitFor(() => {
             const heading = screen.getByRole("heading", /forgot password/i);

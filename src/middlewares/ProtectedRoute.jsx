@@ -2,13 +2,14 @@ import { Outlet, Navigate, useLocation } from "react-router-dom";
 
 import useAuthValidator from "../hooks/useAuthValidator";
 import { ROUTES } from "../constants";
+import PageLoading from "../components/PageLoading";
 
 const ProtectedRoute = () => {
     const { isValidate, isChecking, user } = useAuthValidator();
     const location = useLocation();
 
     if (isChecking) {
-        return <div>Loading...</div>;
+        return <PageLoading />;
     }
     if (isValidate) {
         if (

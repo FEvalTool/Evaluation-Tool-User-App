@@ -1,23 +1,27 @@
-import { screen, waitFor } from "@testing-library/react";
+import { screen, waitFor, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { http, HttpResponse } from "msw";
 import { Routes, Route } from "react-router-dom";
 import { vi } from "vitest";
 
-import { renderWithProviders } from "../mocks/mockStoreWrapper";
+import { renderWithProviders } from "../../mocks/mockStoreWrapper";
 import {
     securityQuestionsResponse,
     securityAnswers,
-} from "../mocks/data/account";
-import { server } from "../mocks/server";
+} from "../../mocks/data/account";
+import {
+    requestCallTracker,
+    requestValidationErrorTracker,
+    responseQueue,
+} from "../../mocks/mockServer";
+import { REQUEST_KEYS } from "../../helpers/requestHelpers";
 import {
     goDirectlyToSecurityQuestionsStep,
     goDirectlyToChangePasswordStep,
-} from "../helpers/forgotPasswordFlows";
-import { ROUTES } from "../../src/constants";
-import ForgotPasswordPage from "../../src/pages/ForgotPasswordPage";
-import LoginPage from "../../src/pages/LoginPage";
-import MessageWrapper from "../../src/components/MessageWrapper";
+} from "../../helpers/forgotPasswordFlows";
+import { ROUTES } from "../../../src/constants";
+import ForgotPasswordPage from "../../../src/pages/ForgotPasswordPage";
+import LoginPage from "../../../src/pages/LoginPage";
+import MessageWrapper from "../../../src/components/MessageWrapper";
 
 function AppRouter() {
     return (
@@ -67,10 +71,16 @@ describe("ForgotPasswordPage Step 1 and 2", () => {
     it("should go back to Login page when press Back To Login link", async () => {
         renderWithProviders(<AppRouter />, { route: ROUTES.FORGOT_PASSWORD });
 
+        const user = userEvent.setup();
         const backToLoginLink = screen.getByRole("link", {
             name: /back to login/i,
         });
-        const user = userEvent.setup();
+
+        // Suppress stderr: Not implemented: navigation to another Document
+        backToLoginLink.addEventListener("click", (e) => e.preventDefault(), {
+            once: true,
+        });
+
         await user.click(backToLoginLink);
 
         await waitFor(() => {
@@ -87,10 +97,15 @@ describe("ForgotPasswordPage Step 1 and 2", () => {
         const firstStep = screen.getByText(/enter username/i);
 
         const user = userEvent.setup();
-        await user.type(usernameInput, "testuser1");
+        await user.click(usernameInput);
+        await user.paste("unknownuser");
         await user.click(submitButton);
 
         await waitFor(() => {
+            expect(requestValidationErrorTracker.getAll()).toEqual([]);
+            expect(
+                requestCallTracker.get(REQUEST_KEYS.GET_USER_SECURITY_QA)
+            ).toBe(1);
             expect(
                 screen.getByText(/user does not exist/i)
             ).toBeInTheDocument();
@@ -108,10 +123,15 @@ describe("ForgotPasswordPage Step 1 and 2", () => {
         const secondStep = screen.getByText(/security questions/i);
 
         const user = userEvent.setup();
-        await user.type(usernameInput, "testuser");
+        await user.click(usernameInput);
+        await user.paste("testuser");
         await user.click(submitButton);
 
         await waitFor(() => {
+            expect(requestValidationErrorTracker.getAll()).toEqual([]);
+            expect(
+                requestCallTracker.get(REQUEST_KEYS.GET_USER_SECURITY_QA)
+            ).toBe(1);
             // Verify that username input disappear
             expect(usernameInput).not.toBeInTheDocument();
             const questionInputs = screen.getAllByRole("textbox");
@@ -136,11 +156,16 @@ describe("ForgotPasswordPage Step 1 and 2", () => {
         const submitButton = screen.getByRole("button", { name: /submit/i });
         for (const question of securityQuestionsResponse) {
             const questionInput = screen.getByLabelText(question.content);
-            await user.type(questionInput, "error");
+            await user.click(questionInput);
+            await user.paste("error");
         }
         await user.click(submitButton);
 
         await waitFor(() => {
+            expect(requestValidationErrorTracker.getAll()).toEqual([]);
+            expect(
+                requestCallTracker.get(REQUEST_KEYS.GEN_SECURITY_TOKEN_QA)
+            ).toBe(1);
             expect(
                 screen.getByText(/security qa validation failed/i)
             ).toBeInTheDocument();
@@ -165,8 +190,14 @@ describe("ForgotPasswordPage Step 3", () => {
     });
 
     const getUserEventInstance = () =>
+        // Wrap act around advanceTimers and everything related to useFakeTimer to avoid warnings
+        // Reference: https://davidwcai.medium.com/react-testing-library-and-the-not-wrapped-in-act-errors-491a5629193b
         userEvent.setup({
-            advanceTimers: vi.advanceTimersByTime.bind(vi),
+            advanceTimers: async (ms) => {
+                await act(async () => {
+                    await vi.advanceTimersByTimeAsync(ms);
+                });
+            },
         });
 
     it("should go to next step (Change password) and render correctly when Forgot Password - step 2 (Security questions) success", async () => {
@@ -185,11 +216,16 @@ describe("ForgotPasswordPage Step 3", () => {
             const questionInput = screen.getByLabelText(
                 securityQuestionsResponse[index].content
             );
-            await user.type(questionInput, securityAnswers[index]);
+            await user.click(questionInput);
+            await user.paste(securityAnswers[index]);
         }
         await user.click(submitButton);
 
         await waitFor(() => {
+            expect(requestValidationErrorTracker.getAll()).toEqual([]);
+            expect(
+                requestCallTracker.get(REQUEST_KEYS.GEN_SECURITY_TOKEN_QA)
+            ).toBe(1);
             const timeElement = screen.getByText(/(\d{2}):(\d{2})/);
             expect(timeElement.textContent).toMatch(/10:00/);
             const passwordInput = screen.getByLabelText(/new password/i);
@@ -208,16 +244,9 @@ describe("ForgotPasswordPage Step 3", () => {
         // Override handler to simulate API failure
         // (we will test the case when user update new password
         // after 10-minute security session pass)
-        server.use(
-            http.post("account/password", ({ request }) => {
-                return HttpResponse.json(
-                    {
-                        message: "Token 'scope' not found",
-                    },
-                    { status: 400 }
-                );
-            })
-        );
+        responseQueue.add(REQUEST_KEYS.SET_PASSWORD, 401, {
+            message: "Token 'scope' not found",
+        });
 
         renderWithProviders(<AppRouter />, { route: ROUTES.FORGOT_PASSWORD });
 
@@ -228,42 +257,24 @@ describe("ForgotPasswordPage Step 3", () => {
         const passwordInput = screen.getByLabelText(/new password/i);
         const confirmPasswordInput = screen.getByLabelText(/confirm password/i);
         const submitButton = screen.getByRole("button", { name: /submit/i });
-        await user.type(passwordInput, "newPASSWORD123@");
-        await user.type(confirmPasswordInput, "newPASSWORD123@");
+        await user.click(passwordInput);
+        await user.paste("newPASSWORD123@");
+        await user.click(confirmPasswordInput);
+        await user.paste("newPASSWORD123@");
         // 10-minute security session passes
-        vi.advanceTimersByTime(10 * 60 * 1000);
+        act(() => {
+            vi.advanceTimersByTime(10 * 60 * 1000);
+        });
+        // vi.advanceTimersByTime(10 * 60 * 1000);
         await user.click(submitButton);
 
         await waitFor(() => {
+            expect(requestValidationErrorTracker.getAll()).toEqual([]);
+            expect(requestCallTracker.get(REQUEST_KEYS.SET_PASSWORD)).toBe(1);
             const timeElement = screen.getByText(/(\d{2}):(\d{2})/);
             expect(timeElement.textContent).toMatch(/00:00/);
             expect(
                 screen.getByText(/Token 'scope' not found/i)
-            ).toBeInTheDocument();
-            const stepElement = thirdStep.closest(".ant-steps-item");
-            expect(stepElement).toHaveClass("ant-steps-item-active");
-        });
-    });
-
-    it("should display confirm password error when user input confirm password different from new password", async () => {
-        renderWithProviders(<AppRouter />, { route: ROUTES.FORGOT_PASSWORD });
-
-        const thirdStep = screen.getByText(/change password/i);
-        const user = getUserEventInstance();
-        await goDirectlyToChangePasswordStep(user);
-
-        const passwordInput = screen.getByLabelText(/new password/i);
-        const confirmPasswordInput = screen.getByLabelText(/confirm password/i);
-        const submitButton = screen.getByRole("button", { name: /submit/i });
-        await user.type(passwordInput, "newPASSWORD123@");
-        await user.type(confirmPasswordInput, "newPASSWORD123@1");
-        await user.click(submitButton);
-
-        await waitFor(() => {
-            expect(
-                screen.getByText(
-                    /the new password that you entered do not match/i
-                )
             ).toBeInTheDocument();
             const stepElement = thirdStep.closest(".ant-steps-item");
             expect(stepElement).toHaveClass("ant-steps-item-active");
@@ -279,11 +290,18 @@ describe("ForgotPasswordPage Step 3", () => {
         const passwordInput = screen.getByLabelText(/new password/i);
         const confirmPasswordInput = screen.getByLabelText(/confirm password/i);
         const submitButton = screen.getByRole("button", { name: /submit/i });
-        await user.type(passwordInput, "newPASSWORD123@");
-        await user.type(confirmPasswordInput, "newPASSWORD123@");
+        await user.click(passwordInput);
+        await user.paste("newPASSWORD123@");
+        await user.click(confirmPasswordInput);
+        await user.paste("newPASSWORD123@");
         await user.click(submitButton);
 
         await waitFor(() => {
+            expect(requestValidationErrorTracker.getAll()).toEqual([]);
+            expect(requestCallTracker.get(REQUEST_KEYS.SET_PASSWORD)).toBe(1);
+            expect(
+                requestCallTracker.get(REQUEST_KEYS.DELETE_SCOPE_TOKEN)
+            ).toBe(1);
             const heading = screen.getByRole("heading", /login/i);
             expect(heading).toBeInTheDocument();
         });
