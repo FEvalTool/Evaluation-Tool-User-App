@@ -26,24 +26,24 @@ const createAuthHandlers = ({
             });
             return HttpResponse.json(
                 { message: "Invalid request payload" },
-                { status: 400 }
+                { status: 400 },
             );
         }
 
         const userInfo = accountData.filter(
-            (user) => user.username === body.username
+            (user) => user.username === body.username,
         );
         if (userInfo.length != 0) {
             if (body.password === userInfo[0].password) {
                 return HttpResponse.json(
-                    { user: userInfo[0] },
-                    { status: 200 }
+                    { data: { user: userInfo[0] } },
+                    { status: 200 },
                 );
             }
         }
         return HttpResponse.json(
             { message: "Invalid username or password" },
-            { status: 401 }
+            { status: 401 },
         );
     }),
     http.post(`${API_URL}/token/qa`, async ({ request }) => {
@@ -58,7 +58,7 @@ const createAuthHandlers = ({
             });
             return HttpResponse.json(
                 { message: "Invalid request payload" },
-                { status: 400 }
+                { status: 400 },
             );
         }
 
@@ -67,30 +67,30 @@ const createAuthHandlers = ({
             if (answers[i] != securityAnswers[i]) {
                 return HttpResponse.json(
                     { message: "Security QA validation failed" },
-                    { status: 401 }
+                    { status: 401 },
                 );
             }
         }
         return HttpResponse.json(
             {
                 message: "Successfully retrieve Security QA verification token",
-                exp: Date.now() + 10 * 60 * 1000, // 10 minute expirity
+                data: { scope_token_exp: Date.now() + 10 * 60 * 1000 }, // 10 minute expirity
             },
-            { status: 200 }
+            { status: 200 },
         );
     }),
     http.post(`${API_URL}/token/scope/delete`, async () => {
         requestCallTracker.track(REQUEST_KEYS.DELETE_SCOPE_TOKEN);
         return HttpResponse.json(
             { message: "Token scope delete successfully" },
-            { status: 200 }
+            { status: 200 },
         );
     }),
     http.post(`${API_URL}/logout`, async () => {
         requestCallTracker.track(REQUEST_KEYS.LOGOUT);
         return HttpResponse.json(
             { message: "Logout successfully" },
-            { status: 200 }
+            { status: 200 },
         );
     }),
     http.post(`${API_URL}/token/verify`, async ({ request }) => {
@@ -104,7 +104,7 @@ const createAuthHandlers = ({
             });
             return HttpResponse.json(
                 { message: "Invalid request payload" },
-                { status: 400 }
+                { status: 400 },
             );
         }
 

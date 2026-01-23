@@ -30,9 +30,10 @@ const ForgotPasswordPage = () => {
                 () => accountService.getUserSecurityQuestions(values),
                 setLoading,
                 dispatch,
-                showMessage
+                showMessage,
             );
-            setQuestions(response.data.questions);
+            const questionData = response.data.data;
+            setQuestions(questionData);
             setUsername(values["username"]);
             setCurrent(1);
         } catch (error) {
@@ -44,7 +45,7 @@ const ForgotPasswordPage = () => {
         try {
             // Preprocess payloads to send back to backend
             let question_ids = Object.keys(values).map((key) =>
-                Number(key.replace(ANSWER_KEY_PREFIX, ""))
+                Number(key.replace(ANSWER_KEY_PREFIX, "")),
             );
             let answers = Object.values(values);
             let payloads = {
@@ -56,9 +57,10 @@ const ForgotPasswordPage = () => {
                 () => authService.genSecurityQAVerificationToken(payloads),
                 setLoading,
                 dispatch,
-                showMessage
+                showMessage,
             );
-            setExp(response.data.exp);
+            const { scope_token_exp: scopeTokenExp } = response.data.data;
+            setExp(scopeTokenExp);
             setCurrent(2);
         } catch (error) {
             console.debug(error); // NOSONAR intentionally ignoring the error
@@ -78,7 +80,7 @@ const ForgotPasswordPage = () => {
                 },
                 setLoading,
                 dispatch,
-                showMessage
+                showMessage,
             );
             navigate(ROUTES.LOGIN);
         } catch (error) {

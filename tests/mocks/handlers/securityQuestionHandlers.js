@@ -12,9 +12,9 @@ const createSecurityQuestionsHandlers = ({
         return HttpResponse.json(
             {
                 messages: "Retrieve security questions successful",
-                questions: securityQuestionsResponse,
+                data: securityQuestionsResponse,
             },
-            { status: 200 }
+            { status: 200 },
         );
     }),
 ];

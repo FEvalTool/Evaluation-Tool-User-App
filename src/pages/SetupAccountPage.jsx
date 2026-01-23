@@ -32,7 +32,7 @@ const { Title, Paragraph, Text } = Typography;
 const SetupAccountPage = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const { user, loading, scopeExp } = useSelector((state) => state.auth);
+    const { user, loading, scopeTokenExp } = useSelector((state) => state.auth);
 
     const [current, setCurrent] = useState("welcome");
     const [loadingCompleteButton, setLoadingCompleteButton] = useState(false);
@@ -110,7 +110,7 @@ const SetupAccountPage = () => {
     const onSubmitSetSecurityQAForm = async (values) => {
         // Sort values by keys (answer-1, answer-2, ..., question-1, question-2)
         const sortedKeys = Object.keys(values).sort((a, b) =>
-            a.localeCompare(b)
+            a.localeCompare(b),
         );
         // Get questions and answers group
         const payload = sortedKeys.reduce(
@@ -125,7 +125,7 @@ const SetupAccountPage = () => {
 
                 return acc;
             },
-            { questions: [], answers: [] }
+            { questions: [], answers: [] },
         );
         await dispatch(setupSecurityQAFirstTime(payload)); // NOSONAR
     };
@@ -293,7 +293,7 @@ const SetupAccountPage = () => {
             </ConfigProvider>
             <Layout>
                 <Content>
-                    <SecurityAlert exp={scopeExp} />
+                    <SecurityAlert exp={scopeTokenExp} />
                     <Flex vertical={true} style={{ padding: "20px" }}>
                         <Title level={3} style={{ marginTop: "0px" }}>
                             {components[current]["title"]}
