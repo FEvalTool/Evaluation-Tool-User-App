@@ -92,6 +92,7 @@ const SetupAccountPage = () => {
             duration: 5,
             showProgress: true,
             pauseOnHover: false,
+            placement: "top",
         });
     };
     const handleRedirectLogin = async () => {

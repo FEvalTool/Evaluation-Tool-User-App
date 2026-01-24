@@ -1,7 +1,7 @@
 import { http, HttpResponse } from "msw";
 import { securityQuestionsResponse } from "../data/account";
 
-const API_URL = "/question";
+const API_URL = "/security_question";
 
 const createSecurityQuestionsHandlers = ({
     requestCallTracker,

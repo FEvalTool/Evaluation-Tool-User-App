@@ -12,7 +12,7 @@ export const login = createAsyncThunk(
             dispatch(
                 showMessage({
                     type: "success",
-                    content: response.data.message,
+                    message: response.data.message,
                 }),
             );
             let { user, scope_token_exp: scopeTokenExp } = response.data.data;
@@ -22,11 +22,13 @@ export const login = createAsyncThunk(
             }
             return payload;
         } catch (err) {
+            const apiError = err.response?.data;
             dispatch(
                 showMessage({
                     type: "error",
-                    content:
-                        err?.response?.data?.message || "Something went wrong",
+                    message: apiError?.message || "Something went wrong",
+                    code: apiError?.code,
+                    error: apiError?.error,
                 }),
             );
             return rejectWithValue();
@@ -50,11 +52,13 @@ export const logout = createAsyncThunk(
                 }),
             );
         } catch (err) {
+            const apiError = err.response?.data;
             dispatch(
                 showMessage({
                     type: "error",
-                    content:
-                        err?.response?.data?.message || "Something went wrong",
+                    message: apiError?.message || "Something went wrong",
+                    code: apiError?.code,
+                    error: apiError?.error,
                 }),
             );
             return rejectWithValue();
@@ -104,11 +108,13 @@ export const setupPasswordFirstTime = createAsyncThunk(
                 dispatch,
             );
         } catch (err) {
+            const apiError = err.response?.data;
             dispatch(
                 showMessage({
                     type: "error",
-                    content:
-                        err?.response?.data?.message || "Something went wrong",
+                    message: apiError?.message || "Something went wrong",
+                    code: apiError?.code,
+                    error: apiError?.error,
                 }),
             );
             return rejectWithValue();
@@ -127,11 +133,13 @@ export const setupSecurityQAFirstTime = createAsyncThunk(
                 dispatch,
             );
         } catch (err) {
+            const apiError = err.response?.data;
             dispatch(
                 showMessage({
                     type: "error",
-                    content:
-                        err?.response?.data?.message || "Something went wrong",
+                    message: apiError?.message || "Something went wrong",
+                    code: apiError?.code,
+                    error: apiError?.error,
                 }),
             );
             return rejectWithValue();

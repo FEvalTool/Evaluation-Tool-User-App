@@ -1,13 +1,13 @@
 import request from "./request";
 
-const API_URL = "/question";
+const API_URL = "/security_question";
 
 const getSecurityQuestions = (params) => {
-    return request.get(`${API_URL}`, {"params": params});
+    return request.get(`${API_URL}`, { params: params });
 };
 
 const securityQuestionService = {
-    getSecurityQuestions
+    getSecurityQuestions,
 };
 
 export default securityQuestionService;

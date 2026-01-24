@@ -3,7 +3,7 @@ export const withFormSubmit = async (
     apiCall,
     setLoading,
     dispatch,
-    showMessage
+    showMessage,
 ) => {
     try {
         setLoading(true);
@@ -11,12 +11,14 @@ export const withFormSubmit = async (
         return response;
     } catch (error) {
         if (dispatch && showMessage) {
+            const apiError = error.response?.data;
             dispatch(
                 showMessage({
                     type: "error",
-                    content:
-                        error.response?.data?.message || "Something went wrong",
-                })
+                    message: apiError?.message || "Something went wrong",
+                    code: apiError?.code,
+                    error: apiError?.error,
+                }),
             );
         }
         throw error;
