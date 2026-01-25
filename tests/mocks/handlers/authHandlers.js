@@ -35,8 +35,14 @@ const createAuthHandlers = ({
         );
         if (userInfo.length != 0) {
             if (body.password === userInfo[0].password) {
+                let responseData = { user: userInfo[0] };
+                if (userInfo[0]["username"] == "newUser") {
+                    responseData["scope_token_exp"] =
+                        Date.now() + 10 * 60 * 1000;
+                }
+
                 return HttpResponse.json(
-                    { data: { user: userInfo[0] } },
+                    { data: responseData },
                     { status: 200 },
                 );
             }
@@ -88,6 +94,14 @@ const createAuthHandlers = ({
     }),
     http.post(`${API_URL}/logout`, async () => {
         requestCallTracker.track(REQUEST_KEYS.LOGOUT);
+
+        if (responseQueue.has(REQUEST_KEYS.LOGOUT)) {
+            const response = responseQueue.next(REQUEST_KEYS.LOGOUT);
+            return HttpResponse.json(response.data, {
+                status: response.status,
+            });
+        }
+
         return HttpResponse.json(
             { message: "Logout successfully" },
             { status: 200 },

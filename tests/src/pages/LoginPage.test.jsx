@@ -54,7 +54,7 @@ describe("LoginPage navigation flow", () => {
         expect(forgotPasswordLink).toBeInTheDocument();
         expect(forgotPasswordLink).toHaveAttribute(
             "href",
-            ROUTES.FORGOT_PASSWORD
+            ROUTES.FORGOT_PASSWORD,
         );
     });
 
@@ -76,12 +76,12 @@ describe("LoginPage navigation flow", () => {
             expect(requestValidationErrorTracker.getAll()).toEqual([]);
             expect(requestCallTracker.get(REQUEST_KEYS.LOGIN)).toBe(1);
             expect(
-                screen.getByText(/invalid username or password/i)
+                screen.getByText(/invalid username or password/i),
             ).toBeInTheDocument();
         });
     });
 
-    it("should redirect to dashboard page if not first-time user", async () => {
+    it("should redirect active user to dashboard page when login success", async () => {
         renderWithProviders(<AppRouter />, { route: ROUTES.LOGIN });
 
         const user = userEvent.setup();
@@ -90,7 +90,7 @@ describe("LoginPage navigation flow", () => {
         const submitButton = screen.getByRole("button", { name: /submit/i });
 
         await user.click(usernameInput);
-        await user.paste("testUser");
+        await user.paste("activeUser");
         await user.click(passwordInput);
         await user.paste("testPassword123@");
         await user.click(submitButton);
@@ -99,14 +99,14 @@ describe("LoginPage navigation flow", () => {
             expect(requestValidationErrorTracker.getAll()).toEqual([]);
             expect(requestCallTracker.get(REQUEST_KEYS.LOGIN)).toBe(1);
             expect(screen.getByText(/Testing page/i)).toBeInTheDocument();
-            expect(screen.getByText(/testUser/i)).toBeInTheDocument();
+            expect(screen.getByText(/activeUser/i)).toBeInTheDocument();
             expect(JSON.parse(localStorage.getItem("user"))).toEqual(
-                accountData[1]
+                accountData[1],
             );
         });
     });
 
-    it("should redirect to setup account page if first-time user", async () => {
+    it("should redirect new user to setup account page when login success", async () => {
         renderWithProviders(<AppRouter />, { route: ROUTES.LOGIN });
 
         const user = userEvent.setup();
@@ -115,20 +115,26 @@ describe("LoginPage navigation flow", () => {
         const submitButton = screen.getByRole("button", { name: /submit/i });
 
         await user.click(usernameInput);
-        await user.paste("newTestUser");
+        await user.paste("newUser");
         await user.click(passwordInput);
         await user.paste("testPassword");
+        const expectScopeTokenExp = Date.now() + 10 * 60 * 1000;
         await user.click(submitButton);
 
         await waitFor(() => {
             expect(requestValidationErrorTracker.getAll()).toEqual([]);
             expect(requestCallTracker.get(REQUEST_KEYS.LOGIN)).toBe(1);
             expect(
-                screen.getByText(/Welcome to setup account page/i)
+                screen.getByText(/Welcome to setup account page/i),
             ).toBeInTheDocument();
-            expect(screen.getByText(/newTestUser/i)).toBeInTheDocument();
+            expect(screen.getByText(/newUser/i)).toBeInTheDocument();
             expect(JSON.parse(localStorage.getItem("user"))).toEqual(
-                accountData[0]
+                accountData[0],
+            );
+            // Verify expiration timestamp matches within a safe 5 seconds window
+            expect(expectScopeTokenExp).toBeCloseTo(
+                Number.parseInt(localStorage.getItem("scopeTokenExp"), 10),
+                -4,
             );
         });
     });
@@ -146,7 +152,7 @@ describe("LoginPage navigation flow", () => {
         forgotPasswordLink.addEventListener(
             "click",
             (e) => e.preventDefault(),
-            { once: true }
+            { once: true },
         );
 
         await user.click(forgotPasswordLink);
