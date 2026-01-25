@@ -13,6 +13,7 @@ const NotificationDescription = ({ type, error, code }) => {
         <div>
             {error.length ? (
                 error.map((err, idx) => (
+                    // eslint-disable-next-line react/no-array-index-key
                     <div key={`err_${idx}`}>
                         {err.field} : {err.message}
                     </div>
