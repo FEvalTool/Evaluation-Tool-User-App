@@ -12,8 +12,8 @@ const NotificationDescription = ({ type, error, code }) => {
     return (
         <div>
             {error.length ? (
-                error.map((err) => (
-                    <div>
+                error.map((err, idx) => (
+                    <div key={`err_${idx}`}>
                         {err.field} : {err.message}
                     </div>
                 ))
@@ -60,6 +60,17 @@ const NotificationWrapper = ({ children }) => {
 
 NotificationWrapper.propTypes = {
     children: PropTypes.node,
+};
+
+NotificationDescription.propTypes = {
+    type: PropTypes.oneOf(["success", "error"]),
+    error: PropTypes.arrayOf(
+        PropTypes.shape({
+            field: PropTypes.string,
+            error: PropTypes.string,
+        }),
+    ),
+    code: PropTypes.string,
 };
 
 export default NotificationWrapper;

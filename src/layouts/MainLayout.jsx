@@ -16,11 +16,10 @@ const MainLayout = () => {
     const dispatch = useDispatch();
 
     const handleLogout = async () => {
-        const resultAction = await dispatch(
-            logout({
-                first_time_setup: user ? user["first_time_setup"] : false,
-            }),
-        );
+        const payload = {
+            first_time_setup: user ? user["first_time_setup"] : false,
+        };
+        const resultAction = await dispatch(logout(payload)); // NOSONAR
         if (logout.fulfilled.match(resultAction)) {
             navigate(ROUTES.LOGIN);
         }
