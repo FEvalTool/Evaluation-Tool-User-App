@@ -12,25 +12,28 @@ export const login = createAsyncThunk(
             dispatch(
                 showMessage({
                     type: "success",
-                    content: response.data.message,
-                })
+                    message: response.data.message,
+                }),
             );
-            let payload = { user: response.data.user };
-            if (response.data["scope_exp"]) {
-                payload["scopeExp"] = response.data["scope_exp"];
+            let { user, scope_token_exp: scopeTokenExp } = response.data.data;
+            let payload = { user };
+            if (scopeTokenExp) {
+                payload["scopeTokenExp"] = scopeTokenExp;
             }
             return payload;
         } catch (err) {
+            const apiError = err.response?.data;
             dispatch(
                 showMessage({
                     type: "error",
-                    content:
-                        err?.response?.data?.message || "Something went wrong",
-                })
+                    message: apiError?.message || "Something went wrong",
+                    code: apiError?.code,
+                    error: apiError?.error,
+                }),
             );
             return rejectWithValue();
         }
-    }
+    },
 );
 
 export const logout = createAsyncThunk(
@@ -46,19 +49,21 @@ export const logout = createAsyncThunk(
                 showMessage({
                     type: "success",
                     content: "Logout successfully",
-                })
+                }),
             );
         } catch (err) {
+            const apiError = err.response?.data;
             dispatch(
                 showMessage({
                     type: "error",
-                    content:
-                        err?.response?.data?.message || "Something went wrong",
-                })
+                    message: apiError?.message || "Something went wrong",
+                    code: apiError?.code,
+                    error: apiError?.error,
+                }),
             );
             return rejectWithValue();
         }
-    }
+    },
 );
 
 // Helper function for common setup logic
@@ -66,7 +71,7 @@ const handleSetupCompletion = async (
     setupAction,
     values,
     successMessage,
-    dispatch
+    dispatch,
 ) => {
     await setupAction(values);
     const response = await accountService.getUserSetupStatus();
@@ -75,11 +80,11 @@ const handleSetupCompletion = async (
         showMessage({
             type: "success",
             content: successMessage,
-        })
+        }),
     );
 
     // If user complete setup account, preserve first_time_setup flag
-    let userPayload = response.data.user;
+    let userPayload = response.data.data;
     if (!userPayload["first_time_setup"]) {
         userPayload = {
             ...userPayload,
@@ -100,19 +105,21 @@ export const setupPasswordFirstTime = createAsyncThunk(
                 accountService.setPassword,
                 values,
                 "Set password successfully",
-                dispatch
+                dispatch,
             );
         } catch (err) {
+            const apiError = err.response?.data;
             dispatch(
                 showMessage({
                     type: "error",
-                    content:
-                        err?.response?.data?.message || "Something went wrong",
-                })
+                    message: apiError?.message || "Something went wrong",
+                    code: apiError?.code,
+                    error: apiError?.error,
+                }),
             );
             return rejectWithValue();
         }
-    }
+    },
 );
 
 export const setupSecurityQAFirstTime = createAsyncThunk(
@@ -123,19 +130,21 @@ export const setupSecurityQAFirstTime = createAsyncThunk(
                 accountService.setSecurityQA,
                 values,
                 "Set security QA successfully",
-                dispatch
+                dispatch,
             );
         } catch (err) {
+            const apiError = err.response?.data;
             dispatch(
                 showMessage({
                     type: "error",
-                    content:
-                        err?.response?.data?.message || "Something went wrong",
-                })
+                    message: apiError?.message || "Something went wrong",
+                    code: apiError?.code,
+                    error: apiError?.error,
+                }),
             );
             return rejectWithValue();
         }
-    }
+    },
 );
 
 const authSlice = createSlice({
@@ -144,8 +153,8 @@ const authSlice = createSlice({
         user: localStorage.getItem("user")
             ? JSON.parse(localStorage.getItem("user"))
             : {},
-        scopeExp: localStorage.getItem("scopeExp")
-            ? Number.parseInt(localStorage.getItem("scopeExp"), 10)
+        scopeTokenExp: localStorage.getItem("scopeTokenExp")
+            ? Number.parseInt(localStorage.getItem("scopeTokenExp"), 10)
             : 0, // Expire time for scope token
         loading: false,
     },
@@ -159,11 +168,14 @@ const authSlice = createSlice({
                 state.user = action.payload.user;
                 localStorage.setItem(
                     "user",
-                    JSON.stringify(action.payload.user)
+                    JSON.stringify(action.payload.user),
                 );
-                if (action.payload.scopeExp) {
-                    state.scopeExp = action.payload.scopeExp;
-                    localStorage.setItem("scopeExp", action.payload.scopeExp);
+                if (action.payload.scopeTokenExp) {
+                    state.scopeTokenExp = action.payload.scopeTokenExp;
+                    localStorage.setItem(
+                        "scopeTokenExp",
+                        action.payload.scopeTokenExp,
+                    );
                 }
             })
             .addCase(login.rejected, (state, action) => {
@@ -175,9 +187,9 @@ const authSlice = createSlice({
             .addCase(logout.fulfilled, (state, action) => {
                 state.loading = false;
                 state.user = {};
-                state.scopeExp = 0;
+                state.scopeTokenExp = 0;
                 localStorage.removeItem("user");
-                localStorage.removeItem("scopeExp");
+                localStorage.removeItem("scopeTokenExp");
             })
             .addCase(logout.rejected, (state, action) => {
                 state.loading = false;
@@ -190,7 +202,7 @@ const authSlice = createSlice({
                 state.user = action.payload.user;
                 localStorage.setItem(
                     "user",
-                    JSON.stringify(action.payload.user)
+                    JSON.stringify(action.payload.user),
                 );
             })
             .addCase(setupPasswordFirstTime.rejected, (state, action) => {
@@ -204,7 +216,7 @@ const authSlice = createSlice({
                 state.user = action.payload.user;
                 localStorage.setItem(
                     "user",
-                    JSON.stringify(action.payload.user)
+                    JSON.stringify(action.payload.user),
                 );
             })
             .addCase(setupSecurityQAFirstTime.rejected, (state, action) => {

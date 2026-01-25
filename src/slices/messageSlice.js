@@ -2,7 +2,9 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
     type: null,
-    content: null,
+    message: null,
+    code: null,
+    error: [],
     key: 0,
 };
 
@@ -12,12 +14,16 @@ const messageSlice = createSlice({
     reducers: {
         showMessage: (state, action) => {
             state.type = action.payload.type;
-            state.content = action.payload.content;
+            state.message = action.payload.message;
+            state.code = action.payload.code ? action.payload.code : null;
+            state.error = action.payload.error ? action.payload.error : [];
             state.key++;
         },
         clearMessage: (state) => {
             state.type = null;
-            state.content = null;
+            state.message = null;
+            state.code = null;
+            state.error = [];
         },
     },
 });

@@ -28,7 +28,7 @@ function AppRouter() {
 }
 
 describe("ProtectedRoute", () => {
-    test("should show protected page when token valid for not first time user", async () => {
+    test("should show protected page when token valid for active user", async () => {
         responseQueue.add(REQUEST_KEYS.VERIFY_TOKEN, 200);
 
         renderWithProviders(<AppRouter />, {
@@ -43,7 +43,7 @@ describe("ProtectedRoute", () => {
         expect(requestValidationErrorTracker.getAll()).toEqual([]);
     });
 
-    test("should show setup account page when token valid for first time user", async () => {
+    test("should show setup account page when token valid for new user", async () => {
         responseQueue.add(REQUEST_KEYS.VERIFY_TOKEN, 200);
 
         renderWithProviders(<AppRouter />, {
@@ -76,7 +76,7 @@ describe("ProtectedRoute", () => {
         expect(requestValidationErrorTracker.getAll()).toEqual([]);
     });
 
-    test("should redirect to login page when refresh token failed - for not first time user", async () => {
+    test("should redirect to login page when refresh token failed - for active user", async () => {
         responseQueue.add(REQUEST_KEYS.VERIFY_TOKEN, 401);
         responseQueue.add(REQUEST_KEYS.REFRESH_TOKEN, 401);
 
@@ -92,14 +92,14 @@ describe("ProtectedRoute", () => {
             // (Optional) Add and increase timeout when debugging
             // to avoid false positive when running navigation
             // (Explain in GuestRoute.test.jsx)
-            { timeout: 10000 }
+            { timeout: 10000 },
         );
         expect(requestCallTracker.get(REQUEST_KEYS.VERIFY_TOKEN)).toBe(1);
         expect(requestCallTracker.get(REQUEST_KEYS.REFRESH_TOKEN)).toBe(1);
         expect(requestValidationErrorTracker.getAll()).toEqual([]);
     });
 
-    test("should redirect to login page when verify token failed - for first time user", async () => {
+    test("should redirect to login page when verify token failed - for new user", async () => {
         responseQueue.add(REQUEST_KEYS.VERIFY_TOKEN, 401);
 
         renderWithProviders(<AppRouter />, {
@@ -114,13 +114,13 @@ describe("ProtectedRoute", () => {
             // (Optional) Add and increase timeout when debugging
             // to avoid false positive when running navigation
             // (Explain in GuestRoute.test.jsx)
-            { timeout: 10000 }
+            { timeout: 10000 },
         );
         expect(requestCallTracker.get(REQUEST_KEYS.VERIFY_TOKEN)).toBe(1);
         expect(requestValidationErrorTracker.getAll()).toEqual([]);
     });
 
-    test("should prevent accessing other page (except setup account page) if user first time setup account", async () => {
+    test("should prevent new user accessing other page (except setup account page)", async () => {
         responseQueue.add(REQUEST_KEYS.VERIFY_TOKEN, 200);
 
         renderWithProviders(<AppRouter />, {
@@ -135,13 +135,13 @@ describe("ProtectedRoute", () => {
             // (Optional) Add and increase timeout when debugging
             // to avoid false positive when running navigation
             // (Explain in GuestRoute.test.jsx)
-            { timeout: 10000 }
+            { timeout: 10000 },
         );
         expect(requestCallTracker.get(REQUEST_KEYS.VERIFY_TOKEN)).toBe(1);
         expect(requestValidationErrorTracker.getAll()).toEqual([]);
     });
 
-    test("should prevent accessing setup account page when user already setup account", async () => {
+    test("should prevent active user accessing setup account page", async () => {
         responseQueue.add(REQUEST_KEYS.VERIFY_TOKEN, 200);
 
         renderWithProviders(<AppRouter />, {
@@ -156,7 +156,7 @@ describe("ProtectedRoute", () => {
             // (Optional) Add and increase timeout when debugging
             // to avoid false positive when running navigation
             // (Explain in GuestRoute.test.jsx)
-            { timeout: 10000 }
+            { timeout: 10000 },
         );
         expect(requestCallTracker.get(REQUEST_KEYS.VERIFY_TOKEN)).toBe(1);
         expect(requestValidationErrorTracker.getAll()).toEqual([]);

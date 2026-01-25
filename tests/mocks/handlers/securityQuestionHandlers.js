@@ -1,7 +1,7 @@
 import { http, HttpResponse } from "msw";
 import { securityQuestionsResponse } from "../data/account";
 
-const API_URL = "/question";
+const API_URL = "/security_question";
 
 const createSecurityQuestionsHandlers = ({
     requestCallTracker,
@@ -12,9 +12,9 @@ const createSecurityQuestionsHandlers = ({
         return HttpResponse.json(
             {
                 messages: "Retrieve security questions successful",
-                questions: securityQuestionsResponse,
+                data: securityQuestionsResponse,
             },
-            { status: 200 }
+            { status: 200 },
         );
     }),
 ];

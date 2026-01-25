@@ -15,13 +15,14 @@ const MainLayout = () => {
     const { user } = useSelector((state) => state.auth);
     const dispatch = useDispatch();
 
-    const handleLogout = () => {
-        dispatch(
-            logout({
-                first_time_setup: user ? user["first_time_setup"] : false,
-            })
-        );
-        navigate(ROUTES.LOGIN);
+    const handleLogout = async () => {
+        const payload = {
+            first_time_setup: user ? user["first_time_setup"] : false,
+        };
+        const resultAction = await dispatch(logout(payload)); // NOSONAR
+        if (logout.fulfilled.match(resultAction)) {
+            navigate(ROUTES.LOGIN);
+        }
     };
 
     return (

@@ -11,7 +11,7 @@ const UpdateSecurityQAForm = ({ onSubmit, disabled, shouldWarn }) => {
     useBeforeUnload(shouldWarn);
     const NUMBER_OF_QUESTIONS = 3;
     const [selectedQuestions, setSelectedQuestions] = useState(
-        new Array(NUMBER_OF_QUESTIONS).fill(null)
+        new Array(NUMBER_OF_QUESTIONS).fill(null),
     );
     const [questions, setQuestions] = useState([]);
 
@@ -20,10 +20,11 @@ const UpdateSecurityQAForm = ({ onSubmit, disabled, shouldWarn }) => {
             const response = await securityQuestionService.getSecurityQuestions(
                 {
                     status: "Official",
-                }
+                },
             );
             // Convert fetch data to correct format
-            const questionOptions = response.data.questions.map((question) => ({
+            const questionData = response.data.data;
+            const questionOptions = questionData.map((question) => ({
                 value: question.id,
                 label: question.content,
             }));
@@ -42,7 +43,7 @@ const UpdateSecurityQAForm = ({ onSubmit, disabled, shouldWarn }) => {
 
     const getOptions = (index) => {
         const chosen = new Set(
-            selectedQuestions.filter((v, i) => v !== null && i !== index)
+            selectedQuestions.filter((v, i) => v !== null && i !== index),
         );
         return questions.filter((q) => !chosen.has(q.value));
     };

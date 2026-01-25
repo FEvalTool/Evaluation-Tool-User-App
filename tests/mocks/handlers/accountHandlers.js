@@ -21,14 +21,14 @@ const createAccountHandlers = ({
             return HttpResponse.json(
                 {
                     messages: "Retrieve user security questions successful",
-                    questions: securityQuestionsResponse,
+                    data: securityQuestionsResponse,
                 },
-                { status: 200 }
+                { status: 200 },
             );
         }
         return HttpResponse.json(
             { message: "User does not exist" },
-            { status: 404 }
+            { status: 404 },
         );
     }),
     http.post(`${API_URL}/password`, async ({ request }) => {
@@ -43,7 +43,7 @@ const createAccountHandlers = ({
             });
             return HttpResponse.json(
                 { message: "Invalid request payload" },
-                { status: 400 }
+                { status: 400 },
             );
         }
 
@@ -58,7 +58,7 @@ const createAccountHandlers = ({
             {
                 messages: "Set new password success",
             },
-            { status: 200 }
+            { status: 200 },
         );
     }),
     http.post(`${API_URL}/security_questions`, async ({ request }) => {
@@ -73,7 +73,7 @@ const createAccountHandlers = ({
             });
             return HttpResponse.json(
                 { message: "Invalid request payload" },
-                { status: 400 }
+                { status: 400 },
             );
         }
 
@@ -88,13 +88,13 @@ const createAccountHandlers = ({
             {
                 messages: "Set security questions success",
             },
-            { status: 200 }
+            { status: 200 },
         );
     }),
     http.get("account/setup_status", () => {
         requestCallTracker.track(REQUEST_KEYS.GET_ACCOUNT_SETUP_STATUS);
         const response = responseQueue.next(
-            REQUEST_KEYS.GET_ACCOUNT_SETUP_STATUS
+            REQUEST_KEYS.GET_ACCOUNT_SETUP_STATUS,
         );
         return HttpResponse.json(response.data, {
             status: response.status,

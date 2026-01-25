@@ -1,18 +1,52 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import PropTypes from "prop-types";
-import { message } from "antd";
+import { notification } from "antd";
 
 import { clearMessage } from "../slices/messageSlice";
 
-const MessageWrapper = ({ children }) => {
-    const [messageApi, contextHolder] = message.useMessage();
+const NotificationDescription = ({ type, error, code }) => {
+    if (type == "success") {
+        return <></>;
+    }
+    return (
+        <div>
+            {error.length ? (
+                error.map((err, idx) => (
+                    // eslint-disable-next-line react/no-array-index-key
+                    <div key={`err_${idx}`}>
+                        {err.field} : {err.message}
+                    </div>
+                ))
+            ) : (
+                <></>
+            )}
+            <div style={{ marginTop: 8, opacity: 0.7 }}>Error code: {code}</div>
+        </div>
+    );
+};
+
+const NotificationWrapper = ({ children }) => {
+    const [notificationApi, contextHolder] = notification.useNotification();
     const dispatch = useDispatch();
-    const { type, content, key } = useSelector((state) => state.message);
+    const { type, message, error, code, key } = useSelector(
+        (state) => state.message,
+    );
 
     useEffect(() => {
-        if (content) {
-            messageApi.open({ type, content });
+        if (message) {
+            notificationApi.open({
+                type,
+                message,
+                description: (
+                    <NotificationDescription
+                        type={type}
+                        error={error}
+                        code={code}
+                    />
+                ),
+                placement: "topRight",
+            });
             dispatch(clearMessage());
         }
     }, [key]);
@@ -25,8 +59,19 @@ const MessageWrapper = ({ children }) => {
     );
 };
 
-MessageWrapper.propTypes = {
+NotificationWrapper.propTypes = {
     children: PropTypes.node,
 };
 
-export default MessageWrapper;
+NotificationDescription.propTypes = {
+    type: PropTypes.oneOf(["success", "error"]),
+    error: PropTypes.arrayOf(
+        PropTypes.shape({
+            field: PropTypes.string,
+            error: PropTypes.string,
+        }),
+    ),
+    code: PropTypes.string,
+};
+
+export default NotificationWrapper;

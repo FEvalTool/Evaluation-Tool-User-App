@@ -59,7 +59,7 @@ describe("SetupAccountPage - integration test flow", () => {
         let currentTime = Date.now() + 10 * 60 * 1000;
         renderWithProviders(<AppRouter />, {
             preloadedState: {
-                auth: { user: accountData[0], scopeExp: currentTime },
+                auth: { user: accountData[0], scopeTokenExp: currentTime },
             },
             route: ROUTES.SETUP_ACCOUNT,
         });
@@ -67,10 +67,10 @@ describe("SetupAccountPage - integration test flow", () => {
         await waitFor(() => {
             // Welcome page check
             expect(
-                screen.getByText(/Welcome to setup account page/i)
+                screen.getByText(/Welcome to setup account page/i),
             ).toBeInTheDocument();
             expect(
-                screen.getByText(/To get started, choose a setup option/i)
+                screen.getByText(/To get started, choose a setup option/i),
             ).toBeInTheDocument();
 
             // Status section check
@@ -85,7 +85,7 @@ describe("SetupAccountPage - integration test flow", () => {
             // Menu items check
             const passwordMenu = screen.getByText(/Setup Password/i);
             const securityQAMenu = screen.getByText(
-                /Setup Security Questions/i
+                /Setup Security Questions/i,
             );
             expect(passwordMenu).toBeInTheDocument();
             expect(securityQAMenu).toBeInTheDocument();
@@ -95,7 +95,7 @@ describe("SetupAccountPage - integration test flow", () => {
             const securityQAMenuItem = securityQAMenu.closest(".ant-menu-item");
             expect(passwordMenuItem).not.toHaveClass("ant-menu-item-selected");
             expect(securityQAMenuItem).not.toHaveClass(
-                "ant-menu-item-selected"
+                "ant-menu-item-selected",
             );
 
             // Menu items status check
@@ -125,7 +125,7 @@ describe("SetupAccountPage - integration test flow", () => {
 
         // Mock user status API response after submit setup password form
         responseQueue.add(REQUEST_KEYS.GET_ACCOUNT_SETUP_STATUS, 200, {
-            user: {
+            data: {
                 first_time_setup: true,
                 is_password_setup: true,
                 is_security_qa_setup: false,
@@ -134,34 +134,34 @@ describe("SetupAccountPage - integration test flow", () => {
 
         // Setup password
         await user.click(
-            screen.getByText(/Setup Password/i).closest(".ant-menu-item")
+            screen.getByText(/Setup Password/i).closest(".ant-menu-item"),
         );
         await setupPassword(user);
         await user.click(screen.getByRole("button", { name: /submit/i }));
         // Make sure password setup complete
         await waitFor(() => {
             expect(
-                screen.getByText(/Complete Setup Password/i)
+                screen.getByText(/Complete Setup Password/i),
             ).toBeInTheDocument();
         });
 
         // Mock user status API response after submit setup security qa form
         responseQueue.add(REQUEST_KEYS.GET_ACCOUNT_SETUP_STATUS, 200, {
-            user: {},
+            data: {},
         });
 
         // Setup security qa
         await user.click(
             screen
                 .getByText(/Setup Security Questions/i)
-                .closest(".ant-menu-item")
+                .closest(".ant-menu-item"),
         );
         await setupSecurityQA(user);
         await user.click(screen.getByRole("button", { name: /submit/i }));
         // Make sure security questions setup complete
         await waitFor(() => {
             expect(
-                screen.getByText(/Complete Setup Security Question/i)
+                screen.getByText(/Complete Setup Security Question/i),
             ).toBeInTheDocument();
         });
 
@@ -220,13 +220,13 @@ describe("SetupAccountPage - integration test flow", () => {
         await user.click(
             screen.getByRole("button", {
                 name: /complete setup/i,
-            })
+            }),
         );
 
         await waitFor(() => {
             // Complete notification check
             const notificationTitle = screen.getByText(
-                /Setup Account Complete!/i
+                /Setup Account Complete!/i,
             );
             const notificationLoginButton = screen.getByRole("button", {
                 name: /Login now/i,
@@ -276,19 +276,19 @@ describe("SetupAccountPage - integration test flow", () => {
         await user.click(
             screen.getByRole("button", {
                 name: /complete setup/i,
-            })
+            }),
         );
 
         // Press Stay on page Button
         await user.click(
             screen.getByRole("button", {
                 name: /Stay on page/i,
-            })
+            }),
         );
 
         await waitFor(() => {
             expect(
-                requestCallTracker.get(REQUEST_KEYS.DELETE_SCOPE_TOKEN)
+                requestCallTracker.get(REQUEST_KEYS.DELETE_SCOPE_TOKEN),
             ).toBe(0);
             // Menu disabled check
             const completeButton = screen.getByRole("button", {
@@ -303,11 +303,11 @@ describe("SetupAccountPage - integration test flow", () => {
             expect(completeButton).not.toBeDisabled();
             expect(passwordMenuItem).not.toHaveAttribute(
                 "aria-disabled",
-                "true"
+                "true",
             );
             expect(securityQAMenuItem).not.toHaveAttribute(
                 "aria-disabled",
-                "true"
+                "true",
             );
         });
     });
@@ -334,25 +334,25 @@ describe("SetupAccountPage - integration test flow", () => {
         await user.click(
             screen.getByRole("button", {
                 name: /complete setup/i,
-            })
+            }),
         );
 
         // Press Login now Button
         await user.click(
             screen.getByRole("button", {
                 name: /Login now/i,
-            })
+            }),
         );
 
         await waitFor(() => {
             expect(
-                requestCallTracker.get(REQUEST_KEYS.DELETE_SCOPE_TOKEN)
+                requestCallTracker.get(REQUEST_KEYS.DELETE_SCOPE_TOKEN),
             ).toBe(1);
             const heading = screen.getByRole("heading", /login/i);
             expect(heading).toBeInTheDocument();
             // Check if user data is remove in local storage
             expect(localStorage.getItem("user")).toBe(null);
-            expect(localStorage.getItem("scopeExp")).toBe(null);
+            expect(localStorage.getItem("scopeTokenExp")).toBe(null);
         });
     });
 
@@ -378,7 +378,7 @@ describe("SetupAccountPage - integration test flow", () => {
         await user.click(
             screen.getByRole("button", {
                 name: /complete setup/i,
-            })
+            }),
         );
 
         // User not do anything in 5 seconds
@@ -388,13 +388,13 @@ describe("SetupAccountPage - integration test flow", () => {
 
         await waitFor(() => {
             expect(
-                requestCallTracker.get(REQUEST_KEYS.DELETE_SCOPE_TOKEN)
+                requestCallTracker.get(REQUEST_KEYS.DELETE_SCOPE_TOKEN),
             ).toBe(1);
             const heading = screen.getByRole("heading", /login/i);
             expect(heading).toBeInTheDocument();
             // Check if user data is remove in local storage
             expect(localStorage.getItem("user")).toBe(null);
-            expect(localStorage.getItem("scopeExp")).toBe(null);
+            expect(localStorage.getItem("scopeTokenExp")).toBe(null);
         });
     });
 });
@@ -408,7 +408,7 @@ describe("SetupAccountPage - Password setup flow", () => {
         const user = getUserEventInstance();
 
         await user.click(
-            screen.getByText(/Setup Password/i).closest(".ant-menu-item")
+            screen.getByText(/Setup Password/i).closest(".ant-menu-item"),
         );
 
         await waitFor(() => {
@@ -435,7 +435,7 @@ describe("SetupAccountPage - Password setup flow", () => {
 
         // Mock user status API response after submit
         responseQueue.add(REQUEST_KEYS.GET_ACCOUNT_SETUP_STATUS, 200, {
-            user: {
+            data: {
                 first_time_setup: true,
                 is_password_setup: true,
                 is_security_qa_setup: false,
@@ -454,10 +454,10 @@ describe("SetupAccountPage - Password setup flow", () => {
             expect(requestValidationErrorTracker.getAll()).toEqual([]);
             expect(requestCallTracker.get(REQUEST_KEYS.SET_PASSWORD)).toBe(1);
             expect(
-                requestCallTracker.get(REQUEST_KEYS.GET_ACCOUNT_SETUP_STATUS)
+                requestCallTracker.get(REQUEST_KEYS.GET_ACCOUNT_SETUP_STATUS),
             ).toBe(1);
             expect(
-                screen.getByText(/Complete Setup Password/i)
+                screen.getByText(/Complete Setup Password/i),
             ).toBeInTheDocument();
             // Status check
             const passwordBadgeDot =
@@ -472,7 +472,7 @@ describe("SetupAccountPage - Password setup flow", () => {
         let currentTime = Date.now() + 10 * 60 * 1000;
         renderWithProviders(<AppRouter />, {
             preloadedState: {
-                auth: { user: accountData[0], scopeExp: currentTime },
+                auth: { user: accountData[0], scopeTokenExp: currentTime },
             },
             route: ROUTES.SETUP_ACCOUNT,
         });
@@ -501,12 +501,12 @@ describe("SetupAccountPage - Password setup flow", () => {
             expect(requestValidationErrorTracker.getAll()).toEqual([]);
             expect(requestCallTracker.get(REQUEST_KEYS.SET_PASSWORD)).toBe(1);
             expect(
-                requestCallTracker.get(REQUEST_KEYS.GET_ACCOUNT_SETUP_STATUS)
+                requestCallTracker.get(REQUEST_KEYS.GET_ACCOUNT_SETUP_STATUS),
             ).toBe(0);
             const timeElement = screen.getByText(/(\d{2}):(\d{2})/);
             expect(timeElement.textContent).toMatch(/00:00/);
             expect(
-                screen.getByText(/Token 'scope' not found/i)
+                screen.getByText(/Token 'scope' not found/i),
             ).toBeInTheDocument();
             // Status check
             const passwordBadgeDot =
@@ -529,7 +529,7 @@ describe("SetupAccountPage - Security Question Answer setup flow", () => {
         await user.click(
             screen
                 .getByText(/Setup Security Questions/i)
-                .closest(".ant-menu-item")
+                .closest(".ant-menu-item"),
         );
 
         await waitFor(() => {
@@ -560,7 +560,7 @@ describe("SetupAccountPage - Security Question Answer setup flow", () => {
 
         // Mock user status API response after submit
         responseQueue.add(REQUEST_KEYS.GET_ACCOUNT_SETUP_STATUS, 200, {
-            user: {
+            data: {
                 first_time_setup: true,
                 is_password_setup: false,
                 is_security_qa_setup: true,
@@ -579,13 +579,13 @@ describe("SetupAccountPage - Security Question Answer setup flow", () => {
         await waitFor(() => {
             expect(requestValidationErrorTracker.getAll()).toEqual([]);
             expect(requestCallTracker.get(REQUEST_KEYS.SET_SECURITY_QA)).toBe(
-                1
+                1,
             );
             expect(
-                requestCallTracker.get(REQUEST_KEYS.GET_ACCOUNT_SETUP_STATUS)
+                requestCallTracker.get(REQUEST_KEYS.GET_ACCOUNT_SETUP_STATUS),
             ).toBe(1);
             expect(
-                screen.getByText(/Complete Setup Security Question/i)
+                screen.getByText(/Complete Setup Security Question/i),
             ).toBeInTheDocument();
             // Status check
             const securityQABadgeDot =
@@ -600,7 +600,7 @@ describe("SetupAccountPage - Security Question Answer setup flow", () => {
         let currentTime = Date.now() + 10 * 60 * 1000;
         renderWithProviders(<AppRouter />, {
             preloadedState: {
-                auth: { user: accountData[0], scopeExp: currentTime },
+                auth: { user: accountData[0], scopeTokenExp: currentTime },
             },
             route: ROUTES.SETUP_ACCOUNT,
         });
@@ -629,15 +629,15 @@ describe("SetupAccountPage - Security Question Answer setup flow", () => {
         await waitFor(() => {
             expect(requestValidationErrorTracker.getAll()).toEqual([]);
             expect(requestCallTracker.get(REQUEST_KEYS.SET_SECURITY_QA)).toBe(
-                1
+                1,
             );
             expect(
-                requestCallTracker.get(REQUEST_KEYS.GET_ACCOUNT_SETUP_STATUS)
+                requestCallTracker.get(REQUEST_KEYS.GET_ACCOUNT_SETUP_STATUS),
             ).toBe(0);
             const timeElement = screen.getByText(/(\d{2}):(\d{2})/);
             expect(timeElement.textContent).toMatch(/00:00/);
             expect(
-                screen.getByText(/Token 'scope' not found/i)
+                screen.getByText(/Token 'scope' not found/i),
             ).toBeInTheDocument();
             // Status check
             const securityQABadgeDot =
