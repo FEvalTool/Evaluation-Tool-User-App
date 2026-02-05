@@ -27,7 +27,8 @@ const ForgotPasswordPage = () => {
     const onSubmitUsernameForm = async (values) => {
         try {
             let response = await withFormSubmit(
-                () => accountService.getUserSecurityQuestions(values),
+                () =>
+                    accountService.getUserSecurityQuestions(values["username"]),
                 setLoading,
                 dispatch,
                 showMessage,
