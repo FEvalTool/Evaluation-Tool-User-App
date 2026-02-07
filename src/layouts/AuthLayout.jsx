@@ -2,7 +2,7 @@ import { Outlet } from "react-router-dom";
 import { Flex, Divider } from "antd";
 
 import Background from "../assets/auth_bg_image.jpg";
-import { LogoIcon } from "../components/CustomIcon";
+import { BrandLogo } from "../components/CustomIcon";
 
 const AuthLayout = () => {
     return (
@@ -63,7 +63,10 @@ const AuthLayout = () => {
                                 gap: "10px",
                             }}
                         >
-                            <LogoIcon size={64} />
+                            <BrandLogo
+                                fill="rgba(124,58,237,0.65)"
+                                size={256}
+                            />
                             <Divider style={{ width: "100%", margin: "0px" }} />
                             <Outlet />
                         </div>

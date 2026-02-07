@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { Avatar, Button, Flex, Layout, Typography } from "antd";
 import { UserOutlined, LogoutOutlined } from "@ant-design/icons";
 
-import { LogoIcon } from "../components/CustomIcon";
+import { AppLogo } from "../components/CustomIcon";
 import { logout } from "../slices/authSlice";
 import { ROUTES } from "../constants";
 
@@ -37,7 +37,7 @@ const MainLayout = () => {
                     zIndex: 10,
                 }}
             >
-                <LogoIcon size={64} />
+                <AppLogo size={64} />
                 <Flex gap={10}>
                     <Button
                         shape="circle"

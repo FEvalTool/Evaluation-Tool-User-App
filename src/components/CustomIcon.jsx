@@ -1,13 +1,24 @@
 import PropTypes from "prop-types";
 import Icon from "@ant-design/icons";
 
-import LogoSvg from "../assets/icons/logo_fpt.svg?react";
+import BrandLogoSvg from "../assets/icons/brand_logo.svg?react";
+import AppLogoSvg from "../assets/icons/app_logo.svg?react";
 import PasswordSvg from "../assets/icons/password.svg?react";
 import SecurityQuestionSvg from "../assets/icons/security-question.svg?react";
 
-export const LogoIcon = ({ size }) => (
+export const BrandLogo = ({ size, fill }) => (
     <Icon
-        component={() => <LogoSvg style={{ width: size, height: "auto" }} />}
+        component={() => (
+            <BrandLogoSvg style={{ width: size, height: "auto", fill: fill }} />
+        )}
+    />
+);
+
+export const AppLogo = ({ size, fill }) => (
+    <Icon
+        component={() => (
+            <AppLogoSvg style={{ width: size, height: "auto", fill: fill }} />
+        )}
     />
 );
 
@@ -29,16 +40,12 @@ export const SecurityQuestionIcon = ({ size, fill }) => (
     />
 );
 
-LogoIcon.propTypes = {
-    size: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
-};
-
-PasswordIcon.propTypes = {
+const IconProps = {
     size: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
     fill: PropTypes.string.isRequired,
 };
 
-SecurityQuestionIcon.propTypes = {
-    size: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
-    fill: PropTypes.string.isRequired,
-};
+BrandLogo.propTypes = IconProps;
+AppLogo.propTypes = IconProps;
+PasswordIcon.propTypes = IconProps;
+SecurityQuestionIcon.propTypes = IconProps;
