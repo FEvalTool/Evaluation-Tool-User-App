@@ -8,7 +8,7 @@ import { logout } from "../slices/authSlice";
 import { ROUTES } from "../constants";
 
 const { Header } = Layout;
-const { Text } = Typography;
+const { Text, Title } = Typography;
 
 const MainLayout = () => {
     const navigate = useNavigate();
@@ -32,12 +32,14 @@ const MainLayout = () => {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "space-between",
-                    backgroundColor: "#153450",
                     boxShadow: "0 3px 12px rgba(0, 0, 0, 0.25)",
                     zIndex: 10,
                 }}
             >
-                <AppLogo size={64} />
+                <Flex align="center" gap={5}>
+                    <AppLogo fill="#7C3AED" size={50} />
+                    <Title level={3}>User Management Application</Title>
+                </Flex>
                 <Flex gap={10}>
                     <Button
                         shape="circle"
@@ -50,9 +52,7 @@ const MainLayout = () => {
                             style={{ backgroundColor: "#87d068" }}
                             icon={<UserOutlined />}
                         />
-                        <Text style={{ color: "white" }}>
-                            {user ? user.username : ""}
-                        </Text>
+                        <Text>{user ? user.username : ""}</Text>
                     </Flex>
                 </Flex>
             </Header>

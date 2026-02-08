@@ -198,7 +198,7 @@ const SetupAccountPage = () => {
     const menuItems = [
         {
             key: "progress",
-            icon: <Progress type="circle" percent={process} size={50} />,
+            icon: <Progress type="circle" percent={process} size={40} />,
             disabled: true,
             style: {
                 pointerEvents: "none",
@@ -210,10 +210,8 @@ const SetupAccountPage = () => {
                     loading={loadingCompleteButton}
                     onClick={openNotification}
                     type="primary"
-                    style={{
-                        border: "None",
-                        pointerEvents: "auto", // Except this one
-                    }}
+                    style={{ pointerEvents: "auto" }}
+                    block={true}
                 >
                     Complete setup
                 </Button>
@@ -235,7 +233,7 @@ const SetupAccountPage = () => {
                     }
                     dot={true}
                 >
-                    <PasswordIcon fill="rgba(255,255,255,0.65)" />
+                    <PasswordIcon fill="#4B5563" />
                 </Badge>
             ),
             label: (
@@ -257,7 +255,7 @@ const SetupAccountPage = () => {
                     }
                     dot={true}
                 >
-                    <SecurityQuestionIcon fill="rgba(255,255,255,0.65)" />
+                    <SecurityQuestionIcon fill="#4B5563" />
                 </Badge>
             ),
             label: (
@@ -275,12 +273,14 @@ const SetupAccountPage = () => {
                 theme={{
                     token: {
                         // For disabled button
-                        colorBgContainerDisabled: "rgba(255, 255, 255, 0.12)",
-                        colorTextDisabled: "rgba(255, 255, 255, 0.45)",
+                        colorTextDisabled: "#F5F3FF",
+                        colorBgContainerDisabled: "#C7B8FF",
                     },
                     components: {
                         Progress: {
-                            circleTextColor: "rgb(255, 255, 255)",
+                            defaultColor: "#5B21B6",
+                            remainingColor: "#D6C9FF",
+                            circleTextColor: "#111111",
                         },
                     },
                 }}
