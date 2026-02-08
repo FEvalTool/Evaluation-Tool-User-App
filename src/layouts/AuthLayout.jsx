@@ -1,79 +1,71 @@
 import { Outlet } from "react-router-dom";
 import { Flex, Divider } from "antd";
 
-import Background from "../assets/auth_bg_image.jpg";
 import { BrandLogo } from "../components/CustomIcon";
+import { DynamicGradientBackground } from "../components/LoginBackground";
 
 const AuthLayout = () => {
     return (
-        <Flex
-            style={{
-                width: "100vw",
-                height: "100vh",
-            }}
-            gap="middle"
-            align="center"
-        >
-            <Flex
+        <div style={{ position: "relative", width: "100vw", height: "100vh" }}>
+            {/* Background layer */}
+            <div
                 style={{
-                    width: "100%",
+                    position: "absolute",
+                    inset: 0,
+                    zIndex: 0,
+                    overflow: "hidden",
+                }}
+            >
+                <DynamicGradientBackground
+                    colorStart="#2563EB"
+                    colorEnd="#7C3AED"
+                    gradientDirection="horizontal"
+                />
+            </div>
+            {/* Foreground content */}
+            <Flex
+                align="flex-start"
+                style={{
+                    position: "relative",
+                    zIndex: 1,
                     height: "100%",
                 }}
-                justify="center"
-                align="center"
             >
-                <div
+                {/* Content here */}
+                <Flex
+                    justify="center"
+                    align="center"
                     style={{
-                        backgroundImage: `url("${Background}")`,
-                        backgroundPosition: "center",
-                        backgroundSize: "cover",
-                        backgroundRepeat: "no-repeat",
-                        width: "100%",
+                        width: "50%",
                         height: "100%",
-                        display: "flex",
-                        align: "start",
+                        backgroundColor: "rgba(245, 245, 245, 0.6)",
+                        borderRight: "1.5px solid #e2e5de",
                     }}
                 >
-                    <div
+                    <Flex
+                        vertical
+                        gap={10}
                         style={{
-                            width: "50%",
-                            height: "100%",
-                            backgroundColor: "#f5f5f5",
-                            borderRight: "1.5px solid #e2e5de",
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
+                            width: "70%",
+                            maxHeight: "90%",
+                            overflowY: "auto",
+                            backgroundColor: "#ffffff",
+                            borderRadius: "10px",
+                            paddingLeft: "40px",
+                            paddingRight: "40px",
+                            paddingTop: "30px",
+                            paddingBottom: "15px",
+                            boxShadow:
+                                "0px 2px 2px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
                         }}
                     >
-                        <div
-                            style={{
-                                width: "70%",
-                                maxHeight: "90%",
-                                overflowY: "auto",
-                                backgroundColor: "#ffffff",
-                                borderRadius: "10px",
-                                paddingLeft: "40px",
-                                paddingRight: "40px",
-                                paddingTop: "30px",
-                                paddingBottom: "15px",
-                                boxShadow:
-                                    "0px 2px 2px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
-                                display: "flex",
-                                flexDirection: "column",
-                                gap: "10px",
-                            }}
-                        >
-                            <BrandLogo
-                                fill="rgba(124,58,237,0.65)"
-                                size={256}
-                            />
-                            <Divider style={{ width: "100%", margin: "0px" }} />
-                            <Outlet />
-                        </div>
-                    </div>
-                </div>
+                        <BrandLogo fill="#7C3AED" size={200} />
+                        <Divider style={{ width: "100%", margin: "0px" }} />
+                        <Outlet />
+                    </Flex>
+                </Flex>
             </Flex>
-        </Flex>
+        </div>
     );
 };
 
