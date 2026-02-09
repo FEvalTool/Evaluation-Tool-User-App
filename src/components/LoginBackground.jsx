@@ -1,7 +1,9 @@
+import PropTypes from "prop-types";
+
 export const DynamicGradientBackground = ({
     colorStart = "#4F46E5",
     colorEnd = "#9333EA",
-    gradientDirection = "horizontal", // 'horizontal', 'vertical', 'diagonal'
+    gradientDirection = "horizontal",
 }) => {
     const gradientCoords = {
         horizontal: { x1: "0%", y1: "0%", x2: "100%", y2: "0%" },
@@ -46,4 +48,16 @@ export const DynamicGradientBackground = ({
             />
         </svg>
     );
+};
+
+DynamicGradientBackground.propTypes = {
+    colorStart: PropTypes.string,
+    colorEnd: PropTypes.string,
+    gradientDirection: PropTypes.oneOf(["horizontal", "vertical", "diagonal"]),
+};
+
+DynamicGradientBackground.defaultProps = {
+    colorStart: "#4F46E5",
+    colorEnd: "#9333EA",
+    gradientDirection: "horizontal",
 };

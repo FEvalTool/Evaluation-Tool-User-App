@@ -1,6 +1,5 @@
 import { Outlet } from "react-router-dom";
-import { Flex, Divider } from "antd";
-import { ConfigProvider } from "antd";
+import { ConfigProvider, Flex, Divider } from "antd";
 
 import { BrandLogo } from "../components/CustomIcon";
 import { DynamicGradientBackground } from "../components/LoginBackground";
