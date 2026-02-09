@@ -40,5 +40,10 @@ export const themeConfig = {
             headerColor: "#312E81",
             bodyBg: "#F7F4FF",
         },
+        Progress: {
+            defaultColor: "#5B21B6",
+            remainingColor: "#D6C9FF",
+            circleTextColor: "#111111",
+        },
     },
 };

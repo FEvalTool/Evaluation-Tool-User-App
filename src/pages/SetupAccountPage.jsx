@@ -5,7 +5,6 @@ import {
     notification,
     Badge,
     Button,
-    ConfigProvider,
     Flex,
     Layout,
     Progress,
@@ -269,29 +268,12 @@ const SetupAccountPage = () => {
     return (
         <Layout style={{ width: "100vw", height: "100vh" }}>
             {contextHolder}
-            <ConfigProvider
-                theme={{
-                    token: {
-                        // For disabled button
-                        colorTextDisabled: "#F5F3FF",
-                        colorBgContainerDisabled: "#C7B8FF",
-                    },
-                    components: {
-                        Progress: {
-                            defaultColor: "#5B21B6",
-                            remainingColor: "#D6C9FF",
-                            circleTextColor: "#111111",
-                        },
-                    },
-                }}
-            >
-                <MenuContainer
-                    collapsible={false}
-                    items={menuItems}
-                    handleMenuClick={handleMenuClick}
-                    current={current}
-                />
-            </ConfigProvider>
+            <MenuContainer
+                collapsible={false}
+                items={menuItems}
+                handleMenuClick={handleMenuClick}
+                current={current}
+            />
             <Layout>
                 <Content>
                     <SecurityAlert exp={scopeTokenExp} />
