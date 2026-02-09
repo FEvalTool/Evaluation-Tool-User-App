@@ -1,7 +1,7 @@
 export const DynamicGradientBackground = ({
     colorStart = "#4F46E5",
     colorEnd = "#9333EA",
-    gradientDirection = "diagonal", // 'horizontal', 'vertical', 'diagonal'
+    gradientDirection = "horizontal", // 'horizontal', 'vertical', 'diagonal'
 }) => {
     const gradientCoords = {
         horizontal: { x1: "0%", y1: "0%", x2: "100%", y2: "0%" },

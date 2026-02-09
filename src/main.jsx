@@ -6,12 +6,12 @@ import { ConfigProvider } from "antd";
 import App from "./App.jsx";
 import "./assets/global.css";
 import store from "./slices/store.js";
-import { themeConfig } from "./configs/themeConfig.js";
+import { appThemeConfig } from "./configs/themeConfig.js";
 
 createRoot(document.getElementById("root")).render(
     <StrictMode>
         <Provider store={store}>
-            <ConfigProvider theme={themeConfig}>
+            <ConfigProvider theme={appThemeConfig}>
                 <BrowserRouter>
                     <App />
                 </BrowserRouter>

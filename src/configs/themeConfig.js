@@ -1,6 +1,6 @@
 import { theme } from "antd";
 
-export const themeConfig = {
+export const appThemeConfig = {
     algorithm: theme.defaultAlgorithm,
 
     token: {
@@ -46,4 +46,12 @@ export const themeConfig = {
             circleTextColor: "#111111",
         },
     },
+};
+
+export const ssoLoginPrimaryColor = {
+    auth: "#7C3AED",
+};
+
+export const ssoLoginBackgroundGradientColors = {
+    auth: { colorStart: "#2563EB", colorEnd: "#7C3AED" },
 };
