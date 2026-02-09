@@ -1,51 +1,66 @@
 import { Outlet } from "react-router-dom";
-import { Flex, Divider } from "antd";
+import { ConfigProvider, Flex, Divider } from "antd";
 
-import Background from "../assets/auth_bg_image.jpg";
-import { LogoIcon } from "../components/CustomIcon";
+import { BrandLogo } from "../components/CustomIcon";
+import { DynamicGradientBackground } from "../components/LoginBackground";
+import {
+    ssoLoginPrimaryColor,
+    ssoLoginBackgroundGradientColors,
+} from "../configs/themeConfig";
 
 const AuthLayout = () => {
     return (
-        <Flex
-            style={{
-                width: "100vw",
-                height: "100vh",
-            }}
-            gap="middle"
-            align="center"
+        <ConfigProvider
+            theme={{ token: { colorPrimary: ssoLoginPrimaryColor.auth } }}
         >
-            <Flex
+            <div
                 style={{
-                    width: "100%",
-                    height: "100%",
+                    position: "relative",
+                    width: "100vw",
+                    height: "100vh",
                 }}
-                justify="center"
-                align="center"
             >
+                {/* Background layer */}
                 <div
                     style={{
-                        backgroundImage: `url("${Background}")`,
-                        backgroundPosition: "center",
-                        backgroundSize: "cover",
-                        backgroundRepeat: "no-repeat",
-                        width: "100%",
-                        height: "100%",
-                        display: "flex",
-                        align: "start",
+                        position: "absolute",
+                        inset: 0,
+                        zIndex: 0,
+                        overflow: "hidden",
                     }}
                 >
-                    <div
+                    <DynamicGradientBackground
+                        colorStart={
+                            ssoLoginBackgroundGradientColors.auth.colorStart
+                        }
+                        colorEnd={
+                            ssoLoginBackgroundGradientColors.auth.colorEnd
+                        }
+                    />
+                </div>
+                {/* Foreground content */}
+                <Flex
+                    align="flex-start"
+                    style={{
+                        position: "relative",
+                        zIndex: 1,
+                        height: "100%",
+                    }}
+                >
+                    {/* Content here */}
+                    <Flex
+                        justify="center"
+                        align="center"
                         style={{
                             width: "50%",
                             height: "100%",
-                            backgroundColor: "#f5f5f5",
+                            backgroundColor: "rgba(245, 245, 245, 0.6)",
                             borderRight: "1.5px solid #e2e5de",
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
                         }}
                     >
-                        <div
+                        <Flex
+                            vertical
+                            gap={10}
                             style={{
                                 width: "70%",
                                 maxHeight: "90%",
@@ -58,19 +73,19 @@ const AuthLayout = () => {
                                 paddingBottom: "15px",
                                 boxShadow:
                                     "0px 2px 2px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
-                                display: "flex",
-                                flexDirection: "column",
-                                gap: "10px",
                             }}
                         >
-                            <LogoIcon size={64} />
+                            <BrandLogo
+                                fill={ssoLoginPrimaryColor.auth}
+                                size={200}
+                            />
                             <Divider style={{ width: "100%", margin: "0px" }} />
                             <Outlet />
-                        </div>
-                    </div>
-                </div>
-            </Flex>
-        </Flex>
+                        </Flex>
+                    </Flex>
+                </Flex>
+            </div>
+        </ConfigProvider>
     );
 };
 
