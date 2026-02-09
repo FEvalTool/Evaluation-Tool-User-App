@@ -5,7 +5,6 @@ import {
     notification,
     Badge,
     Button,
-    ConfigProvider,
     Flex,
     Layout,
     Progress,
@@ -198,7 +197,7 @@ const SetupAccountPage = () => {
     const menuItems = [
         {
             key: "progress",
-            icon: <Progress type="circle" percent={process} size={50} />,
+            icon: <Progress type="circle" percent={process} size={40} />,
             disabled: true,
             style: {
                 pointerEvents: "none",
@@ -210,10 +209,8 @@ const SetupAccountPage = () => {
                     loading={loadingCompleteButton}
                     onClick={openNotification}
                     type="primary"
-                    style={{
-                        border: "None",
-                        pointerEvents: "auto", // Except this one
-                    }}
+                    style={{ pointerEvents: "auto" }}
+                    block={true}
                 >
                     Complete setup
                 </Button>
@@ -235,7 +232,7 @@ const SetupAccountPage = () => {
                     }
                     dot={true}
                 >
-                    <PasswordIcon fill="rgba(255,255,255,0.65)" />
+                    <PasswordIcon fill="#4B5563" />
                 </Badge>
             ),
             label: (
@@ -257,7 +254,7 @@ const SetupAccountPage = () => {
                     }
                     dot={true}
                 >
-                    <SecurityQuestionIcon fill="rgba(255,255,255,0.65)" />
+                    <SecurityQuestionIcon fill="#4B5563" />
                 </Badge>
             ),
             label: (
@@ -271,27 +268,12 @@ const SetupAccountPage = () => {
     return (
         <Layout style={{ width: "100vw", height: "100vh" }}>
             {contextHolder}
-            <ConfigProvider
-                theme={{
-                    token: {
-                        // For disabled button
-                        colorBgContainerDisabled: "rgba(255, 255, 255, 0.12)",
-                        colorTextDisabled: "rgba(255, 255, 255, 0.45)",
-                    },
-                    components: {
-                        Progress: {
-                            circleTextColor: "rgb(255, 255, 255)",
-                        },
-                    },
-                }}
-            >
-                <MenuContainer
-                    collapsible={false}
-                    items={menuItems}
-                    handleMenuClick={handleMenuClick}
-                    current={current}
-                />
-            </ConfigProvider>
+            <MenuContainer
+                collapsible={false}
+                items={menuItems}
+                handleMenuClick={handleMenuClick}
+                current={current}
+            />
             <Layout>
                 <Content>
                     <SecurityAlert exp={scopeTokenExp} />
