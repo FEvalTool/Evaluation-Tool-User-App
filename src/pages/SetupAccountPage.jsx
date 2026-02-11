@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
     notification,
@@ -30,6 +30,7 @@ const { Title, Paragraph, Text } = Typography;
 
 const SetupAccountPage = () => {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const dispatch = useDispatch();
     const { user, loading, scopeTokenExp } = useSelector((state) => state.auth);
 
@@ -94,10 +95,16 @@ const SetupAccountPage = () => {
             placement: "top",
         });
     };
+
+    // Build login URL with redirect param preserved
+    const redirectUrl = searchParams.get("redirect");
+    const loginUrl = redirectUrl
+        ? `${ROUTES.LOGIN}?redirect=${encodeURIComponent(redirectUrl)}`
+        : ROUTES.LOGIN;
     const handleRedirectLogin = async () => {
         const resultAction = await dispatch(logout({ first_time_setup: true })); // NOSONAR
         if (logout.fulfilled.match(resultAction)) {
-            navigate(ROUTES.LOGIN, { replace: true });
+            navigate(loginUrl, { replace: true });
         }
         setLoadingCompleteButton(false);
     };

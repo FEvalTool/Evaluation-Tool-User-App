@@ -12,14 +12,19 @@ const GuestRoute = () => {
         return <PageLoading />;
     }
     if (isValidate) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const redirectUrl = urlParams.get("redirect");
+
+        // Build setup account URL with redirect param preserved
+        const setupAccountUrl = redirectUrl
+            ? `${ROUTES.SETUP_ACCOUNT}?redirect=${encodeURIComponent(redirectUrl)}`
+            : ROUTES.SETUP_ACCOUNT;
         // Priority 1: Setup account redirect
         if (user?.first_time_setup) {
-            return <Navigate to={ROUTES.SETUP_ACCOUNT} replace />;
+            return <Navigate to={setupAccountUrl} replace />;
         }
 
         // Priority 2: External redirect (SSO flow)
-        const urlParams = new URLSearchParams(window.location.search);
-        const redirectUrl = urlParams.get("redirect");
         if (redirectUrl) {
             window.location.replace(redirectUrl);
             return <PageLoading />;
