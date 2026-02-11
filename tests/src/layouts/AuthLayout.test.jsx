@@ -6,7 +6,7 @@ import AuthLayout from "../../../src/layouts/AuthLayout";
 import { BrandLogo } from "../../../src/components/CustomIcon";
 import { DynamicGradientBackground } from "../../../src/components/LoginBackground";
 import {
-    ssoLoginPrimaryColor,
+    ssoLoginConfigToken,
     ssoLoginBackgroundGradientColors,
 } from "../../../src/configs/themeConfig";
 
@@ -56,7 +56,7 @@ describe("AuthLayout - (unit - prop wiring)", () => {
 
         const props = BrandLogo.mock.calls[0][0];
 
-        expect(props.fill).toBe(ssoLoginPrimaryColor.auth);
+        expect(props.fill).toBe(ssoLoginConfigToken.auth);
         expect(props.size).toBe(200);
     });
 
