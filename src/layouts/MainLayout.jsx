@@ -1,17 +1,15 @@
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { Avatar, Button, Flex, Layout, Typography } from "antd";
 import { UserOutlined, LogoutOutlined } from "@ant-design/icons";
 
 import { AppLogo } from "../components/CustomIcon";
 import { logout } from "../slices/authSlice";
-import { ROUTES } from "../constants";
 
 const { Header } = Layout;
 const { Text, Title } = Typography;
 
 const MainLayout = () => {
-    const navigate = useNavigate();
     const { user } = useSelector((state) => state.auth);
     const dispatch = useDispatch();
 
@@ -21,7 +19,7 @@ const MainLayout = () => {
         };
         const resultAction = await dispatch(logout(payload)); // NOSONAR
         if (logout.fulfilled.match(resultAction)) {
-            navigate(ROUTES.LOGIN);
+            window.location.reload();
         }
     };
 
