@@ -1,4 +1,3 @@
-import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { Flex, Typography } from "antd";
 
@@ -9,24 +8,11 @@ import { ROUTES } from "../constants";
 const { Text, Title, Link } = Typography;
 
 const LoginPage = () => {
-    const navigate = useNavigate();
-    const location = useLocation();
     const dispatch = useDispatch();
     const { loading } = useSelector((state) => state.auth);
 
-    const onSubmitLogin = async (values) => {
-        const resultAction = await dispatch(login(values)); // NOSONAR
-
-        if (login.fulfilled.match(resultAction)) {
-            const user = resultAction.payload.user;
-
-            if (user.first_time_setup) {
-                navigate(ROUTES.SETUP_ACCOUNT, { replace: true });
-            } else {
-                const from = location.state?.from?.pathname || ROUTES.TEST_MAIN;
-                navigate(from, { replace: true });
-            }
-        }
+    const onSubmitLogin = (values) => {
+        dispatch(login(values));
     };
 
     return (
