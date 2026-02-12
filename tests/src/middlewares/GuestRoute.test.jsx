@@ -34,6 +34,7 @@ describe("GuestRoute", () => {
 
         await waitFor(
             () => {
+                // Assert redirected to protected page
                 expect(screen.getByText("Dashboard")).toBeInTheDocument();
             },
             /**
@@ -47,9 +48,10 @@ describe("GuestRoute", () => {
              * Without the extended timeout, the test passes in normal runs but can fail
              * inconsistently when debugging due to timing differences in React's rendering cycle.
              */
-            { timeout: 10000 }
+            { timeout: 10000 },
         );
 
+        // Assert API call and no validation error happened
         expect(requestCallTracker.get(REQUEST_KEYS.VERIFY_TOKEN)).toBe(1);
         expect(requestValidationErrorTracker.getAll()).toEqual([]);
     });
@@ -66,13 +68,16 @@ describe("GuestRoute", () => {
 
         await waitFor(
             () => {
+                // Assert redirected to protected page
                 expect(screen.getByText("Dashboard")).toBeInTheDocument();
             },
             // (Optional) Add and increase timeout when debugging
             // to avoid false positive when running navigation
             // (Explain above)
-            { timeout: 10000 }
+            { timeout: 10000 },
         );
+
+        // Assert API call and no validation error happened
         expect(requestCallTracker.get(REQUEST_KEYS.VERIFY_TOKEN)).toBe(2);
         expect(requestCallTracker.get(REQUEST_KEYS.REFRESH_TOKEN)).toBe(1);
         expect(requestValidationErrorTracker.getAll()).toEqual([]);
@@ -88,9 +93,12 @@ describe("GuestRoute", () => {
         });
 
         await waitFor(() => {
-            expect(requestValidationErrorTracker.getAll()).toEqual([]);
+            // Assert redirected to current page (Outlet - Login)
             expect(screen.getByText("LoginPage")).toBeInTheDocument();
         });
+
+        // Assert API call and no validation error happened
+        expect(requestValidationErrorTracker.getAll()).toEqual([]);
         expect(requestCallTracker.get(REQUEST_KEYS.VERIFY_TOKEN)).toBe(1);
         expect(requestCallTracker.get(REQUEST_KEYS.REFRESH_TOKEN)).toBe(1);
         expect(requestValidationErrorTracker.getAll()).toEqual([]);
@@ -105,8 +113,11 @@ describe("GuestRoute", () => {
         });
 
         await waitFor(() => {
+            // Assert redirected to current page (Outlet - Login)
             expect(screen.getByText("LoginPage")).toBeInTheDocument();
         });
+
+        // Assert API call and no validation error happened
         expect(requestCallTracker.get(REQUEST_KEYS.VERIFY_TOKEN)).toBe(1);
         expect(requestValidationErrorTracker.getAll()).toEqual([]);
     });

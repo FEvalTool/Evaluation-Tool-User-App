@@ -37,8 +37,11 @@ describe("ProtectedRoute", () => {
         });
 
         await waitFor(() => {
+            // Assert redirected to Dashboard page
             expect(screen.getByText("Dashboard")).toBeInTheDocument();
         });
+
+        // Assert API call and no validation error happened
         expect(requestCallTracker.get(REQUEST_KEYS.VERIFY_TOKEN)).toBe(1);
         expect(requestValidationErrorTracker.getAll()).toEqual([]);
     });
@@ -52,8 +55,11 @@ describe("ProtectedRoute", () => {
         });
 
         await waitFor(() => {
+            // Assert redirected to Setup account page
             expect(screen.getByText("SetupPage")).toBeInTheDocument();
         });
+
+        // Assert API call and no validation error happened
         expect(requestCallTracker.get(REQUEST_KEYS.VERIFY_TOKEN)).toBe(1);
         expect(requestValidationErrorTracker.getAll()).toEqual([]);
     });
@@ -69,8 +75,11 @@ describe("ProtectedRoute", () => {
         });
 
         await waitFor(() => {
+            // Assert redirected to Dashboard page
             expect(screen.getByText("Dashboard")).toBeInTheDocument();
         });
+
+        // Assert API call and no validation error happened
         expect(requestCallTracker.get(REQUEST_KEYS.VERIFY_TOKEN)).toBe(2);
         expect(requestCallTracker.get(REQUEST_KEYS.REFRESH_TOKEN)).toBe(1);
         expect(requestValidationErrorTracker.getAll()).toEqual([]);
@@ -87,6 +96,7 @@ describe("ProtectedRoute", () => {
 
         await waitFor(
             () => {
+                // Assert redirected to Login page
                 expect(screen.getByText("LoginPage")).toBeInTheDocument();
             },
             // (Optional) Add and increase timeout when debugging
@@ -94,6 +104,8 @@ describe("ProtectedRoute", () => {
             // (Explain in GuestRoute.test.jsx)
             { timeout: 10000 },
         );
+
+        // Assert API call and no validation error happened
         expect(requestCallTracker.get(REQUEST_KEYS.VERIFY_TOKEN)).toBe(1);
         expect(requestCallTracker.get(REQUEST_KEYS.REFRESH_TOKEN)).toBe(1);
         expect(requestValidationErrorTracker.getAll()).toEqual([]);
@@ -109,6 +121,7 @@ describe("ProtectedRoute", () => {
 
         await waitFor(
             () => {
+                // Assert redirected to Login page
                 expect(screen.getByText("LoginPage")).toBeInTheDocument();
             },
             // (Optional) Add and increase timeout when debugging
@@ -116,6 +129,8 @@ describe("ProtectedRoute", () => {
             // (Explain in GuestRoute.test.jsx)
             { timeout: 10000 },
         );
+
+        // Assert API call and no validation error happened
         expect(requestCallTracker.get(REQUEST_KEYS.VERIFY_TOKEN)).toBe(1);
         expect(requestValidationErrorTracker.getAll()).toEqual([]);
     });
@@ -130,6 +145,7 @@ describe("ProtectedRoute", () => {
 
         await waitFor(
             () => {
+                // Assert redirected to Setup account page
                 expect(screen.getByText("SetupPage")).toBeInTheDocument();
             },
             // (Optional) Add and increase timeout when debugging
@@ -137,6 +153,8 @@ describe("ProtectedRoute", () => {
             // (Explain in GuestRoute.test.jsx)
             { timeout: 10000 },
         );
+
+        // Assert API call and no validation error happened
         expect(requestCallTracker.get(REQUEST_KEYS.VERIFY_TOKEN)).toBe(1);
         expect(requestValidationErrorTracker.getAll()).toEqual([]);
     });
@@ -151,6 +169,7 @@ describe("ProtectedRoute", () => {
 
         await waitFor(
             () => {
+                // Assert redirected to dashboard page
                 expect(screen.getByText("Dashboard")).toBeInTheDocument();
             },
             // (Optional) Add and increase timeout when debugging
@@ -158,6 +177,8 @@ describe("ProtectedRoute", () => {
             // (Explain in GuestRoute.test.jsx)
             { timeout: 10000 },
         );
+
+        // Assert API call and no validation error happened
         expect(requestCallTracker.get(REQUEST_KEYS.VERIFY_TOKEN)).toBe(1);
         expect(requestValidationErrorTracker.getAll()).toEqual([]);
     });

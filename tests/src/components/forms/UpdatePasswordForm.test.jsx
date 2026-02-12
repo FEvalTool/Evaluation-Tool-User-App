@@ -13,7 +13,7 @@ const renderForm = () => {
             onSubmit={async (values) => {
                 const res1 = await accountService.setPassword(values);
             }}
-        />
+        />,
     );
 };
 
@@ -29,11 +29,12 @@ describe("UpdatePasswordForm", async () => {
         await user.click(screen.getByRole("button", { name: /submit/i }));
 
         await waitFor(() => {
+            // Assert API not called and error message displayed
             expect(requestCallTracker.get(REQUEST_KEYS.SET_PASSWORD)).toBe(0);
             expect(
                 screen.getByText(
-                    /the new password that you entered do not match/i
-                )
+                    /the new password that you entered do not match/i,
+                ),
             ).toBeInTheDocument();
         });
     });
@@ -45,12 +46,13 @@ describe("UpdatePasswordForm", async () => {
         await user.click(screen.getByRole("button", { name: /submit/i }));
 
         await waitFor(() => {
+            // Assert API not called and error message displayed
             expect(requestCallTracker.get(REQUEST_KEYS.SET_PASSWORD)).toBe(0);
             expect(
-                screen.getByText(/please input your password/i)
+                screen.getByText(/please input your password/i),
             ).toBeInTheDocument();
             expect(
-                screen.getByText(/please confirm your password/i)
+                screen.getByText(/please confirm your password/i),
             ).toBeInTheDocument();
         });
     });

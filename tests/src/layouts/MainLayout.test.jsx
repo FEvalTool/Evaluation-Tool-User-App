@@ -27,6 +27,17 @@ function AppRouter() {
 }
 
 describe("MainLayout", () => {
+    let reloadMock;
+
+    beforeEach(() => {
+        vi.clearAllMocks();
+        reloadMock = vi.fn();
+        Object.defineProperty(window, "location", {
+            value: { ...window.location, reload: reloadMock },
+            writable: true,
+        });
+    });
+
     it("should logout everything - new user", async () => {
         localStorage.setItem("user", accountData[0]);
 
@@ -40,11 +51,16 @@ describe("MainLayout", () => {
         await user.click(logoutButton);
 
         await waitFor(() => {
+            // Assert logout request called
             expect(
                 requestCallTracker.get(REQUEST_KEYS.DELETE_SCOPE_TOKEN),
             ).toBe(1);
-            expect(screen.getByText("Login")).toBeInTheDocument();
+
+            // Assert local storage cleared
             expect(localStorage.getItem("user")).toBe(null);
+
+            // Assert page reload called
+            expect(reloadMock).toHaveBeenCalledTimes(1);
         });
     });
 
@@ -61,9 +77,14 @@ describe("MainLayout", () => {
         await user.click(logoutButton);
 
         await waitFor(() => {
+            // Assert logout request called
             expect(requestCallTracker.get(REQUEST_KEYS.LOGOUT)).toBe(1);
-            expect(screen.getByText("Login")).toBeInTheDocument();
+
+            // Assert local storage cleared
             expect(localStorage.getItem("user")).toBe(null);
+
+            // Assert page reload called
+            expect(reloadMock).toHaveBeenCalledTimes(1);
         });
     });
 
@@ -84,11 +105,17 @@ describe("MainLayout", () => {
         await user.click(logoutButton);
 
         await waitFor(() => {
+            // Assert logout request called
             expect(requestCallTracker.get(REQUEST_KEYS.LOGOUT)).toBe(1);
-            expect(screen.getByText("Dashboard")).toBeInTheDocument();
+
+            // Assert local storage not cleared
             expect(localStorage.getItem("user")).not.toBe(null);
+
+            // Assert page reload not called
+            expect(reloadMock).not.toHaveBeenCalled();
         });
         await waitFor(() => {
+            // Assert error message displayed
             expect(
                 screen.getByText(/Unexpected error when logout/i),
             ).toBeInTheDocument();

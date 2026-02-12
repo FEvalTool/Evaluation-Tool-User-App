@@ -1,5 +1,6 @@
 import { vi } from "vitest";
 import { render } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import { ConfigProvider } from "antd";
 
 import AuthLayout from "../../../src/layouts/AuthLayout";
@@ -32,9 +33,14 @@ vi.mock("../../../src/components/CustomIcon", () => ({
 describe("AuthLayout - (unit - prop wiring)", () => {
     beforeEach(() => {
         vi.clearAllMocks();
-        render(<AuthLayout />);
+        render(
+            <MemoryRouter>
+                <AuthLayout />
+            </MemoryRouter>,
+        );
     });
 
+    // Test default case
     it("passes correct primary color token to ConfigProvider", () => {
         expect(ConfigProvider).toHaveBeenCalled();
 
@@ -43,9 +49,7 @@ describe("AuthLayout - (unit - prop wiring)", () => {
         expect(props).toEqual(
             expect.objectContaining({
                 theme: {
-                    token: {
-                        colorPrimary: "#7C3AED",
-                    },
+                    token: ssoLoginConfigToken.auth,
                 },
             }),
         );
@@ -56,7 +60,7 @@ describe("AuthLayout - (unit - prop wiring)", () => {
 
         const props = BrandLogo.mock.calls[0][0];
 
-        expect(props.fill).toBe(ssoLoginConfigToken.auth);
+        expect(props.fill).toBe(ssoLoginConfigToken.auth.colorPrimary);
         expect(props.size).toBe(200);
     });
 
