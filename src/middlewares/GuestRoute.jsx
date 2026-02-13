@@ -12,7 +12,7 @@ const GuestRoute = () => {
         return <PageLoading />;
     }
     if (isValidate) {
-        const urlParams = new URLSearchParams(window.location.search);
+        const urlParams = new URLSearchParams(location.search);
         const redirectUrl = urlParams.get("redirect");
 
         // Build setup account URL with redirect param preserved
