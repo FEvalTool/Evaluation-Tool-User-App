@@ -1,4 +1,4 @@
-import { Outlet, redirect, useSearchParams } from "react-router-dom";
+import { Outlet, useSearchParams } from "react-router-dom";
 import { ConfigProvider, Flex, Divider } from "antd";
 
 import { BrandLogo } from "../components/CustomIcon";
@@ -15,7 +15,8 @@ const AuthLayout = () => {
     if (redirectUrl) {
         const url = new URL(redirectUrl);
         const hostname = url.hostname;
-        const match = hostname.match(/^([a-z0-9-]+)\.eduscrum\.local$/i);
+        const hostnameRegex = /^([a-z0-9-]+)\.eduscrum\.local$/i;
+        const match = hostnameRegex.exec(hostname);
         redirectedApp = match ? match[1] : "auth";
         redirectedApp =
             redirectedApp in ssoLoginConfigToken ? redirectedApp : "auth";
