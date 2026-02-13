@@ -71,6 +71,23 @@ describe("ForgotPasswordPage Step 1 and 2", () => {
         expect(stepElement).toHaveClass("ant-steps-item-active");
     });
 
+    it("should contain redirect param in login link when redirect param exists", async () => {
+        const externalUrl =
+            "http://course.eduscrum.local:5174/callback?redirect=/dashboard";
+
+        renderWithProviders(<AppRouter />, {
+            route: `${ROUTES.FORGOT_PASSWORD}?redirect=${encodeURIComponent(externalUrl)}`,
+        });
+
+        const backToLoginLink = screen.getByRole("link", {
+            name: /back to login/i,
+        });
+        expect(backToLoginLink).toHaveAttribute(
+            "href",
+            `${ROUTES.LOGIN}?redirect=${encodeURIComponent(externalUrl)}`,
+        );
+    });
+
     it("should go back to Login page when press Back To Login link", async () => {
         renderWithProviders(<AppRouter />, { route: ROUTES.FORGOT_PASSWORD });
 

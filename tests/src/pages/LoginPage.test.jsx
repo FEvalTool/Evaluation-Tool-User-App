@@ -49,6 +49,22 @@ describe("LoginPage navigation flow", () => {
         );
     });
 
+    it("should contain redirect param in forgot password link when redirect param exists", async () => {
+        const externalUrl =
+            "http://course.eduscrum.local:5174/callback?redirect=/dashboard";
+
+        renderWithProviders(<AppRouter />, {
+            preloadedState: { auth: { user: accountData[1] } },
+            route: `${ROUTES.LOGIN}?redirect=${encodeURIComponent(externalUrl)}`,
+        });
+
+        const forgotPasswordLink = screen.getByText(/username \/ password/i);
+        expect(forgotPasswordLink).toHaveAttribute(
+            "href",
+            `${ROUTES.FORGOT_PASSWORD}?redirect=${encodeURIComponent(externalUrl)}`,
+        );
+    });
+
     it("should display error notification when Login fail", async () => {
         renderWithProviders(<AppRouter />, { route: ROUTES.LOGIN });
 
