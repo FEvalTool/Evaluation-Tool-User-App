@@ -40,10 +40,9 @@ const renderFunc = (route) => {
 };
 
 describe("AuthLayout - (unit - prop wiring)", () => {
-    const externalUrl =
-        "http://course.eduscrum.local:5174/callback?redirect=/dashboard";
-    const routeWithAppRedirect = `${ROUTES.LOGIN}?redirect=${encodeURIComponent(externalUrl)}`;
+    const routeWithAppRedirect = `${ROUTES.LOGIN}?redirect=${encodeURIComponent("http://course.eduscrum.local:5174")}`;
     const routeWithNonAppRedirect = `${ROUTES.LOGIN}?redirect=${encodeURIComponent("https://google.com")}`;
+    const routeWithNonConfigAppRedirect = `${ROUTES.LOGIN}?redirect=${encodeURIComponent("http://unknown.eduscrum.local:5174")}`;
 
     afterEach(() => {
         vi.restoreAllMocks();
@@ -112,7 +111,7 @@ describe("AuthLayout - (unit - prop wiring)", () => {
     });
 
     it("renders with default theme when redirect to same ecosystem app URL but no theme config provided for that app", () => {
-        renderFunc(routeWithNonAppRedirect);
+        renderFunc(routeWithNonConfigAppRedirect);
 
         // Assert ConfigProvider called with correct theme token
         expect(ConfigProvider).toHaveBeenCalled();
