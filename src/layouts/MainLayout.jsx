@@ -19,7 +19,7 @@ const MainLayout = () => {
         };
         const resultAction = await dispatch(logout(payload)); // NOSONAR
         if (logout.fulfilled.match(resultAction)) {
-            window.location.reload();
+            globalThis.location.reload();
         }
     };
 

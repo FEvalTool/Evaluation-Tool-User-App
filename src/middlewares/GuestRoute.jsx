@@ -26,7 +26,7 @@ const GuestRoute = () => {
 
         // Priority 2: External redirect (SSO flow)
         if (redirectUrl) {
-            window.location.replace(redirectUrl);
+            globalThis.location.replace(redirectUrl);
             return <PageLoading />;
         }
 
