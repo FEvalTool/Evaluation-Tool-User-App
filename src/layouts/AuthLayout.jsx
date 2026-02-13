@@ -1,18 +1,28 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, useSearchParams } from "react-router-dom";
 import { ConfigProvider, Flex, Divider } from "antd";
 
 import { BrandLogo } from "../components/CustomIcon";
 import { DynamicGradientBackground } from "../components/LoginBackground";
 import {
-    ssoLoginPrimaryColor,
+    ssoLoginConfigToken,
     ssoLoginBackgroundGradientColors,
 } from "../configs/themeConfig";
 
 const AuthLayout = () => {
+    const [searchParams] = useSearchParams();
+    const redirectUrl = searchParams.get("redirect");
+    let redirectedApp = "auth";
+    if (redirectUrl) {
+        const url = new URL(redirectUrl);
+        const hostname = url.hostname;
+        const hostnameRegex = /^([a-z0-9-]+)\.eduscrum\.local$/i;
+        const match = hostnameRegex.exec(hostname);
+        redirectedApp = match ? match[1] : "auth";
+        redirectedApp =
+            redirectedApp in ssoLoginConfigToken ? redirectedApp : "auth";
+    }
     return (
-        <ConfigProvider
-            theme={{ token: { colorPrimary: ssoLoginPrimaryColor.auth } }}
-        >
+        <ConfigProvider theme={{ token: ssoLoginConfigToken[redirectedApp] }}>
             <div
                 style={{
                     position: "relative",
@@ -31,10 +41,12 @@ const AuthLayout = () => {
                 >
                     <DynamicGradientBackground
                         colorStart={
-                            ssoLoginBackgroundGradientColors.auth.colorStart
+                            ssoLoginBackgroundGradientColors[redirectedApp]
+                                .colorStart
                         }
                         colorEnd={
-                            ssoLoginBackgroundGradientColors.auth.colorEnd
+                            ssoLoginBackgroundGradientColors[redirectedApp]
+                                .colorEnd
                         }
                     />
                 </div>
@@ -76,7 +88,10 @@ const AuthLayout = () => {
                             }}
                         >
                             <BrandLogo
-                                fill={ssoLoginPrimaryColor.auth}
+                                fill={
+                                    ssoLoginConfigToken[redirectedApp]
+                                        .colorPrimary
+                                }
                                 size={200}
                             />
                             <Divider style={{ width: "100%", margin: "0px" }} />

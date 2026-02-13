@@ -53,19 +53,39 @@ describe("ForgotPasswordPage Step 1 and 2", () => {
         const secondStep = screen.getByText(/security questions/i);
         const thirdStep = screen.getByText(/change password/i);
 
+        // Assert elements display correctly
         expect(heading).toBeInTheDocument();
         expect(usernameInput).toBeInTheDocument();
         expect(usernameInput).toHaveAttribute("type", "text");
         expect(submitButton).toBeInTheDocument();
         expect(backToLoginLink).toBeInTheDocument();
         expect(backToLoginLink).toHaveAttribute("href", ROUTES.LOGIN);
-        // Verify all steps text exists
+
+        // Assert all steps text exists
         expect(firstStep).toBeInTheDocument();
         expect(secondStep).toBeInTheDocument();
         expect(thirdStep).toBeInTheDocument();
-        // Verify that only first step is active
+
+        // Assert that only first step is active
         const stepElement = firstStep.closest(".ant-steps-item");
         expect(stepElement).toHaveClass("ant-steps-item-active");
+    });
+
+    it("should contain redirect param in login link when redirect param exists", async () => {
+        const externalUrl =
+            "http://course.eduscrum.local:5174/callback?redirect=/dashboard";
+
+        renderWithProviders(<AppRouter />, {
+            route: `${ROUTES.FORGOT_PASSWORD}?redirect=${encodeURIComponent(externalUrl)}`,
+        });
+
+        const backToLoginLink = screen.getByRole("link", {
+            name: /back to login/i,
+        });
+        expect(backToLoginLink).toHaveAttribute(
+            "href",
+            `${ROUTES.LOGIN}?redirect=${encodeURIComponent(externalUrl)}`,
+        );
     });
 
     it("should go back to Login page when press Back To Login link", async () => {
@@ -84,6 +104,7 @@ describe("ForgotPasswordPage Step 1 and 2", () => {
         await user.click(backToLoginLink);
 
         await waitFor(() => {
+            // Assert that we are now in Login page
             const heading = screen.getByRole("heading", /login/i);
             expect(heading).toBeInTheDocument();
         });
@@ -102,14 +123,18 @@ describe("ForgotPasswordPage Step 1 and 2", () => {
         await user.click(submitButton);
 
         await waitFor(() => {
+            // Assert API call and no validation error happened
             expect(requestValidationErrorTracker.getAll()).toEqual([]);
             expect(
-                requestCallTracker.get(REQUEST_KEYS.GET_USER_SECURITY_QA)
+                requestCallTracker.get(REQUEST_KEYS.GET_USER_SECURITY_QA),
             ).toBe(1);
+
+            // Assert error notification show up with correct message
             expect(
-                screen.getByText(/user does not exist/i)
+                screen.getByText(/user does not exist/i),
             ).toBeInTheDocument();
-            // Verify that step does not change when error happened
+
+            // Assert that step does not change when error happened
             const stepElement = firstStep.closest(".ant-steps-item");
             expect(stepElement).toHaveClass("ant-steps-item-active");
         });
@@ -128,19 +153,23 @@ describe("ForgotPasswordPage Step 1 and 2", () => {
         await user.click(submitButton);
 
         await waitFor(() => {
+            // Assert API call and no validation error happened
             expect(requestValidationErrorTracker.getAll()).toEqual([]);
             expect(
-                requestCallTracker.get(REQUEST_KEYS.GET_USER_SECURITY_QA)
+                requestCallTracker.get(REQUEST_KEYS.GET_USER_SECURITY_QA),
             ).toBe(1);
-            // Verify that username input disappear
+
+            // Assert that username input disappear
             expect(usernameInput).not.toBeInTheDocument();
             const questionInputs = screen.getAllByRole("textbox");
             expect(questionInputs.length).toBe(3);
-            // Verify the label contain question
+
+            // Assert the label contain question
             securityQuestionsResponse.forEach((question) => {
                 screen.getByLabelText(question.content);
             });
-            // Verify that next step is active happened
+
+            // Assert that next step is active happened
             const stepElement = secondStep.closest(".ant-steps-item");
             expect(stepElement).toHaveClass("ant-steps-item-active");
         });
@@ -162,20 +191,25 @@ describe("ForgotPasswordPage Step 1 and 2", () => {
         await user.click(submitButton);
 
         await waitFor(() => {
+            // Assert API call and no validation error happened
             expect(requestValidationErrorTracker.getAll()).toEqual([]);
             expect(
-                requestCallTracker.get(REQUEST_KEYS.GEN_SECURITY_TOKEN_QA)
+                requestCallTracker.get(REQUEST_KEYS.GEN_SECURITY_TOKEN_QA),
             ).toBe(1);
+
+            // Assert error notification displayed with correct message
             expect(
-                screen.getByText(/security qa validation failed/i)
+                screen.getByText(/security qa validation failed/i),
             ).toBeInTheDocument();
+
+            // Assert that step does not change when error happened
             const stepElement = secondStep.closest(".ant-steps-item");
             expect(stepElement).toHaveClass("ant-steps-item-active");
         });
     });
 });
 
-describe("ForgotPasswordPage Step 3", () => {
+describe("ForgotPasswordPage Step 3 - Set password", () => {
     // Following this to use useFakeTimers
     // https://github.com/testing-library/user-event/issues/1115#issuecomment-1565730917
     beforeEach(() => {
@@ -214,7 +248,7 @@ describe("ForgotPasswordPage Step 3", () => {
         });
         for (const index of securityQuestionsResponse.keys()) {
             const questionInput = screen.getByLabelText(
-                securityQuestionsResponse[index].content
+                securityQuestionsResponse[index].content,
             );
             await user.click(questionInput);
             await user.paste(securityAnswers[index]);
@@ -222,12 +256,17 @@ describe("ForgotPasswordPage Step 3", () => {
         await user.click(submitButton);
 
         await waitFor(() => {
+            // Assert API call and no validation error happened
             expect(requestValidationErrorTracker.getAll()).toEqual([]);
             expect(
-                requestCallTracker.get(REQUEST_KEYS.GEN_SECURITY_TOKEN_QA)
+                requestCallTracker.get(REQUEST_KEYS.GEN_SECURITY_TOKEN_QA),
             ).toBe(1);
+
+            // Assert that time countdown element show up with correct initial time
             const timeElement = screen.getByText(/(\d{2}):(\d{2})/);
             expect(timeElement.textContent).toMatch(/10:00/);
+
+            // Assert that password and confirm password inputs show up
             const passwordInput = screen.getByLabelText(/new password/i);
             const confirmPasswordInput =
                 screen.getByLabelText(/confirm password/i);
@@ -235,6 +274,8 @@ describe("ForgotPasswordPage Step 3", () => {
             expect(passwordInput).toHaveAttribute("type", "password");
             expect(confirmPasswordInput).toBeInTheDocument();
             expect(confirmPasswordInput).toHaveAttribute("type", "password");
+
+            // Assert that next step is active happened
             const stepElement = thirdStep.closest(".ant-steps-item");
             expect(stepElement).toHaveClass("ant-steps-item-active");
         });
@@ -265,17 +306,23 @@ describe("ForgotPasswordPage Step 3", () => {
         act(() => {
             vi.advanceTimersByTime(10 * 60 * 1000);
         });
-        // vi.advanceTimersByTime(10 * 60 * 1000);
         await user.click(submitButton);
 
         await waitFor(() => {
+            // Assert API call and no validation error happened
             expect(requestValidationErrorTracker.getAll()).toEqual([]);
             expect(requestCallTracker.get(REQUEST_KEYS.SET_PASSWORD)).toBe(1);
+
+            // Assert time countdown element show up with 00:00
             const timeElement = screen.getByText(/(\d{2}):(\d{2})/);
             expect(timeElement.textContent).toMatch(/00:00/);
+
+            // Assert error notification displayed with correct message
             expect(
-                screen.getByText(/Token 'scope' not found/i)
+                screen.getByText(/Token 'scope' not found/i),
             ).toBeInTheDocument();
+
+            // Assert that step does not change when error happened
             const stepElement = thirdStep.closest(".ant-steps-item");
             expect(stepElement).toHaveClass("ant-steps-item-active");
         });
@@ -297,11 +344,14 @@ describe("ForgotPasswordPage Step 3", () => {
         await user.click(submitButton);
 
         await waitFor(() => {
+            // Assert API call and no validation error happened
             expect(requestValidationErrorTracker.getAll()).toEqual([]);
             expect(requestCallTracker.get(REQUEST_KEYS.SET_PASSWORD)).toBe(1);
             expect(
-                requestCallTracker.get(REQUEST_KEYS.DELETE_SCOPE_TOKEN)
+                requestCallTracker.get(REQUEST_KEYS.DELETE_SCOPE_TOKEN),
             ).toBe(1);
+
+            // Assert that we are now in Login page
             const heading = screen.getByRole("heading", /login/i);
             expect(heading).toBeInTheDocument();
         });

@@ -11,9 +11,6 @@ import {
 } from "../../mocks/mockServer";
 import { ROUTES } from "../../../src/constants";
 import LoginPage from "../../../src/pages/LoginPage";
-import SetupAccountPage from "../../../src/pages/SetupAccountPage";
-import TestPage from "../../../src/pages/TestPage";
-import MainLayout from "../../../src/layouts/MainLayout";
 import MessageWrapper from "../../../src/components/MessageWrapper";
 
 function AppRouter() {
@@ -21,13 +18,6 @@ function AppRouter() {
         <MessageWrapper>
             <Routes>
                 <Route path={ROUTES.LOGIN} element={<LoginPage />} />
-                <Route element={<MainLayout />}>
-                    <Route path={ROUTES.TEST_MAIN} element={<TestPage />} />
-                    <Route
-                        path={ROUTES.SETUP_ACCOUNT}
-                        element={<SetupAccountPage />}
-                    />
-                </Route>
             </Routes>
         </MessageWrapper>
     );
@@ -45,6 +35,7 @@ describe("LoginPage navigation flow", () => {
             name: /username \/ password/i,
         });
 
+        // Assert elements display correctly
         expect(heading).toBeInTheDocument();
         expect(usernameInput).toBeInTheDocument();
         expect(usernameInput).toHaveAttribute("type", "text");
@@ -55,6 +46,22 @@ describe("LoginPage navigation flow", () => {
         expect(forgotPasswordLink).toHaveAttribute(
             "href",
             ROUTES.FORGOT_PASSWORD,
+        );
+    });
+
+    it("should contain redirect param in forgot password link when redirect param exists", async () => {
+        const externalUrl =
+            "http://course.eduscrum.local:5174/callback?redirect=/dashboard";
+
+        renderWithProviders(<AppRouter />, {
+            preloadedState: { auth: { user: accountData[1] } },
+            route: `${ROUTES.LOGIN}?redirect=${encodeURIComponent(externalUrl)}`,
+        });
+
+        const forgotPasswordLink = screen.getByText(/username \/ password/i);
+        expect(forgotPasswordLink).toHaveAttribute(
+            "href",
+            `${ROUTES.FORGOT_PASSWORD}?redirect=${encodeURIComponent(externalUrl)}`,
         );
     });
 
@@ -73,8 +80,11 @@ describe("LoginPage navigation flow", () => {
         await user.click(submitButton);
 
         await waitFor(() => {
+            // Assert API call and no validation error happened
             expect(requestValidationErrorTracker.getAll()).toEqual([]);
             expect(requestCallTracker.get(REQUEST_KEYS.LOGIN)).toBe(1);
+
+            // Assert error notification displayed
             expect(
                 screen.getByText(/invalid username or password/i),
             ).toBeInTheDocument();
@@ -96,10 +106,11 @@ describe("LoginPage navigation flow", () => {
         await user.click(submitButton);
 
         await waitFor(() => {
+            // Assert API call and no validation error happened
             expect(requestValidationErrorTracker.getAll()).toEqual([]);
             expect(requestCallTracker.get(REQUEST_KEYS.LOGIN)).toBe(1);
-            expect(screen.getByText(/Testing page/i)).toBeInTheDocument();
-            expect(screen.getByText(/activeUser/i)).toBeInTheDocument();
+
+            // Assert user data store in localStorage
             expect(JSON.parse(localStorage.getItem("user"))).toEqual(
                 accountData[1],
             );
@@ -122,16 +133,16 @@ describe("LoginPage navigation flow", () => {
         await user.click(submitButton);
 
         await waitFor(() => {
+            // Assert API call and no validation error happened
             expect(requestValidationErrorTracker.getAll()).toEqual([]);
             expect(requestCallTracker.get(REQUEST_KEYS.LOGIN)).toBe(1);
-            expect(
-                screen.getByText(/Welcome to setup account page/i),
-            ).toBeInTheDocument();
-            expect(screen.getByText(/newUser/i)).toBeInTheDocument();
+
+            // Assert user data store in localStorage
             expect(JSON.parse(localStorage.getItem("user"))).toEqual(
                 accountData[0],
             );
-            // Verify expiration timestamp matches within a safe 5 seconds window
+
+            // Assert expiration timestamp matches within a safe 5 seconds window
             expect(expectScopeTokenExp).toBeCloseTo(
                 Number.parseInt(localStorage.getItem("scopeTokenExp"), 10),
                 -4,
@@ -158,6 +169,7 @@ describe("LoginPage navigation flow", () => {
         await user.click(forgotPasswordLink);
 
         await waitFor(() => {
+            // Assert forgot password page displayed
             const heading = screen.getByRole("heading", /forgot password/i);
             expect(heading).toBeInTheDocument();
         });

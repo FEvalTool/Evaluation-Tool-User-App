@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { Flex, Typography } from "antd";
 
@@ -9,25 +9,19 @@ import { ROUTES } from "../constants";
 const { Text, Title, Link } = Typography;
 
 const LoginPage = () => {
-    const navigate = useNavigate();
-    const location = useLocation();
+    const [searchParams] = useSearchParams();
     const dispatch = useDispatch();
     const { loading } = useSelector((state) => state.auth);
 
-    const onSubmitLogin = async (values) => {
-        const resultAction = await dispatch(login(values)); // NOSONAR
-
-        if (login.fulfilled.match(resultAction)) {
-            const user = resultAction.payload.user;
-
-            if (user.first_time_setup) {
-                navigate(ROUTES.SETUP_ACCOUNT, { replace: true });
-            } else {
-                const from = location.state?.from?.pathname || ROUTES.TEST_MAIN;
-                navigate(from, { replace: true });
-            }
-        }
+    const onSubmitLogin = (values) => {
+        dispatch(login(values));
     };
+
+    // Build forgot password URL with redirect param preserved
+    const redirectUrl = searchParams.get("redirect");
+    const forgotPasswordUrl = redirectUrl
+        ? `${ROUTES.FORGOT_PASSWORD}?redirect=${encodeURIComponent(redirectUrl)}`
+        : ROUTES.FORGOT_PASSWORD;
 
     return (
         <>
@@ -37,7 +31,7 @@ const LoginPage = () => {
             <UsernamePasswordForm onSubmit={onSubmitLogin} disabled={loading} />
             <Flex gap="5px">
                 <Text>Forgot</Text>
-                <Link disabled={loading} href={ROUTES.FORGOT_PASSWORD}>
+                <Link disabled={loading} href={forgotPasswordUrl}>
                     Username / Password ?
                 </Link>
             </Flex>

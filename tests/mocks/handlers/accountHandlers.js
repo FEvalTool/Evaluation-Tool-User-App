@@ -13,11 +13,10 @@ const createAccountHandlers = ({
     requestValidationErrorTracker,
     REQUEST_KEYS,
 }) => [
-    http.get(`${API_URL}/security_questions`, async ({ request }) => {
+    http.get(`${API_URL}/security_questions/:username`, async ({ params }) => {
         requestCallTracker.track(REQUEST_KEYS.GET_USER_SECURITY_QA);
-        const url = new URL(request.url);
-        const params = Object.fromEntries(url.searchParams.entries());
-        if (params.username === "testuser") {
+        const { username } = params;
+        if (username === "testuser") {
             return HttpResponse.json(
                 {
                     messages: "Retrieve user security questions successful",
@@ -61,7 +60,7 @@ const createAccountHandlers = ({
             { status: 200 },
         );
     }),
-    http.post(`${API_URL}/security_questions`, async ({ request }) => {
+    http.post(`${API_URL}/security_qa`, async ({ request }) => {
         requestCallTracker.track(REQUEST_KEYS.SET_SECURITY_QA);
         const body = await request.json();
         const validation = setSecurityQASchema.safeParse(body);

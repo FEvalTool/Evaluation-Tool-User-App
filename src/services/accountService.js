@@ -2,8 +2,8 @@ import request from "./request";
 
 const API_URL = "/account";
 
-const getUserSecurityQuestions = (params) => {
-    return request.get(`${API_URL}/security_questions`, { params });
+const getUserSecurityQuestions = (username) => {
+    return request.get(`${API_URL}/security_questions/${username}`);
 };
 
 const getUserSetupStatus = () => {
@@ -17,7 +17,7 @@ const setPassword = (body) => {
 };
 
 const setSecurityQA = (body) => {
-    return request.post(`${API_URL}/security_questions/`, body, {
+    return request.post(`${API_URL}/security_qa/`, body, {
         withCredentials: true,
     });
 };

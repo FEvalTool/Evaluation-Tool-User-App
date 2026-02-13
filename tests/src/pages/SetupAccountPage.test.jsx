@@ -65,7 +65,7 @@ describe("SetupAccountPage - integration test flow", () => {
         });
 
         await waitFor(() => {
-            // Welcome page check
+            // Assert welcome page display correct title and description
             expect(
                 screen.getByText(/Welcome to setup account page/i),
             ).toBeInTheDocument();
@@ -73,7 +73,7 @@ describe("SetupAccountPage - integration test flow", () => {
                 screen.getByText(/To get started, choose a setup option/i),
             ).toBeInTheDocument();
 
-            // Status section check
+            // Assert status section display correct initial status
             const progressText = screen.getByText(/0%/);
             expect(progressText).toBeInTheDocument();
             const completeButton = screen.getByRole("button", {
@@ -82,7 +82,7 @@ describe("SetupAccountPage - integration test flow", () => {
             expect(completeButton).toBeInTheDocument();
             expect(completeButton).toBeDisabled();
 
-            // Menu items check
+            // Assert menu display correct items
             const passwordMenu = screen.getByText(/Setup Password/i);
             const securityQAMenu = screen.getByText(
                 /Setup Security Questions/i,
@@ -90,7 +90,7 @@ describe("SetupAccountPage - integration test flow", () => {
             expect(passwordMenu).toBeInTheDocument();
             expect(securityQAMenu).toBeInTheDocument();
 
-            // All menu items not selected check
+            // Assert menu items are not selected
             const passwordMenuItem = passwordMenu.closest(".ant-menu-item");
             const securityQAMenuItem = securityQAMenu.closest(".ant-menu-item");
             expect(passwordMenuItem).not.toHaveClass("ant-menu-item-selected");
@@ -98,7 +98,7 @@ describe("SetupAccountPage - integration test flow", () => {
                 "ant-menu-item-selected",
             );
 
-            // Menu items status check
+            // Assert menu items display correct initial badge status
             const passwordBadgeDot =
                 passwordMenuItem.querySelector(".ant-badge-dot");
             const securityQABadgeDot =
@@ -108,7 +108,7 @@ describe("SetupAccountPage - integration test flow", () => {
             expect(passwordBadgeDot).toHaveClass("ant-badge-status-error");
             expect(securityQABadgeDot).toHaveClass("ant-badge-status-error");
 
-            // Warning alert check
+            // Assert time countdown element show up with correct initial time
             const timeElement = screen.getByText(/(\d{2}):(\d{2})/);
             expect(timeElement.textContent).toMatch(/10:00/);
         });
@@ -166,16 +166,15 @@ describe("SetupAccountPage - integration test flow", () => {
         });
 
         await waitFor(() => {
-            // Status section check
+            // Assert status section display correct final status
             const progress = document.querySelector(".ant-progress");
             expect(progress).toHaveClass("ant-progress-status-success");
-
             const completeButton = screen.getByRole("button", {
                 name: /complete setup/i,
             });
             expect(completeButton).not.toBeDisabled();
 
-            // Status menu item check
+            // Assert menu items display correct final badge status
             const passwordMenuItem = screen
                 .getByText(/Setup Password/i)
                 .closest(".ant-menu-item");
@@ -188,7 +187,8 @@ describe("SetupAccountPage - integration test flow", () => {
             const securityQABadgeDot =
                 securityQAMenuItem.querySelector(".ant-badge-dot");
             expect(securityQABadgeDot).toHaveClass("ant-badge-status-success");
-            // Local storage check
+
+            // Assert user data store in localStorage with correct setup flags
             const userData = localStorage.getItem("user");
             expect(userData).not.toBeNull();
             const userDataObj = JSON.parse(userData);
@@ -224,7 +224,7 @@ describe("SetupAccountPage - integration test flow", () => {
         );
 
         await waitFor(() => {
-            // Complete notification check
+            // Assert complete notification display correct elements
             const notificationTitle = screen.getByText(
                 /Setup Account Complete!/i,
             );
@@ -238,7 +238,7 @@ describe("SetupAccountPage - integration test flow", () => {
             expect(notificationLoginButton).toBeInTheDocument();
             expect(notificationCancelButton).toBeInTheDocument();
 
-            // Menu disabled check
+            // Assert menu buttons are disabled when complete notification show up
             const completeButton = screen.getByRole("button", {
                 name: /complete setup/i,
             });
@@ -287,10 +287,12 @@ describe("SetupAccountPage - integration test flow", () => {
         );
 
         await waitFor(() => {
+            // Assert no API call check
             expect(
                 requestCallTracker.get(REQUEST_KEYS.DELETE_SCOPE_TOKEN),
             ).toBe(0);
-            // Menu disabled check
+
+            // Assert menu buttons are enabled again after complete notification closed
             const completeButton = screen.getByRole("button", {
                 name: /complete setup/i,
             });
@@ -345,12 +347,16 @@ describe("SetupAccountPage - integration test flow", () => {
         );
 
         await waitFor(() => {
+            // Assert API call check
             expect(
                 requestCallTracker.get(REQUEST_KEYS.DELETE_SCOPE_TOKEN),
             ).toBe(1);
+
+            // Assert redirected to Login page
             const heading = screen.getByRole("heading", /login/i);
             expect(heading).toBeInTheDocument();
-            // Check if user data is remove in local storage
+
+            // Assert user data is removed in local storage
             expect(localStorage.getItem("user")).toBe(null);
             expect(localStorage.getItem("scopeTokenExp")).toBe(null);
         });
@@ -387,12 +393,16 @@ describe("SetupAccountPage - integration test flow", () => {
         });
 
         await waitFor(() => {
+            // Assert API call check
             expect(
                 requestCallTracker.get(REQUEST_KEYS.DELETE_SCOPE_TOKEN),
             ).toBe(1);
+
+            // Assert redirected to Login page
             const heading = screen.getByRole("heading", /login/i);
             expect(heading).toBeInTheDocument();
-            // Check if user data is remove in local storage
+
+            // Assert user data is removed in local storage
             expect(localStorage.getItem("user")).toBe(null);
             expect(localStorage.getItem("scopeTokenExp")).toBe(null);
         });
@@ -412,6 +422,7 @@ describe("SetupAccountPage - Password setup flow", () => {
         );
 
         await waitFor(() => {
+            // Assert form elements display correctly
             const passwordInput = screen.getByLabelText(/new password/i);
             const confirmPasswordInput =
                 screen.getByLabelText(/confirm password/i);
@@ -451,18 +462,24 @@ describe("SetupAccountPage - Password setup flow", () => {
         await user.click(screen.getByRole("button", { name: /submit/i }));
 
         await waitFor(() => {
+            // Assert API call and no validation error happened
             expect(requestValidationErrorTracker.getAll()).toEqual([]);
             expect(requestCallTracker.get(REQUEST_KEYS.SET_PASSWORD)).toBe(1);
             expect(
                 requestCallTracker.get(REQUEST_KEYS.GET_ACCOUNT_SETUP_STATUS),
             ).toBe(1);
+
+            // Assert success result displayed
             expect(
                 screen.getByText(/Complete Setup Password/i),
             ).toBeInTheDocument();
-            // Status check
+
+            // Assert password menu items display correct final badge
             const passwordBadgeDot =
                 passwordMenuItem.querySelector(".ant-badge-dot");
             expect(passwordBadgeDot).toHaveClass("ant-badge-status-success");
+
+            // Assert progress updated correctly
             const progressText = screen.getByText(/50%/);
             expect(progressText).toBeInTheDocument();
         });
@@ -498,20 +515,28 @@ describe("SetupAccountPage - Password setup flow", () => {
         await user.click(screen.getByRole("button", { name: /submit/i }));
 
         await waitFor(() => {
+            // Assert API call and no validation error happened
             expect(requestValidationErrorTracker.getAll()).toEqual([]);
             expect(requestCallTracker.get(REQUEST_KEYS.SET_PASSWORD)).toBe(1);
             expect(
                 requestCallTracker.get(REQUEST_KEYS.GET_ACCOUNT_SETUP_STATUS),
             ).toBe(0);
+
+            // Assert time countdown element show up with 00:00
             const timeElement = screen.getByText(/(\d{2}):(\d{2})/);
             expect(timeElement.textContent).toMatch(/00:00/);
+
+            // Assert error notification displayed with correct message
             expect(
                 screen.getByText(/Token 'scope' not found/i),
             ).toBeInTheDocument();
-            // Status check
+
+            // Assert password menu items badge not updated
             const passwordBadgeDot =
                 passwordMenuItem.querySelector(".ant-badge-dot");
             expect(passwordBadgeDot).toHaveClass("ant-badge-status-error");
+
+            // Assert progress not updated
             const progressText = screen.getByText(/0%/);
             expect(progressText).toBeInTheDocument();
         });
@@ -533,17 +558,15 @@ describe("SetupAccountPage - Security Question Answer setup flow", () => {
         );
 
         await waitFor(() => {
+            // Assert that questions and answer inputs show up correctly
             for (let i = 1; i <= 3; i++) {
                 expect(screen.getByText(`Question ${i}`)).toBeInTheDocument();
                 expect(screen.getByText(`Answer ${i}`)).toBeInTheDocument();
             }
-
             const answerInputs = screen.getAllByRole("textbox");
             expect(answerInputs).toHaveLength(3);
-
             const placeholders = screen.getAllByText("Select a question");
             expect(placeholders).toHaveLength(3);
-
             const submitButton = screen.getByRole("button", {
                 name: /submit/i,
             });
@@ -577,6 +600,7 @@ describe("SetupAccountPage - Security Question Answer setup flow", () => {
         await user.click(screen.getByRole("button", { name: /submit/i }));
 
         await waitFor(() => {
+            // Assert API call and no validation error happened
             expect(requestValidationErrorTracker.getAll()).toEqual([]);
             expect(requestCallTracker.get(REQUEST_KEYS.SET_SECURITY_QA)).toBe(
                 1,
@@ -584,13 +608,18 @@ describe("SetupAccountPage - Security Question Answer setup flow", () => {
             expect(
                 requestCallTracker.get(REQUEST_KEYS.GET_ACCOUNT_SETUP_STATUS),
             ).toBe(1);
+
+            // Assert success result displayed
             expect(
                 screen.getByText(/Complete Setup Security Question/i),
             ).toBeInTheDocument();
-            // Status check
+
+            // Assert security question answer menu items display correct final badge
             const securityQABadgeDot =
                 securityQAMenuItem.querySelector(".ant-badge-dot");
             expect(securityQABadgeDot).toHaveClass("ant-badge-status-success");
+
+            // Assert progress updated correctly
             const progressText = screen.getByText(/50%/);
             expect(progressText).toBeInTheDocument();
         });
@@ -627,6 +656,7 @@ describe("SetupAccountPage - Security Question Answer setup flow", () => {
         await user.click(screen.getByRole("button", { name: /submit/i }));
 
         await waitFor(() => {
+            // Assert API call and no validation error happened
             expect(requestValidationErrorTracker.getAll()).toEqual([]);
             expect(requestCallTracker.get(REQUEST_KEYS.SET_SECURITY_QA)).toBe(
                 1,
@@ -634,15 +664,22 @@ describe("SetupAccountPage - Security Question Answer setup flow", () => {
             expect(
                 requestCallTracker.get(REQUEST_KEYS.GET_ACCOUNT_SETUP_STATUS),
             ).toBe(0);
+
+            // Assert time countdown element show up with 00:00
             const timeElement = screen.getByText(/(\d{2}):(\d{2})/);
             expect(timeElement.textContent).toMatch(/00:00/);
+
+            // Assert error notification displayed with correct message
             expect(
                 screen.getByText(/Token 'scope' not found/i),
             ).toBeInTheDocument();
-            // Status check
+
+            // Assert security question answer menu items badge not updated
             const securityQABadgeDot =
                 securityQAMenuItem.querySelector(".ant-badge-dot");
             expect(securityQABadgeDot).toHaveClass("ant-badge-status-error");
+
+            // Assert progress not updated
             const progressText = screen.getByText(/0%/);
             expect(progressText).toBeInTheDocument();
         });

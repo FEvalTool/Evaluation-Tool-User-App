@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { Flex, Steps, Typography } from "antd";
 
@@ -17,6 +17,7 @@ const { Link, Title } = Typography;
 
 const ForgotPasswordPage = () => {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const [username, setUsername] = useState("");
     const [current, setCurrent] = useState(0);
     const [questions, setQuestions] = useState([]);
@@ -24,10 +25,17 @@ const ForgotPasswordPage = () => {
     const [exp, setExp] = useState(0);
     const dispatch = useDispatch();
 
+    // Build login URL with redirect param preserved
+    const redirectUrl = searchParams.get("redirect");
+    const loginUrl = redirectUrl
+        ? `${ROUTES.LOGIN}?redirect=${encodeURIComponent(redirectUrl)}`
+        : ROUTES.LOGIN;
+
     const onSubmitUsernameForm = async (values) => {
         try {
             let response = await withFormSubmit(
-                () => accountService.getUserSecurityQuestions(values),
+                () =>
+                    accountService.getUserSecurityQuestions(values["username"]),
                 setLoading,
                 dispatch,
                 showMessage,
@@ -82,7 +90,7 @@ const ForgotPasswordPage = () => {
                 dispatch,
                 showMessage,
             );
-            navigate(ROUTES.LOGIN);
+            navigate(loginUrl);
         } catch (error) {
             console.debug(error); // NOSONAR intentionally ignoring the error
         }
@@ -130,7 +138,7 @@ const ForgotPasswordPage = () => {
                 <Title level={3} style={{ margin: "0px" }}>
                     Forgot Password
                 </Title>
-                <Link href={ROUTES.LOGIN} disabled={loading}>
+                <Link href={loginUrl} disabled={loading}>
                     Back to Login
                 </Link>{" "}
             </Flex>

@@ -48,10 +48,24 @@ export const appThemeConfig = {
     },
 };
 
-export const ssoLoginPrimaryColor = {
-    auth: "#7C3AED",
+export const ssoLoginConfigToken = {
+    auth: {
+        colorPrimary: "#7C3AED",
+        colorSuccess: "#059669",
+        colorWarning: "#F59E0B",
+        colorError: "#EF4444",
+        colorInfo: "#0891B2",
+    },
+    course: {
+        colorPrimary: "#0891B2",
+        colorSuccess: "#059669",
+        colorWarning: "#F59E0B",
+        colorError: "#DC2626",
+        colorInfo: "#2563EB",
+    },
 };
 
 export const ssoLoginBackgroundGradientColors = {
     auth: { colorStart: "#2563EB", colorEnd: "#7C3AED" },
+    course: { colorStart: "#22C55E", colorEnd: "#0891B2" },
 };
