@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { useRoutes } from "react-router-dom";
 
 import MessageWrapper from "./components/MessageWrapper.jsx";
+import PageLoading from "./components/PageLoading.jsx";
 import { routes } from "./routes.jsx";
 
 function AppRoutes() {
@@ -10,11 +11,11 @@ function AppRoutes() {
 
 function App() {
     return (
-        <Suspense fallback={<div>Loading...</div>}>
-            <MessageWrapper>
+        <MessageWrapper>
+            <Suspense fallback={<PageLoading />}>
                 <AppRoutes />
-            </MessageWrapper>
-        </Suspense>
+            </Suspense>
+        </MessageWrapper>
     );
 }
 
