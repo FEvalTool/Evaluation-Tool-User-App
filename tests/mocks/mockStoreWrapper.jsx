@@ -15,7 +15,7 @@ export function renderWithProviders(
         }),
         route = "/",
         ...renderOptions
-    } = {}
+    } = {},
 ) {
     function Wrapper({ children }) {
         return (

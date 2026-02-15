@@ -40,8 +40,8 @@ const UpdatePasswordForm = ({ onSubmit, disabled, shouldWarn }) => {
                             }
                             return Promise.reject(
                                 new Error(
-                                    "The new password that you entered do not match!"
-                                )
+                                    "The new password that you entered do not match!",
+                                ),
                             );
                         },
                     }),

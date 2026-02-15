@@ -7,7 +7,14 @@ import prettierPlugin from "eslint-plugin-prettier";
 import prettierConfig from "eslint-config-prettier";
 
 export default defineConfig([
-    globalIgnores(["dist", "node_modules", ".config/*", ".vite", ".vscode", "coverage"]),
+    globalIgnores([
+        "dist",
+        "node_modules",
+        ".config/*",
+        ".vite",
+        ".vscode",
+        "coverage",
+    ]),
     {
         files: ["**/*.{js,jsx}"],
         // 1. You MUST define the plugins and give them a nickname here
@@ -46,7 +53,7 @@ export default defineConfig([
                     singleQuote: false,
                     semi: true,
                     tabWidth: 4,
-                    trailingComma: "es5",
+                    trailingComma: "all",
                 },
             ],
         },

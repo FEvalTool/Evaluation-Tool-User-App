@@ -17,10 +17,10 @@ const genSecurityQAVerificationToken = (body) => {
 const verifyToken = (tokenType) => {
     return request.post(
         `${API_URL}/token/verify/`,
-        { "token_type": tokenType },
+        { token_type: tokenType },
         {
             withCredentials: true,
-        }
+        },
     );
 };
 
@@ -30,7 +30,7 @@ const refreshToken = () => {
         {},
         {
             withCredentials: true,
-        }
+        },
     );
 };
 
@@ -40,7 +40,7 @@ const deleteScopeToken = () => {
         {},
         {
             withCredentials: true,
-        }
+        },
     );
 };
 
@@ -57,7 +57,7 @@ const logout = () => {
         {},
         {
             withCredentials: true,
-        }
+        },
     );
 };
 

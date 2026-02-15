@@ -32,7 +32,7 @@ SecurityQuestionForm.propTypes = {
             id: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
                 .isRequired,
             content: PropTypes.string.isRequired,
-        })
+        }),
     ).isRequired,
     onSubmit: PropTypes.func.isRequired,
     disabled: PropTypes.bool,

@@ -17,8 +17,8 @@ describe("UpdateSecurityQAForm", async () => {
         await waitFor(() =>
             // Check that questions are fetched
             expect(
-                requestCallTracker.get(REQUEST_KEYS.GET_SECURITY_QUESTIONS)
-            ).toBe(1)
+                requestCallTracker.get(REQUEST_KEYS.GET_SECURITY_QUESTIONS),
+            ).toBe(1),
         );
         const user = userEvent.setup();
         const questionInputList = screen.getAllByRole("combobox");
@@ -41,7 +41,7 @@ describe("UpdateSecurityQAForm", async () => {
         expect(
             screen.queryByRole("option", {
                 name: "Where did your parent first met?",
-            })
+            }),
         ).not.toBeInTheDocument();
     });
 });
