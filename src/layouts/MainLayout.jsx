@@ -35,8 +35,10 @@ const MainLayout = () => {
                 }}
             >
                 <Flex align="center" gap={5}>
-                    <AppLogo fill="#7C3AED" size={50} />
-                    <Title level={3}>User Management Application</Title>
+                    <AppLogo fill="#7C3AED" size={45} />
+                    <Title level={4} style={{ margin: 0 }}>
+                        User Management System
+                    </Title>
                 </Flex>
                 <Flex gap={10}>
                     <Button
