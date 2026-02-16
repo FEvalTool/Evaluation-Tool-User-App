@@ -1,5 +1,6 @@
 import js from "@eslint/js";
 import globals from "globals";
+import vitest from "@vitest/eslint-plugin";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import { defineConfig, globalIgnores } from "eslint/config";
@@ -58,6 +59,22 @@ export default defineConfig([
             ],
         },
     },
-    // 4. prettierConfig must come LAST to override everything else
+    // 4. Lint config for unit test
+    {
+        files: ["**/*.test.{js,jsx}", "**/tests/setup.js"],
+        plugins: {
+            vitest,
+        },
+        languageOptions: {
+            globals: {
+                ...vitest.environments.env.globals, // This adds describe, it, expect, etc.
+            },
+        },
+        rules: {
+            ...vitest.configs.recommended.rules, // Optional: recommended vitest rules
+            "vitest/no-focused-tests": "warn",
+        },
+    },
+    // 5. prettierConfig must come LAST to override everything else
     prettierConfig,
 ]);
