@@ -73,6 +73,12 @@ export default defineConfig([
         rules: {
             ...vitest.configs.recommended.rules, // Optional: recommended vitest rules
             "vitest/no-focused-tests": "warn",
+            "vitest/expect-expect": [
+                "error",
+                {
+                    assertFunctionNames: ["expect", "render"],
+                },
+            ],
         },
     },
     // 5. prettierConfig must come LAST to override everything else

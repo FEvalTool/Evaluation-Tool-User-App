@@ -15,5 +15,5 @@ export default function useBeforeUnload(shouldWarn) {
 
         window.addEventListener("beforeunload", callback);
         return () => window.removeEventListener("beforeunload", callback);
-    }, []);
+    }, [shouldWarn]);
 }
