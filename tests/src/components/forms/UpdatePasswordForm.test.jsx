@@ -11,7 +11,7 @@ const renderForm = () => {
     render(
         <UpdatePasswordForm
             onSubmit={async (values) => {
-                const res1 = await accountService.setPassword(values);
+                await accountService.setPassword(values);
             }}
         />,
     );

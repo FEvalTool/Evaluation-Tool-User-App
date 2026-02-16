@@ -59,13 +59,13 @@ export const createResponseQueue = () => {
             const queue = queues.get(key);
             if (!queue || queue.length === 0) {
                 console.warn(
-                    `⚠️ No response queued for ${key}, returning default 200`
+                    `⚠️ No response queued for ${key}, returning default 200`,
                 );
                 return { status: 200, data: {} };
             }
             const response = queue.shift();
             console.log(
-                `✅ [${key}] Returning status ${response.status}, ${queue.length} remaining`
+                `✅ [${key}] Returning status ${response.status}, ${queue.length} remaining`,
             );
             return response;
         },

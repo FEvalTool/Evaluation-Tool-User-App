@@ -13,13 +13,13 @@ export const setupSecurityQA = async (user) => {
     for (let i = 0; i < securityAnswers.length; i++) {
         await user.click(questionInputList[i]);
         const questionOptions = await screen.findAllByText(
-            securityQuestionsResponse[i].content
+            securityQuestionsResponse[i].content,
         );
         await user.click(questionOptions[questionOptions.length - 1]);
         const answerInput = screen.getByLabelText(
-            new RegExp(`Answer ${i + 1}`, "i")
+            new RegExp(`Answer ${i + 1}`, "i"),
         );
-        await user.click(answerInput)
+        await user.click(answerInput);
         await user.paste(securityAnswers[i]);
     }
 };

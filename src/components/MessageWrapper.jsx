@@ -13,8 +13,7 @@ const NotificationDescription = ({ type, error, code }) => {
         <div>
             {error.length ? (
                 error.map((err, idx) => (
-                    // eslint-disable-next-line react/no-array-index-key
-                    <div key={`err_${idx}`}>
+                    <div key={`err_${err.field}_${idx}`}>
                         {err.field} : {err.message}
                     </div>
                 ))
@@ -49,7 +48,7 @@ const NotificationWrapper = ({ children }) => {
             });
             dispatch(clearMessage());
         }
-    }, [key]);
+    }, [key, code, dispatch, error, message, notificationApi, type]);
 
     return (
         <>

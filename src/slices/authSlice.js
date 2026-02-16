@@ -178,20 +178,20 @@ const authSlice = createSlice({
                     );
                 }
             })
-            .addCase(login.rejected, (state, action) => {
+            .addCase(login.rejected, (state) => {
                 state.loading = false;
             })
             .addCase(logout.pending, (state) => {
                 state.loading = true;
             })
-            .addCase(logout.fulfilled, (state, action) => {
+            .addCase(logout.fulfilled, (state) => {
                 state.loading = false;
                 state.user = {};
                 state.scopeTokenExp = 0;
                 localStorage.removeItem("user");
                 localStorage.removeItem("scopeTokenExp");
             })
-            .addCase(logout.rejected, (state, action) => {
+            .addCase(logout.rejected, (state) => {
                 state.loading = false;
             })
             .addCase(setupPasswordFirstTime.pending, (state) => {
@@ -205,7 +205,7 @@ const authSlice = createSlice({
                     JSON.stringify(action.payload.user),
                 );
             })
-            .addCase(setupPasswordFirstTime.rejected, (state, action) => {
+            .addCase(setupPasswordFirstTime.rejected, (state) => {
                 state.loading = false;
             })
             .addCase(setupSecurityQAFirstTime.pending, (state) => {
@@ -219,7 +219,7 @@ const authSlice = createSlice({
                     JSON.stringify(action.payload.user),
                 );
             })
-            .addCase(setupSecurityQAFirstTime.rejected, (state, action) => {
+            .addCase(setupSecurityQAFirstTime.rejected, (state) => {
                 state.loading = false;
             });
     },

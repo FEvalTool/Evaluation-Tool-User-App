@@ -26,7 +26,7 @@ const accountService = {
     getUserSecurityQuestions,
     getUserSetupStatus,
     setPassword,
-    setSecurityQA
+    setSecurityQA,
 };
 
 export default accountService;

@@ -6,7 +6,7 @@ const createHealthCheckHandlers = () => [
             {
                 messages: "Ok",
             },
-            { status: 200 }
+            { status: 200 },
         );
     }),
 ];

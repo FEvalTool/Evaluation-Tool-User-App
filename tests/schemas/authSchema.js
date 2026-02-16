@@ -20,4 +20,4 @@ export const genTokenQASchema = z.object({
 
 export const verifyTokenSchema = z.object({
     token_type: z.enum(["scope", "access"]),
-})
+});
