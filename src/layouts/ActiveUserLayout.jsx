@@ -1,5 +1,5 @@
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
-import { Layout } from "antd";
+import { Flex, Layout } from "antd";
 import { UserOutlined, QuestionOutlined } from "@ant-design/icons";
 
 import MenuContainer from "../components/MenuContainer";
@@ -37,7 +37,9 @@ const ActiveUserLayout = () => {
             />
             <Layout>
                 <Content>
-                    <Outlet />
+                    <Flex style={{ padding: "20px" }}>
+                        <Outlet />
+                    </Flex>
                 </Content>
             </Layout>
         </Layout>

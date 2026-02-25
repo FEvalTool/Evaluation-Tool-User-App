@@ -10,6 +10,14 @@ const getUserSetupStatus = () => {
     return request.get(`${API_URL}/setup_status`, { withCredentials: true });
 };
 
+const getUserInfo = () => {
+    return request.get(`${API_URL}/info`, { withCredentials: true });
+};
+
+const getUserAvatar = () => {
+    return request.get(`${API_URL}/avatar/get`, { withCredentials: true });
+};
+
 const setPassword = (body) => {
     return request.post(`${API_URL}/password/`, body, {
         withCredentials: true,
@@ -25,6 +33,8 @@ const setSecurityQA = (body) => {
 const accountService = {
     getUserSecurityQuestions,
     getUserSetupStatus,
+    getUserInfo,
+    getUserAvatar,
     setPassword,
     setSecurityQA,
 };
