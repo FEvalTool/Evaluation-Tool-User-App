@@ -1,0 +1,47 @@
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import { Layout } from "antd";
+import { UserOutlined, QuestionOutlined } from "@ant-design/icons";
+
+import MenuContainer from "../components/MenuContainer";
+
+const { Content } = Layout;
+
+const ActiveUserLayout = () => {
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    const menuItems = [
+        {
+            key: "/account-info",
+            icon: <UserOutlined />,
+            label: <>User info</>,
+        },
+        {
+            key: "/test",
+            icon: <QuestionOutlined />,
+            label: <>Test</>,
+        },
+    ];
+
+    const handleMenuClick = (e) => {
+        navigate(e.key);
+    };
+
+    return (
+        <Layout style={{ width: "100vw", height: "100vh" }}>
+            <MenuContainer
+                collapsible={true}
+                items={menuItems}
+                handleMenuClick={handleMenuClick}
+                current={location.pathname}
+            />
+            <Layout>
+                <Content>
+                    <Outlet />
+                </Content>
+            </Layout>
+        </Layout>
+    );
+};
+
+export default ActiveUserLayout;

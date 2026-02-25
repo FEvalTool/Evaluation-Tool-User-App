@@ -1,0 +1,35 @@
+import { useState, useEffect } from "react";
+import { Typography } from "antd";
+
+import { testAPI } from "../services/testService";
+
+const { Paragraph, Title } = Typography;
+
+const AccountInfoPage = () => {
+    const [message, setMessage] = useState();
+
+    useEffect(() => {
+        const getBackendMessage = async () => {
+            try {
+                const response = await testAPI();
+                setMessage(response.data.message);
+            } catch (error) {
+                console.log(error);
+            }
+        };
+
+        getBackendMessage();
+    }, []);
+
+    return (
+        <>
+            <Title>User Info page</Title>
+            <Paragraph>
+                This is a message from Backend (for development purposes)
+            </Paragraph>
+            <Paragraph>{message || "Something went wrong"}</Paragraph>
+        </>
+    );
+};
+
+export default AccountInfoPage;
