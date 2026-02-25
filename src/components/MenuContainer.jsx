@@ -3,12 +3,12 @@ import { Layout, Menu } from "antd";
 import PropTypes from "prop-types";
 const { Sider } = Layout;
 
-const MenuContainer = ({ collapsible, items, handleMenuClick, current }) => {
+const MenuContainer = ({ items, handleMenuClick, current }) => {
     const [collapsed, setCollapsed] = useState(false);
     return (
         <Sider
             width="25%"
-            collapsible={collapsible}
+            collapsible={true}
             collapsed={collapsed}
             onCollapse={(value) => setCollapsed(value)}
         >
@@ -24,7 +24,6 @@ const MenuContainer = ({ collapsible, items, handleMenuClick, current }) => {
 };
 
 MenuContainer.propTypes = {
-    collapsible: PropTypes.bool,
     items: PropTypes.arrayOf(
         // Defined most used properties according to
         // Ant Design Menu item structure

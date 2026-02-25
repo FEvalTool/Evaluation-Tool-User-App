@@ -32,13 +32,17 @@ export const appThemeConfig = {
             dividerColor: "#C7B8FF",
             groupTitleColor: "#312E81",
 
-            iconSize: 20,
+            iconSize: 32,
+            collapsedIconSize: 28,
             itemHeight: 60,
         },
         Layout: {
             headerBg: "#F3EFFF",
             headerColor: "#312E81",
             bodyBg: "#F7F4FF",
+            /* Sider collapse trigger */
+            triggerBg: "#D6C9FF",
+            triggerColor: "#3B168A",
         },
         Progress: {
             defaultColor: "#5B21B6",

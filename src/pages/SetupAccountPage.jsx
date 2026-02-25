@@ -204,7 +204,7 @@ const SetupAccountPage = () => {
     const menuItems = [
         {
             key: "progress",
-            icon: <Progress type="circle" percent={process} size={40} />,
+            icon: <Progress type="circle" percent={process} size={35} />,
             disabled: true,
             style: {
                 pointerEvents: "none",
@@ -238,8 +238,9 @@ const SetupAccountPage = () => {
                             : "error"
                     }
                     dot={true}
+                    style={{ transform: "translate(75%, 30%)" }}
                 >
-                    <PasswordIcon fill="#4B5563" />
+                    <PasswordIcon />
                 </Badge>
             ),
             label: (
@@ -260,8 +261,9 @@ const SetupAccountPage = () => {
                             : "error"
                     }
                     dot={true}
+                    style={{ transform: "translate(75%, 30%)" }}
                 >
-                    <SecurityQuestionIcon fill="#4B5563" />
+                    <SecurityQuestionIcon />
                 </Badge>
             ),
             label: (
@@ -276,7 +278,6 @@ const SetupAccountPage = () => {
         <Layout style={{ width: "100vw", height: "100vh" }}>
             {contextHolder}
             <MenuContainer
-                collapsible={false}
                 items={menuItems}
                 handleMenuClick={handleMenuClick}
                 current={current}
