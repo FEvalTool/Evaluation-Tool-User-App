@@ -18,6 +18,14 @@ const getUserAvatar = () => {
     return request.get(`${API_URL}/avatar/get`, { withCredentials: true });
 };
 
+const uploadUserAvatar = (formData) => {
+    const config = {
+        headers: { "content-type": "multipart/form-data" },
+        withCredentials: true,
+    };
+    return request.patch(`${API_URL}/avatar/upload/`, formData, config);
+};
+
 const setPassword = (body) => {
     return request.post(`${API_URL}/password/`, body, {
         withCredentials: true,
@@ -35,6 +43,7 @@ const accountService = {
     getUserSetupStatus,
     getUserInfo,
     getUserAvatar,
+    uploadUserAvatar,
     setPassword,
     setSecurityQA,
 };
