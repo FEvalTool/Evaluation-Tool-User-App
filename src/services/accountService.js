@@ -26,6 +26,12 @@ const uploadUserAvatar = (formData) => {
     return request.patch(`${API_URL}/avatar/upload/`, formData, config);
 };
 
+const deleteUserAvatar = () => {
+    return request.delete(`${API_URL}/avatar/delete/`, {
+        withCredentials: true,
+    });
+};
+
 const setPassword = (body) => {
     return request.post(`${API_URL}/password/`, body, {
         withCredentials: true,
@@ -44,6 +50,7 @@ const accountService = {
     getUserInfo,
     getUserAvatar,
     uploadUserAvatar,
+    deleteUserAvatar,
     setPassword,
     setSecurityQA,
 };

@@ -132,6 +132,23 @@ const AccountInfoPage = () => {
         }
     };
 
+    const handleDeleteAvatar = async () => {
+        try {
+            await accountService.deleteUserAvatar();
+            setAvatar(null);
+        } catch (error) {
+            const apiError = error.response?.data;
+            dispatch(
+                showMessage({
+                    type: "error",
+                    message: apiError?.message || "Something went wrong",
+                    code: apiError?.code,
+                    error: apiError?.error,
+                }),
+            );
+        }
+    };
+
     return loading ? (
         <Flex vertical={true} align="center" gap="large">
             <Flex vertical={true} align="center" gap="middle">
@@ -181,6 +198,7 @@ const AccountInfoPage = () => {
                         variant="solid"
                         color="danger"
                         icon={<DeleteOutlined />}
+                        onClick={handleDeleteAvatar}
                     >
                         Delete avatar
                     </Button>
