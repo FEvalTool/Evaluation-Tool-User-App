@@ -86,6 +86,9 @@ const AccountInfoPage = () => {
         fmData.append("image", file);
         try {
             const response = await accountService.uploadUserAvatar(fmData);
+            // Show local preview immediately — this take time to load data
+            const localPreview = URL.createObjectURL(file);
+            setAvatar(localPreview);
             onSuccess(response.data, file);
         } catch (error) {
             const apiError = error.response?.data;
