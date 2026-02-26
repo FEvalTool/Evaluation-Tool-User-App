@@ -1,6 +1,14 @@
 import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { Button, Divider, Flex, Descriptions, Avatar, Upload } from "antd";
+import {
+    Button,
+    Divider,
+    Flex,
+    Descriptions,
+    Avatar,
+    Upload,
+    Skeleton,
+} from "antd";
 import { UploadOutlined, DeleteOutlined } from "@ant-design/icons";
 
 import accountService from "../services/accountService";
@@ -8,18 +16,16 @@ import { showMessage } from "../slices/messageSlice";
 import { stringToColour } from "../utils/colorGenerator";
 
 const AccountInfoPage = () => {
+    const [loading, setLoading] = useState(true);
     const [username, setUsername] = useState("N/A");
     const [userInfo, setUserInfo] = useState([]);
     const [avatar, setAvatar] = useState(null);
     const dispatch = useDispatch();
 
     useEffect(() => {
-        console.log("AccountInfoPage useEffect");
         const getAccountInfo = async () => {
             try {
                 const userResponse = await accountService.getUserInfo();
-                const avatarResponse = await accountService.getUserAvatar();
-
                 const userData = userResponse.data.data;
                 setUsername(userData.username || "N/A");
                 const extractFields = [
@@ -37,17 +43,28 @@ const AccountInfoPage = () => {
                 }));
                 setUserInfo(result);
 
+                const avatarResponse = await accountService.getUserAvatar();
                 const avatarData = avatarResponse.data.data;
                 if (avatarData != null) {
                     setAvatar(avatarData);
                 }
             } catch (error) {
-                console.log(error);
+                const apiError = error.response?.data;
+                dispatch(
+                    showMessage({
+                        type: "error",
+                        message: apiError?.message || "Something went wrong",
+                        code: apiError?.code,
+                        error: apiError?.error,
+                    }),
+                );
+            } finally {
+                setLoading(false);
             }
         };
 
         getAccountInfo();
-    }, []);
+    }, [dispatch]);
 
     const beforeUpload = (file) => {
         const isLt2M = file.size / 1024 / 1024 < 2;
@@ -112,7 +129,19 @@ const AccountInfoPage = () => {
         }
     };
 
-    return (
+    return loading ? (
+        <Flex vertical={true} align="center" gap="large">
+            <Flex vertical={true} align="center" gap="middle">
+                <Skeleton.Avatar active={true} size={200} />
+                <Flex gap="small">
+                    <Skeleton.Button active={true} />
+                    <Skeleton.Button active={true} />
+                </Flex>
+            </Flex>
+            <Divider size="small" />
+            <Skeleton active={true} title={false} />
+        </Flex>
+    ) : (
         <Flex vertical={true} align="center" gap="large">
             <Flex vertical={true} align="center" gap="middle">
                 {avatar ? (
