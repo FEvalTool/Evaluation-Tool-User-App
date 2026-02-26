@@ -17,6 +17,8 @@ import { stringToColour } from "../utils/colorGenerator";
 
 const AccountInfoPage = () => {
     const [loading, setLoading] = useState(true);
+    const [isUpload, setIsUpload] = useState(false);
+    const [isDelete, setIsDelete] = useState(false);
     const [username, setUsername] = useState("N/A");
     const [userInfo, setUserInfo] = useState([]);
     const [avatar, setAvatar] = useState(null);
@@ -105,9 +107,14 @@ const AccountInfoPage = () => {
     const handleUploadChange = (info) => {
         const { file } = info;
 
+        if (file.status === "uploading") {
+            setIsUpload(true);
+        }
+
         if (file.status === "done") {
             const avatarData = file.response.data;
             setAvatar(avatarData);
+            setIsUpload(false);
             dispatch(
                 showMessage({
                     type: "success",
@@ -118,7 +125,7 @@ const AccountInfoPage = () => {
 
         if (file.status === "error") {
             const error = file.error;
-
+            setIsUpload(false);
             dispatch(
                 showMessage({
                     type: "error",
@@ -134,9 +141,12 @@ const AccountInfoPage = () => {
 
     const handleDeleteAvatar = async () => {
         try {
+            setIsDelete(true);
             await accountService.deleteUserAvatar();
             setAvatar(null);
+            setIsDelete(false);
         } catch (error) {
+            setIsDelete(false);
             const apiError = error.response?.data;
             dispatch(
                 showMessage({
@@ -192,13 +202,21 @@ const AccountInfoPage = () => {
                         onChange={handleUploadChange}
                         showUploadList={false}
                     >
-                        <Button icon={<UploadOutlined />}>Upload avatar</Button>
+                        <Button
+                            icon={<UploadOutlined />}
+                            disabled={isUpload || isDelete}
+                            loading={isUpload}
+                        >
+                            Upload avatar
+                        </Button>
                     </Upload>
                     <Button
                         variant="solid"
                         color="danger"
                         icon={<DeleteOutlined />}
                         onClick={handleDeleteAvatar}
+                        disabled={isUpload || isDelete}
+                        loading={isDelete}
                     >
                         Delete avatar
                     </Button>
