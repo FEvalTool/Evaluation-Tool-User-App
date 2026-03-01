@@ -160,7 +160,12 @@ const AccountInfoPage = () => {
     };
 
     return loading ? (
-        <Flex vertical={true} align="center" gap="large">
+        <Flex
+            vertical={true}
+            align="center"
+            gap="large"
+            style={{ width: "100%" }}
+        >
             <Flex vertical={true} align="center" gap="middle">
                 <Skeleton.Avatar active={true} size={200} />
                 <Flex gap="small">
