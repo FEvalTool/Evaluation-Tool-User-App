@@ -1,19 +1,11 @@
 import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
-import {
-    Button,
-    Divider,
-    Flex,
-    Descriptions,
-    Avatar,
-    Upload,
-    Skeleton,
-} from "antd";
+import { Button, Divider, Flex, Descriptions, Upload, Skeleton } from "antd";
 import { UploadOutlined, DeleteOutlined } from "@ant-design/icons";
 
 import accountService from "../services/accountService";
 import { showMessage } from "../slices/messageSlice";
-import { stringToColour } from "../utils/colorGenerator";
+import { AccountAvatar } from "../components/AccountAvatar";
 
 const AccountInfoPage = () => {
     const [loading, setLoading] = useState(true);
@@ -179,26 +171,11 @@ const AccountInfoPage = () => {
     ) : (
         <Flex vertical={true} align="center" gap="large">
             <Flex vertical={true} align="center" gap="middle">
-                {avatar ? (
-                    <Avatar
-                        size={200}
-                        shape="circle"
-                        alt="avatar"
-                        src={avatar}
-                    />
-                ) : (
-                    <Avatar
-                        style={{
-                            backgroundColor: stringToColour(username),
-                            verticalAlign: "middle",
-                            fontSize: "120px",
-                        }}
-                        gap={30}
-                        size={200}
-                    >
-                        {username}
-                    </Avatar>
-                )}
+                <AccountAvatar
+                    avatarSrc={avatar}
+                    username={username}
+                    size={200}
+                />
                 <Flex gap="small">
                     <Upload
                         accept="image/*"
