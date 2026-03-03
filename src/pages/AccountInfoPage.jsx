@@ -1,19 +1,20 @@
 import { useState, useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Button, Divider, Flex, Descriptions, Upload, Skeleton } from "antd";
 import { UploadOutlined, DeleteOutlined } from "@ant-design/icons";
 
 import accountService from "../services/accountService";
 import { showMessage } from "../slices/messageSlice";
+import { uploadAvatar, deleteAvatar } from "../slices/avatarSlice";
 import { AccountAvatar } from "../components/AccountAvatar";
 
 const AccountInfoPage = () => {
+    const { url: avatarUrl } = useSelector((state) => state.avatar);
     const [loading, setLoading] = useState(true);
     const [isUpload, setIsUpload] = useState(false);
     const [isDelete, setIsDelete] = useState(false);
     const [username, setUsername] = useState("N/A");
     const [userInfo, setUserInfo] = useState([]);
-    const [avatar, setAvatar] = useState(null);
     const dispatch = useDispatch();
 
     useEffect(() => {
@@ -36,18 +37,14 @@ const AccountInfoPage = () => {
                     children: userData[field.key] || "N/A",
                 }));
                 setUserInfo(result);
-
-                const avatarResponse = await accountService.getUserAvatar();
-                const avatarData = avatarResponse.data.data;
-                if (avatarData != null) {
-                    setAvatar(avatarData);
-                }
             } catch (error) {
                 const apiError = error.response?.data;
                 dispatch(
                     showMessage({
                         type: "error",
-                        message: apiError?.message || "Something went wrong",
+                        message:
+                            apiError?.message ||
+                            "Something went wrong when fetching user info",
                         code: apiError?.code,
                         error: apiError?.error,
                     }),
@@ -73,26 +70,14 @@ const AccountInfoPage = () => {
         return isLt2M;
     };
 
-    const uploadAvatar = async (options) => {
+    const uploadAvatarRequest = async (options) => {
         const { onSuccess, onError, file } = options;
 
-        const fmData = new FormData();
-        fmData.append("image", file);
         try {
-            const response = await accountService.uploadUserAvatar(fmData);
-            // Show local preview immediately — this take time to load data
-            const localPreview = URL.createObjectURL(file);
-            setAvatar(localPreview);
-            onSuccess(response.data, file);
+            const result = await dispatch(uploadAvatar(file)).unwrap();
+            onSuccess(result, file);
         } catch (error) {
-            const apiError = error.response?.data;
-            const wrappedError = new Error(
-                apiError?.message || "Something went wrong when upload avatar",
-            );
-
-            wrappedError.code = apiError?.code;
-            wrappedError.backend = apiError;
-            onError(wrappedError);
+            onError(error);
         }
     };
 
@@ -104,8 +89,6 @@ const AccountInfoPage = () => {
         }
 
         if (file.status === "done") {
-            const avatarData = file.response.data;
-            setAvatar(avatarData);
             setIsUpload(false);
             dispatch(
                 showMessage({
@@ -121,11 +104,9 @@ const AccountInfoPage = () => {
             dispatch(
                 showMessage({
                     type: "error",
-                    message:
-                        error?.message ||
-                        "Something went wrong when uploading avatar",
-                    code: error?.code,
-                    error: error?.backend?.error,
+                    message: error.message,
+                    code: error.code,
+                    error: error.backend?.error,
                 }),
             );
         }
@@ -134,18 +115,22 @@ const AccountInfoPage = () => {
     const handleDeleteAvatar = async () => {
         try {
             setIsDelete(true);
-            await accountService.deleteUserAvatar();
-            setAvatar(null);
+            await dispatch(deleteAvatar()).unwrap();
+            dispatch(
+                showMessage({
+                    type: "success",
+                    message: "Successfully delete avatar",
+                }),
+            );
             setIsDelete(false);
         } catch (error) {
             setIsDelete(false);
-            const apiError = error.response?.data;
             dispatch(
                 showMessage({
                     type: "error",
-                    message: apiError?.message || "Something went wrong",
-                    code: apiError?.code,
-                    error: apiError?.error,
+                    message: error.message,
+                    code: error.code,
+                    error: error.backend?.error,
                 }),
             );
         }
@@ -172,15 +157,16 @@ const AccountInfoPage = () => {
         <Flex vertical={true} align="center" gap="large">
             <Flex vertical={true} align="center" gap="middle">
                 <AccountAvatar
-                    avatarSrc={avatar}
+                    avatarSrc={avatarUrl}
                     username={username}
                     size={200}
+                    gap={30}
                 />
                 <Flex gap="small">
                     <Upload
                         accept="image/*"
                         beforeUpload={beforeUpload}
-                        customRequest={uploadAvatar}
+                        customRequest={uploadAvatarRequest}
                         onChange={handleUploadChange}
                         showUploadList={false}
                     >

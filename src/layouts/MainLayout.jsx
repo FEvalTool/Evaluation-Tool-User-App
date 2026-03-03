@@ -1,17 +1,27 @@
+import { useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { Avatar, Button, Flex, Layout, Typography } from "antd";
-import { UserOutlined, LogoutOutlined } from "@ant-design/icons";
+import { Button, Flex, Layout, Typography } from "antd";
+import { LogoutOutlined } from "@ant-design/icons";
 
 import { AppLogo } from "../components/CustomIcon";
+import { AccountAvatar } from "../components/AccountAvatar";
 import { logout } from "../slices/authSlice";
+import { fetchAvatar } from "../slices/avatarSlice";
 
 const { Header } = Layout;
 const { Text, Title } = Typography;
 
 const MainLayout = () => {
     const { user } = useSelector((state) => state.auth);
+    const { url: avatarUrl } = useSelector((state) => state.avatar);
     const dispatch = useDispatch();
+
+    useEffect(() => {
+        if (!avatarUrl) {
+            dispatch(fetchAvatar());
+        }
+    });
 
     const handleLogout = async () => {
         const payload = {
@@ -48,9 +58,9 @@ const MainLayout = () => {
                         aria-label="logout"
                     />
                     <Flex gap={5} align="center">
-                        <Avatar
-                            style={{ backgroundColor: "#87d068" }}
-                            icon={<UserOutlined />}
+                        <AccountAvatar
+                            avatarSrc={avatarUrl}
+                            username={user.username}
                         />
                         <Text>{user ? user.username : ""}</Text>
                     </Flex>
