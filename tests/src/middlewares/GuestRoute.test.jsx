@@ -41,6 +41,17 @@ describe("GuestRoute - Internal redierct", () => {
                 // Assert redirected to protected page
                 expect(screen.getByText("Dashboard")).toBeInTheDocument();
             },
+            /**
+             * (Optional) NOTE: Extended timeout needed here (10000ms vs default 1000ms)
+             *
+             * This test simulates the full token refresh flow which requires waiting for:
+             * - 3 sequential MSW mock API responses
+             * - Multiple state updates in useAuthValidator hook
+             * - React Router navigation component rendering
+             *
+             * Without the extended timeout, the test passes in normal runs but can fail
+             * inconsistently when debugging due to timing differences in React's rendering cycle.
+             */
             { timeout: 10000 },
         );
 
