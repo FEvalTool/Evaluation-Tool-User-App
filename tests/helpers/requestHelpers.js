@@ -8,6 +8,10 @@ export const REQUEST_KEYS = {
 
     GET_USER_SECURITY_QA: "account.getUserSecurityQuestions",
     GET_ACCOUNT_SETUP_STATUS: "account.getUserSetupStatus",
+    GET_ACCOUNT_INFO: "account.getAccountInfo",
+    GET_ACCOUNT_AVATAR: "account.getAccountAvatar",
+    UPLOAD_ACCOUNT_AVATAR: "account.uploadAccountAvatar",
+    DELETE_ACCOUNT_AVATAR: "account.deleteAccountAvatar",
     SET_SECURITY_QA: "account.setSecurityQA",
     SET_PASSWORD: "account.setPassword",
 

@@ -33,4 +33,5 @@ export const ROUTES = {
     TEST_AUTH: "/auth/test",
     TEST_MAIN: "/test",
     SETUP_ACCOUNT: "/setup-account",
+    ACCOUNT_INFO: "/account-info",
 };

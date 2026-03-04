@@ -3,6 +3,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import { render } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import authReducer from "../../src/slices/authSlice";
+import avatarReducer from "../../src/slices/avatarSlice";
 import messageReducer from "../../src/slices/messageSlice";
 
 export function renderWithProviders(
@@ -10,7 +11,11 @@ export function renderWithProviders(
     {
         preloadedState = {},
         store = configureStore({
-            reducer: { auth: authReducer, message: messageReducer },
+            reducer: {
+                auth: authReducer,
+                avatar: avatarReducer,
+                message: messageReducer,
+            },
             preloadedState,
         }),
         route = "/",
