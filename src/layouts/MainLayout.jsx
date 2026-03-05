@@ -60,9 +60,9 @@ const MainLayout = () => {
                     <Flex gap={5} align="center">
                         <AccountAvatar
                             avatarSrc={avatarUrl}
-                            username={user.username}
+                            username={user.username ? user.username : ""}
                         />
-                        <Text>{user ? user.username : ""}</Text>
+                        <Text>{user.username ? user.username : ""}</Text>
                     </Flex>
                 </Flex>
             </Header>
