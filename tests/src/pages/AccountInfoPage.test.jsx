@@ -1,4 +1,4 @@
-import { screen, waitFor } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Route, Routes } from "react-router-dom";
 
@@ -38,7 +38,7 @@ const largeFile = new File(
 
 describe("Account Info Page", () => {
     it("should render Account Info page correctly - full data case", async () => {
-        renderWithProviders(<AppRouter />, {
+        const { container } = renderWithProviders(<AppRouter />, {
             preloadedState: {
                 auth: { user: accountData[1] },
                 avatar: {
@@ -85,7 +85,9 @@ describe("Account Info Page", () => {
             expect(roleValue).toBeInTheDocument();
 
             // Assert avatar image content
-            const avatarImage = screen.getByAltText("avatar");
+            const avatarContainer = container.querySelector(".ant-avatar");
+            const avatar = within(avatarContainer);
+            const avatarImage = avatar.getByAltText("avatar");
 
             expect(avatarImage).toBeInTheDocument();
             expect(avatarImage).toHaveAttribute(
@@ -147,7 +149,7 @@ describe("Account Info Page", () => {
 
     it("should update avatar when upload avatar api run successfully", async () => {
         const user = userEvent.setup();
-        const { store } = renderWithProviders(<AppRouter />, {
+        const { store, container } = renderWithProviders(<AppRouter />, {
             preloadedState: {
                 auth: { user: accountData[1] },
                 avatar: {
@@ -178,7 +180,9 @@ describe("Account Info Page", () => {
             );
 
             // Assert image update
-            const avatarImage = screen.getByAltText("avatar");
+            const avatarContainer = container.querySelector(".ant-avatar");
+            const avatar = within(avatarContainer);
+            const avatarImage = avatar.getByAltText("avatar");
             expect(avatarImage).toHaveAttribute(
                 "src",
                 "https://avatars.githubusercontent.com/u/new_avatar",
@@ -193,7 +197,7 @@ describe("Account Info Page", () => {
         });
 
         const user = userEvent.setup();
-        const { store } = renderWithProviders(<AppRouter />, {
+        const { store, container } = renderWithProviders(<AppRouter />, {
             preloadedState: {
                 auth: { user: accountData[1] },
                 avatar: {
@@ -219,7 +223,9 @@ describe("Account Info Page", () => {
             ).toBe(1);
 
             // Assert image not update
-            const avatarImage = screen.getByAltText("avatar");
+            const avatarContainer = container.querySelector(".ant-avatar");
+            const avatar = within(avatarContainer);
+            const avatarImage = avatar.getByAltText("avatar");
             expect(avatarImage).toHaveAttribute(
                 "src",
                 "https://avatars.githubusercontent.com/u/avatar",
@@ -239,7 +245,7 @@ describe("Account Info Page", () => {
 
     it("should not update avatar when file invalid", async () => {
         const user = userEvent.setup();
-        renderWithProviders(<AppRouter />, {
+        const { container } = renderWithProviders(<AppRouter />, {
             preloadedState: {
                 auth: { user: accountData[1] },
                 avatar: {
@@ -265,7 +271,9 @@ describe("Account Info Page", () => {
             ).toBe(0);
 
             // Assert image not update
-            const avatarImage = screen.getByAltText("avatar");
+            const avatarContainer = container.querySelector(".ant-avatar");
+            const avatar = within(avatarContainer);
+            const avatarImage = avatar.getByAltText("avatar");
             expect(avatarImage).toHaveAttribute(
                 "src",
                 "https://avatars.githubusercontent.com/u/avatar",
@@ -279,7 +287,7 @@ describe("Account Info Page", () => {
     });
 
     it("should delete avatar when delete avatar api run successfully", async () => {
-        const { store } = renderWithProviders(<AppRouter />, {
+        const { store, container } = renderWithProviders(<AppRouter />, {
             preloadedState: {
                 auth: { user: accountData[1] },
                 avatar: {
@@ -300,9 +308,14 @@ describe("Account Info Page", () => {
                 requestCallTracker.get(REQUEST_KEYS.DELETE_ACCOUNT_AVATAR),
             ).toBe(1);
 
-            // Assert image is deleted
-            const avatarImage = screen.queryByAltText("avatar");
-            expect(avatarImage).not.toBeInTheDocument();
+            // Assert image is deleted (display default avatar)
+            const avatarContainer = container.querySelector(".ant-avatar");
+            expect(
+                within(avatarContainer).queryByAltText("avatar"),
+            ).not.toBeInTheDocument();
+            expect(
+                within(avatarContainer).getByText(accountData[1].username),
+            ).toBeInTheDocument();
 
             // Assert redux avatar state is set to null
             expect(store.getState().avatar.url).toBe(null);
@@ -315,7 +328,7 @@ describe("Account Info Page", () => {
             code: "error",
         });
 
-        const { store } = renderWithProviders(<AppRouter />, {
+        const { store, container } = renderWithProviders(<AppRouter />, {
             preloadedState: {
                 auth: { user: accountData[1] },
                 avatar: {
@@ -337,7 +350,9 @@ describe("Account Info Page", () => {
             ).toBe(1);
 
             // Assert image is deleted
-            const avatarImage = screen.queryByAltText("avatar");
+            const avatarContainer = container.querySelector(".ant-avatar");
+            const avatar = within(avatarContainer);
+            const avatarImage = avatar.getByAltText("avatar");
             expect(avatarImage).toHaveAttribute(
                 "src",
                 "https://avatars.githubusercontent.com/u/avatar",
