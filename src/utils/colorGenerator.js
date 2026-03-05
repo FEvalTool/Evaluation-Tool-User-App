@@ -7,7 +7,7 @@ export const stringToColour = (str) => {
     let hash = 5381;
     for (let i = 0; i < str.length; i++) {
         // We use a slightly more "aggressive" multiplier to spread the hash
-        hash = (hash << 5) + hash + str.charCodeAt(i);
+        hash = (hash << 5) + hash + str.codePointAt(i);
     }
 
     // 1. Calculate Hue (0 - 360)
