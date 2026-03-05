@@ -3,6 +3,7 @@ import { Flex, Layout } from "antd";
 import { UserOutlined, QuestionOutlined } from "@ant-design/icons";
 
 import MenuContainer from "../components/MenuContainer";
+import { ROUTES } from "../constants";
 
 const { Content } = Layout;
 
@@ -12,12 +13,12 @@ const ActiveUserLayout = () => {
 
     const menuItems = [
         {
-            key: "/account-info",
+            key: ROUTES.ACCOUNT_INFO,
             icon: <UserOutlined />,
             label: <>User info</>,
         },
         {
-            key: "/test",
+            key: ROUTES.TEST_MAIN,
             icon: <QuestionOutlined />,
             label: <>Test</>,
         },
