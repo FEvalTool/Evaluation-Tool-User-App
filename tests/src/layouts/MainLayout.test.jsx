@@ -1,4 +1,5 @@
-import { screen, waitFor } from "@testing-library/react";
+import { vi } from "vitest";
+import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Routes, Route } from "react-router-dom";
 
@@ -9,6 +10,11 @@ import { REQUEST_KEYS } from "../../helpers/requestHelpers";
 import { ROUTES } from "../../../src/constants";
 import MainLayout from "../../../src/layouts/MainLayout";
 import MessageWrapper from "../../../src/components/MessageWrapper";
+import { AppLogo } from "../../../src/components/CustomIcon";
+
+vi.mock("../../../src/components/CustomIcon", () => ({
+    AppLogo: vi.fn(() => null),
+}));
 
 function AppRouter() {
     return (
@@ -38,7 +44,63 @@ describe("MainLayout", () => {
         });
     });
 
-    it("should logout everything - new user", async () => {
+    it("should render layout correctly", async () => {
+        responseQueue.add(REQUEST_KEYS.GET_ACCOUNT_AVATAR, 200, {
+            message: "Successfully retreive account avatar",
+            data: "https://example.com/avatar.png",
+        });
+        const { container } = renderWithProviders(<AppRouter />, {
+            preloadedState: { auth: { user: accountData[0] } },
+            route: ROUTES.TEST_MAIN,
+        });
+
+        await waitFor(() => {
+            // Assert rendering correct logo
+            expect(AppLogo).toHaveBeenCalled();
+            // Assert rendering correct avatar
+            const avatarContainer = container.querySelector(".ant-avatar");
+            const avatar = within(avatarContainer);
+            const avatarImage = avatar.getByAltText("avatar");
+            expect(avatarImage).toBeInTheDocument();
+            expect(avatarImage).toHaveAttribute(
+                "src",
+                "https://example.com/avatar.png",
+            );
+            // Assert display correct user
+            expect(
+                screen.getByText(accountData[0].username),
+            ).toBeInTheDocument();
+            // Assert rendering logout button
+            const logoutButton = screen.getByRole("button", {
+                name: /logout/i,
+            });
+            expect(logoutButton).toBeInTheDocument();
+        });
+    });
+
+    it("should render default avatar when fetch avatar api run failed", async () => {
+        responseQueue.add(REQUEST_KEYS.GET_ACCOUNT_AVATAR, 500, {
+            message: "Unexpected error when fetch user avatar",
+            code: "error",
+        });
+        const { container } = renderWithProviders(<AppRouter />, {
+            preloadedState: { auth: { user: accountData[0] } },
+            route: ROUTES.TEST_MAIN,
+        });
+
+        await waitFor(() => {
+            // Assert rendering default avatar
+            const avatarContainer = container.querySelector(".ant-avatar");
+            expect(
+                within(avatarContainer).queryByAltText("avatar"),
+            ).not.toBeInTheDocument();
+            expect(
+                within(avatarContainer).getByText(accountData[0].username),
+            ).toBeInTheDocument();
+        });
+    });
+
+    it("should logout everything when user click logout button - new user case", async () => {
         localStorage.setItem("user", accountData[0]);
 
         renderWithProviders(<AppRouter />, {
@@ -64,7 +126,7 @@ describe("MainLayout", () => {
         });
     });
 
-    it("should logout everything - active user", async () => {
+    it("should logout everything when user click logout button - active user case", async () => {
         localStorage.setItem("user", accountData[1]);
 
         renderWithProviders(<AppRouter />, {
