@@ -4,7 +4,7 @@ import svgr from "vite-plugin-svgr";
 
 export default defineConfig({
     test: {
-        environment: "happy-dom",
+        environment: "jsdom",
         setupFiles: "tests/setup.js",
         provider: "v8",
         globals: true,
