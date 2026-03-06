@@ -2,6 +2,10 @@ import { vi } from "vitest";
 // Define here so that we don't need to define this in every test
 import "@testing-library/jest-dom/vitest";
 import { server, resetTrackers } from "./mocks/mockServer";
+import { Blob } from "blob-polyfill";
+
+// Polyfill Blob for test environment
+globalThis.Blob = Blob;
 
 // Mock API server
 // Start the mock server before all tests

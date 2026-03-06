@@ -2,6 +2,7 @@ import { lazy } from "react";
 
 import AuthLayout from "./layouts/AuthLayout";
 import MainLayout from "./layouts/MainLayout";
+import ActiveUserLayout from "./layouts/ActiveUserLayout";
 import ProtectedRoute from "./middlewares/ProtectedRoute";
 import GuestRoute from "./middlewares/GuestRoute";
 
@@ -9,6 +10,7 @@ import GuestRoute from "./middlewares/GuestRoute";
 const LoginPage = lazy(() => import("./pages/LoginPage"));
 const ForgotPasswordPage = lazy(() => import("./pages/ForgotPasswordPage"));
 const TestPage = lazy(() => import("./pages/TestPage"));
+const AccountInfoPage = lazy(() => import("./pages/AccountInfoPage"));
 const SetupAccountPage = lazy(() => import("./pages/SetupAccountPage"));
 
 export const routes = [
@@ -19,7 +21,16 @@ export const routes = [
             {
                 element: <MainLayout />,
                 children: [
-                    { path: "test", element: <TestPage /> },
+                    {
+                        element: <ActiveUserLayout />,
+                        children: [
+                            { path: "test", element: <TestPage /> },
+                            {
+                                path: "account-info",
+                                element: <AccountInfoPage />,
+                            },
+                        ],
+                    },
                     { path: "setup-account", element: <SetupAccountPage /> },
                 ],
             },
