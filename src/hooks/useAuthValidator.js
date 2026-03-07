@@ -8,11 +8,13 @@ export default function useAuthValidator() {
     const [isChecking, setIsChecking] = useState(true);
     const { user } = useSelector((state) => state.auth);
 
+    const userId = user?.id ?? null;
+    const tokenType = user.first_time_setup ? "scope" : "access";
+
     useEffect(() => {
-        const tokenType = user.first_time_setup ? "scope" : "access";
         const run = async () => {
             try {
-                await validate();
+                await authService.verifyToken(tokenType);
                 setIsValidate(true);
             } catch {
                 setIsValidate(false);
@@ -21,29 +23,8 @@ export default function useAuthValidator() {
             }
         };
 
-        const validate = async () => {
-            try {
-                await authService.verifyToken(tokenType);
-            } catch (error) {
-                if (
-                    (error?.response?.status === 401 ||
-                        error?.response?.status === 400) &&
-                    tokenType === "access"
-                ) {
-                    await refreshAccessToken();
-                } else {
-                    throw error;
-                }
-            }
-        };
-
-        const refreshAccessToken = async () => {
-            await authService.refreshToken();
-            await authService.verifyToken("access");
-        };
-
         run();
-    }, [user]);
+    }, [userId, tokenType]);
 
     return { isValidate, isChecking, user };
 }

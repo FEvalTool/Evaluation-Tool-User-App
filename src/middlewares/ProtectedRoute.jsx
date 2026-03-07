@@ -7,7 +7,6 @@ import PageLoading from "../components/PageLoading";
 const ProtectedRoute = () => {
     const { isValidate, isChecking, user } = useAuthValidator();
     const location = useLocation();
-
     if (isChecking) {
         return <PageLoading />;
     }

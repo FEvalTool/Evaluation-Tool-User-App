@@ -158,6 +158,15 @@ const authSlice = createSlice({
             : 0, // Expire time for scope token
         loading: false,
     },
+    reducers: {
+        clearAuth: (state) => {
+            state.loading = false;
+            state.user = {};
+            state.scopeTokenExp = 0;
+            localStorage.removeItem("user");
+            localStorage.removeItem("scopeTokenExp");
+        },
+    },
     extraReducers: (builder) => {
         builder
             .addCase(login.pending, (state) => {
@@ -224,5 +233,7 @@ const authSlice = createSlice({
             });
     },
 });
+
+export const { clearAuth } = authSlice.actions;
 
 export default authSlice.reducer;
