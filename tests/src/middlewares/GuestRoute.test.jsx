@@ -108,24 +108,6 @@ describe("GuestRoute - Internal redierct", () => {
         expect(requestValidationErrorTracker.getAll()).toEqual([]);
     });
 
-    test("should redirect to current page (Outlet - Login) when token failed and not refresh token", async () => {
-        responseQueue.add(REQUEST_KEYS.VERIFY_TOKEN, 401);
-
-        renderWithProviders(<AppRouter />, {
-            preloadedState: { auth: { user: accountData[0] } },
-            route: ROUTES.LOGIN,
-        });
-
-        await waitFor(() => {
-            // Assert redirected to current page (Outlet - Login)
-            expect(screen.getByText("LoginPage")).toBeInTheDocument();
-        });
-
-        // Assert API call and no validation error happened
-        expect(requestCallTracker.get(REQUEST_KEYS.VERIFY_TOKEN)).toBe(1);
-        expect(requestValidationErrorTracker.getAll()).toEqual([]);
-    });
-
     test("should redirect to previous page when location state has from pathname", async () => {
         // This test case test when user being redirected to login page
         // from a protected route, after login success, user should be

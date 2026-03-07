@@ -5,12 +5,14 @@ const API_URL = "/auth";
 const login = (body) => {
     return request.post(`${API_URL}/login/`, body, {
         withCredentials: true,
+        _skipInterceptor: true,
     });
 };
 
 const genSecurityQAVerificationToken = (body) => {
     return request.post(`${API_URL}/token/qa/`, body, {
         withCredentials: true,
+        _skipInterceptor: true,
     });
 };
 

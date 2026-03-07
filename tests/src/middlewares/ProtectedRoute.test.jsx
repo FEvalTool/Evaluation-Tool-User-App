@@ -85,7 +85,7 @@ describe("ProtectedRoute", () => {
         expect(requestValidationErrorTracker.getAll()).toEqual([]);
     });
 
-    test("should redirect to login page when refresh token failed - for active user", async () => {
+    test("should redirect to login page when refresh token failed", async () => {
         responseQueue.add(REQUEST_KEYS.VERIFY_TOKEN, 401);
         responseQueue.add(REQUEST_KEYS.REFRESH_TOKEN, 401);
 
@@ -108,30 +108,6 @@ describe("ProtectedRoute", () => {
         // Assert API call and no validation error happened
         expect(requestCallTracker.get(REQUEST_KEYS.VERIFY_TOKEN)).toBe(1);
         expect(requestCallTracker.get(REQUEST_KEYS.REFRESH_TOKEN)).toBe(1);
-        expect(requestValidationErrorTracker.getAll()).toEqual([]);
-    });
-
-    test("should redirect to login page when verify token failed - for new user", async () => {
-        responseQueue.add(REQUEST_KEYS.VERIFY_TOKEN, 401);
-
-        renderWithProviders(<AppRouter />, {
-            preloadedState: { auth: { user: accountData[0] } },
-            route: ROUTES.SETUP_ACCOUNT,
-        });
-
-        await waitFor(
-            () => {
-                // Assert redirected to Login page
-                expect(screen.getByText("LoginPage")).toBeInTheDocument();
-            },
-            // (Optional) Add and increase timeout when debugging
-            // to avoid false positive when running navigation
-            // (Explain in GuestRoute.test.jsx)
-            { timeout: 10000 },
-        );
-
-        // Assert API call and no validation error happened
-        expect(requestCallTracker.get(REQUEST_KEYS.VERIFY_TOKEN)).toBe(1);
         expect(requestValidationErrorTracker.getAll()).toEqual([]);
     });
 

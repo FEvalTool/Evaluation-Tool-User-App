@@ -35,12 +35,14 @@ const deleteUserAvatar = () => {
 const setPassword = (body) => {
     return request.post(`${API_URL}/password/`, body, {
         withCredentials: true,
+        _skipInterceptor: true,
     });
 };
 
 const setSecurityQA = (body) => {
     return request.post(`${API_URL}/security_qa/`, body, {
         withCredentials: true,
+        _skipInterceptor: true,
     });
 };
 

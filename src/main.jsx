@@ -8,6 +8,10 @@ import "./assets/global.css";
 import store from "./slices/store.js";
 import { appThemeConfig } from "./configs/themeConfig.js";
 
+// Dependency injection
+import { injectDispatch } from "./services/request";
+injectDispatch(store.dispatch);
+
 createRoot(document.getElementById("root")).render(
     <StrictMode>
         <Provider store={store}>
