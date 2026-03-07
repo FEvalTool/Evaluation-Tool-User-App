@@ -28,7 +28,7 @@ request.interceptors.response.use(
         const originalRequest = error.config;
 
         if (originalRequest._skipInterceptor) {
-            return Promise.reject(error);
+            throw error;
         }
 
         if (error?.response?.status === 401 && !originalRequest._retry) {
@@ -55,13 +55,13 @@ request.interceptors.response.use(
                 processQueue(refreshError);
                 // Use injected dispatch
                 if (_dispatch) _dispatch(clearAuth());
-                return Promise.reject(refreshError);
+                throw refreshError;
             } finally {
                 isRefreshing = false;
             }
         }
 
-        return Promise.reject(error);
+        throw error;
     },
 );
 
